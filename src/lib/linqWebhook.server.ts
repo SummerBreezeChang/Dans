@@ -26,7 +26,7 @@ function extract(payload: any): { from: string | null; text: string } {
 }
 
 export async function handleLinqWebhook(request: Request): Promise<Response> {
-  const secret = process.env['LINQ_WEBHOOK_SECRET'];
+  const secret = process.env['WEBHOOK_SIGNING_SECRET'] ?? process.env['LINQ_WEBHOOK_SECRET'];
   if (!secret) return Response.json({ error: 'Webhook is not configured' }, { status: 503 });
   const body = await request.text();
   if (body.length > 100000) return Response.json({ error: 'Too large' }, { status: 413 });
