@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Care demo architecture
+- Keep synthetic records, persisted React context state, checklist generation, and notification preview triggers in `src/lib/careStore.ts`; the prototype must not access real medical records or send messages.
+- Keep pure availability, workload-cap, decline, and reschedule algorithms in `src/lib/assignmentEngine.ts` so production adapters can replace the demo without UI rewrites.
+- Build content views as independent TanStack routes under the shared care shell; use semantic tokens in the global stylesheet for consistent desktop and mobile presentation.
+- Role switching is a prototype perspective control, not authentication; only primary caregivers edit the care plan, only patients control consent and wellness sharing, and refusal notes remain primary-only in the UI.

@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BoardRouteImport } from './routes/board'
+import { Route as ChecklistRouteImport } from './routes/checklist'
+import { Route as CircleRouteImport } from './routes/circle'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ScheduleRouteImport } from './routes/schedule'
+import { Route as WearablesRouteImport } from './routes/wearables'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoardRoute = BoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChecklistRoute = ChecklistRouteImport.update({
+  id: '/checklist',
+  path: '/checklist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CircleRoute = CircleRouteImport.update({
+  id: '/circle',
+  path: '/circle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScheduleRoute = ScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WearablesRoute = WearablesRouteImport.update({
+  id: '/wearables',
+  path: '/wearables',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/board': typeof BoardRoute
+  '/checklist': typeof ChecklistRoute
+  '/circle': typeof CircleRoute
+  '/onboarding': typeof OnboardingRoute
+  '/schedule': typeof ScheduleRoute
+  '/wearables': typeof WearablesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/board': typeof BoardRoute
+  '/checklist': typeof ChecklistRoute
+  '/circle': typeof CircleRoute
+  '/onboarding': typeof OnboardingRoute
+  '/schedule': typeof ScheduleRoute
+  '/wearables': typeof WearablesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/board': typeof BoardRoute
+  '/checklist': typeof ChecklistRoute
+  '/circle': typeof CircleRoute
+  '/onboarding': typeof OnboardingRoute
+  '/schedule': typeof ScheduleRoute
+  '/wearables': typeof WearablesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/board'
+    | '/checklist'
+    | '/circle'
+    | '/onboarding'
+    | '/schedule'
+    | '/wearables'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/board'
+    | '/checklist'
+    | '/circle'
+    | '/onboarding'
+    | '/schedule'
+    | '/wearables'
+  id:
+    | '__root__'
+    | '/'
+    | '/board'
+    | '/checklist'
+    | '/circle'
+    | '/onboarding'
+    | '/schedule'
+    | '/wearables'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BoardRoute: typeof BoardRoute
+  ChecklistRoute: typeof ChecklistRoute
+  CircleRoute: typeof CircleRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ScheduleRoute: typeof ScheduleRoute
+  WearablesRoute: typeof WearablesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/board': {
+      id: '/board'
+      path: '/board'
+      fullPath: '/board'
+      preLoaderRoute: typeof BoardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checklist': {
+      id: '/checklist'
+      path: '/checklist'
+      fullPath: '/checklist'
+      preLoaderRoute: typeof ChecklistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/circle': {
+      id: '/circle'
+      path: '/circle'
+      fullPath: '/circle'
+      preLoaderRoute: typeof CircleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schedule': {
+      id: '/schedule'
+      path: '/schedule'
+      fullPath: '/schedule'
+      preLoaderRoute: typeof ScheduleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wearables': {
+      id: '/wearables'
+      path: '/wearables'
+      fullPath: '/wearables'
+      preLoaderRoute: typeof WearablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BoardRoute: BoardRoute,
+  ChecklistRoute: ChecklistRoute,
+  CircleRoute: CircleRoute,
+  OnboardingRoute: OnboardingRoute,
+  ScheduleRoute: ScheduleRoute,
+  WearablesRoute: WearablesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
