@@ -32,7 +32,13 @@ export function CareProvider({children}:{children:ReactNode}) {
  const [loaded,setLoaded] = useState(false);
  useEffect(()=> {try {const saved=localStorage.getItem('firstcare-demo-v1'); if(saved) {const parsed=JSON.parse(saved); if(Array.isArray(parsed.tasks)&&Array.isArray(parsed.people)&&parsed.sharing) setState(parsed);}} catch { /* Demo can run without browser storage. */ } setLoaded(true);},[]);
  useEffect(()=>{if(loaded) localStorage.setItem('firstcare-demo-v1',JSON.stringify(state));},[state,loaded]);
- const update=(fn:(s:CareState)=>CareState)=>setState(fn);
+  const [liveSms,setLiveState]=useState(true);
+  const owners=useRef<Record<string,string|undefined>|null>(null);
+  const remoteSeen=useRef(new Set<string>());
+  useEffect(()=>{if(!loaded)return;let alive=true;const pull=async()=>{try{const r=await getCareSync();if(!alive)return;setLiveState(r.liveSms);setState(s=>{const tasks=s.tasks.map(t=>{const row=r.tasks.find(x=>x.id===t.id);if(!row||(row.owner??undefined)===t.owner&&row.status===t.status)return t;return {...t,owner:row.owner??undefined,status:row.status as CareTask['status'],declinedBy:row.declined_by,updated:true};});const fresh=r.activity.filter(a=>!remoteSeen.current.has(a.id)&&!s.activities.some(x=>x.id===a.id));fresh.forEach(a=>remoteSeen.current.add(a.id));owners.current=Object.fromEntries(tasks.map(t=>[t.id,t.owner]));return {...s,tasks,activities:[...fresh.map(a=>({id:a.id,title:a.title,detail:a.detail,time:new Date(a.created_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})})),...s.activities]};});}catch{/* keep local demo */}};pull();const t=setInterval(pull,10000);return()=>{alive=false;clearInterval(t);};},[loaded]);
+  useEffect(()=>{if(!loaded)return;const now=Object.fromEntries(state.tasks.map(t=>[t.id,t.owner]));const prev=owners.current;owners.current=now;if(!prev)return;const changes=state.tasks.filter(t=>t.published&&prev[t.id]!==t.owner).map(t=>({id:t.id,owner:t.owner??null,status:t.status,event:(prev[t.id]?'reassigned':'assigned') as 'assigned'|'reassigned'}));if(changes.length)syncAssignments({data:{changes}}).catch(()=>{});},[state.tasks,loaded]);
+  const setLive=(v:boolean)=>{setLiveState(v);setLiveSms({data:{live:v}}).catch(()=>{});};
+  const update=(fn:(s:CareState)=>CareState)=>setState(fn);
  const activity=(title:string,detail:string):Activity=>({id:crypto.randomUUID(),title,detail,time:'Just now'});
  const addActivity=(title:string,detail:string)=>update(s=>({...s,activities:[activity(title,detail),...s.activities]}));
  const autoAssign=()=>update(s=>({...s,tasks:assignTasks(s.tasks,s.people),activities:[activity('Tasks balanced across your circle','Available caregivers received unclaimed tasks.'),...s.activities]}));

@@ -43,7 +43,7 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
 
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const [{ data: cg }, { data: rows }] = await Promise.all([db.from('care_caregivers').select('*'), db.from('care_tasks').select('*')]);
-  const people: Caregiver[] = (cg ?? []).map(c => ({ id: c.id, name: c.name, initials: '', role: 'Secondary Caregiver', visibility: 'Task-only', cap: c.cap, availability: c.availability, contact: c.phone ?? undefined }));
+  const people: Caregiver[] = (cg ?? []).map(c => ({ id: c.id, name: c.name, initials: '', role: 'Secondary Caregiver', visibility: 'Task-only', cap: c.cap, availability: c.availability, ...(c.phone ? { contact: c.phone } : {}) }));
   const tasks: CareTask[] = (rows ?? []).map(t => ({ id: t.id, title: t.title, category: 'At-Home Care', day: t.day, slot: t.slot as Slot, time: t.time, duration: 0, owner: t.owner ?? undefined, status: t.status as CareTask['status'], approved: true, published: t.published, notes: '', declinedBy: t.declined_by }));
   const sender = people.find(p => toE164(p.contact) === from);
   if (!sender) return Response.json({ ignored: true });
