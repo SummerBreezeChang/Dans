@@ -7,3 +7,8 @@
 - [x] Connect Cloud and securely store LINQ settings.
 - [x] Add a protected send-care-sms server endpoint without connecting demo triggers.
 - [x] Test authentication, validation, and LINQ request handling without sending live texts.
+
+## Wellness monitoring
+- [ ] Interactive 7/30-day vitals, scenarios, privacy-aware trend analysis.
+- [ ] Deduplicated board/activity escalation and protected Linq alerts.
+- [ ] Test detection, privacy, escalation, and desktop/mobile flows.

@@ -6,7 +6,7 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 export const getCareSync = createServerFn({ method: 'GET' }).handler(async () => {
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const [t, a, s] = await Promise.all([
-    db.from('care_tasks').select('id,owner,status,declined_by,updated_at'),
+    db.from('care_tasks').select('id,title,day,slot,time,published,owner,status,declined_by,updated_at'),
     db.from('care_activity').select('id,title,detail,created_at').order('created_at', { ascending: false }).limit(20),
     db.from('care_settings').select('live_sms').eq('id', 1).maybeSingle(),
   ]);
@@ -23,7 +23,7 @@ export const setLiveSms = createServerFn({ method: 'POST' })
 
 const changeSchema = z.object({
   changes: z.array(z.object({
-    id: z.string().regex(/^task-\d{1,4}$/),
+    id: z.string().regex(/^(task-\d{1,4}|wellness-(sleep|cardio))$/),
     owner: z.string().max(80).nullable(),
     status: z.enum(['unclaimed', 'assigned', 'accepted', 'done']),
     event: z.enum(['assigned', 'reassigned']),

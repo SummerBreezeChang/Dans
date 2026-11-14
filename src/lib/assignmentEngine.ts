@@ -2,7 +2,7 @@ export type Slot = 'Morning' | 'Afternoon' | 'Evening';
 export type Role = 'Patient' | 'Primary Caregiver' | 'Secondary Caregiver';
 export type Category = 'Appointment Management' | 'Follow-ups' | 'At-Home Care' | 'Meal Planning' | 'Medicine Pickup' | 'Rides to & from Appointments' | 'Emergency Contacts';
 export interface Caregiver { id: string; name: string; initials: string; role: Role; visibility: 'Task-only' | 'Full medical details'; cap: number; availability: string[]; contact?: string }
-export interface CareTask { id: string; title: string; category: Category; day: number; slot: Slot; time: string; duration: number; appointment?: string | undefined; owner?: string | undefined; status: 'unclaimed' | 'assigned' | 'accepted' | 'done'; approved: boolean; published: boolean; updated?: boolean; notes: string; declinedBy?: string[] }
+export interface CareTask { id: string; title: string; category: Category; day: number; slot: Slot; time: string; duration: number; appointment?: string | undefined; owner?: string | undefined; status: 'unclaimed' | 'assigned' | 'accepted' | 'done'; approved: boolean; published: boolean; updated?: boolean; notes: string; declinedBy?: string[]; priority?: 'high' | 'urgent' }
 export const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const slots: Slot[] = ['Morning', 'Afternoon', 'Evening'];
 export function canAssign(person: Caregiver, task: CareTask, tasks: CareTask[]) {

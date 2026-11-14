@@ -1,6 +1,75 @@
-import {Moon,Footprints,Heart,Watch,Activity,ShieldCheck} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Switch} from '@/components/ui/switch';
-import {PageHeading,Disclaimer} from './shared';
-import {useCare} from '@/lib/careStore';
-export function Wearables(){const {state,update}=useCare();const metrics=[{name:'Sleep',value:'6.4',unit:'hrs / night',note:'1.1 hrs below weekly baseline',icon:Moon,points:'0,35 40,25 80,40 120,48 160,35 200,65 240,57',style:''},{name:'Steps',value:'3,420',unit:'steps / day',note:'Gentle movement, at Maya’s pace',icon:Footprints,points:'0,60 40,32 80,43 120,20 160,50 200,65 240,40',style:'chart-blue'},{name:'Heart rate',value:'72',unit:'bpm resting',note:'Baseline: 66 bpm · +6 bpm',icon:Heart,points:'0,60 40,62 80,55 120,40 160,48 200,28 240,32',style:'chart-rose'}];return <><PageHeading eyebrow="A LOOK AT WHAT’S NEXT · VERSION 2 PREVIEW" title="A gentler picture of well-being." description="Small signals. Thoughtful check-ins. Always on Maya’s terms."/><div className="notice"><Activity size={20}/><div><strong>Version 2 Preview · Mock data</strong><div>Not a medical device. Trends are illustrative, not diagnoses or treatment recommendations.</div></div></div><div className="device-row"><span><Watch size={17}/> Apple Watch <span className="status-badge status-accepted">Preview</span></span><span><Activity size={17}/> Oura Ring <span className="status-badge status-accepted">Preview</span></span></div><div className="wellness-grid">{metrics.map(m=><section className="wellness-metric" key={m.name}><h3>{m.name}<m.icon size={16} className="text-primary"/></h3><div className="wellness-number">{state.role==='Patient'||state.sharing[m.name]?m.value:'—'}<span>{m.unit}</span></div><div className="trend-note">{state.role==='Patient'||state.sharing[m.name]?m.note:'Not shared by Maya'}</div>{(state.role==='Patient'||state.sharing[m.name])&&<><svg className="mini-chart" viewBox="0 0 240 90" role="img" aria-label={`Mock weekly ${m.name} trend`}><line x1="0" y1="50" x2="240" y2="50"/><polyline points={m.points} className={m.style}/></svg><div className="chart-days">{['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=><span key={d}>{d}</span>)}</div></>}</section>)}</div><div className="two-column"><section className="simulator !mt-0"><div className="flex gap-2 items-center"><Heart size={21}/><h2>A thoughtful check-in</h2></div><p>Mock sleep trends suggest Maya might appreciate a little extra support. A simple “How are you feeling?” can go a long way.</p><span className="visibility-badge">Suggested Check-in Task</span><h3 className="text-sm font-bold mt-4">Check in with Maya this evening</h3><p>20 minutes · A conversation, not a clinical assessment.</p><Button variant="outline" disabled>Available in version 2</Button></section><section className="surface"><h2 className="flex items-center gap-2"><ShieldCheck size={18}/> Maya decides what to share</h2><p>Wellness sharing is separate from hospital consent.</p>{metrics.map(m=><div className="toggle-row" key={m.name}><label htmlFor={`share-${m.name}`}>{m.name==='Heart rate'?'Resting heart rate':m.name==='Steps'?'Daily steps':m.name}</label><Switch id={`share-${m.name}`} checked={state.sharing[m.name] ?? false} disabled={state.role!=='Patient'} onCheckedChange={v=>update(s=>({...s,sharing:{...s.sharing,[m.name]:v}}))}/></div>)}{state.role!=='Patient'&&<p>Only Maya can update her sharing preferences.</p>}</section></div><Disclaimer/></>}
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { Moon, Footprints, Heart, Watch, Activity, ShieldCheck, AlertTriangle, Check, Plus, ArrowUpRight } from 'lucide-react';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { PageHeading } from './shared';
+import { useCare } from '@/lib/careStore';
+import { analyzeWellness, generateReadings, wellnessScenarios, type VitalKey, type Insight, type Reading } from '@/lib/wellnessEngine';
+import maya from '@/assets/maya-lin.jpg';
+
+const metrics: { key: VitalKey; label: string; unit: string; fields: (keyof Reading)[]; icon: typeof Heart; tone: string }[] = [
+  { key: 'Sleep', label: 'Sleep duration & quality', unit: 'hours', fields: ['sleep'], icon: Moon, tone: 'sleep' },
+  { key: 'Heart rate', label: 'Resting heart rate', unit: 'bpm', fields: ['heart'], icon: Heart, tone: 'heart' },
+  { key: 'Blood pressure', label: 'Blood pressure', unit: 'mmHg', fields: ['systolic', 'diastolic'], icon: Activity, tone: 'pressure' },
+  { key: 'Steps', label: 'Daily steps', unit: 'steps', fields: ['steps'], icon: Footprints, tone: 'steps' },
+];
+function Trend({ rows, fields, tone }: { rows: Reading[]; fields: (keyof Reading)[]; tone: string }) {
+  return <div className={`vital-chart chart-${tone}`} role="img" aria-label={`${rows.length}-day ${tone} trend`}>
+    <ResponsiveContainer width="100%" height="100%"><LineChart data={rows} margin={{ top: 12, right: 8, left: -22, bottom: 0 }}>
+      <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" />
+      <XAxis dataKey="day" tickFormatter={day => `D${Number(day) + 1}`} interval="preserveStartEnd" minTickGap={30} tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} axisLine={false} tickLine={false} />
+      <YAxis domain={['auto', 'auto']} tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} axisLine={false} tickLine={false} />
+      <Tooltip labelFormatter={day => `Day ${Number(day) + 1}`} contentStyle={{ background: 'var(--card)', borderColor: 'var(--border)', borderRadius: 6, fontSize: 11 }} />
+      {fields.map((field, i) => <Line key={field} type="monotone" dataKey={field} name={field} stroke={i ? 'var(--muted-foreground)' : 'var(--vital-line)'} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />)}
+    </LineChart></ResponsiveContainer>
+  </div>;
+}
+export function Wearables() {
+  const { state, update, liveSms, createWellnessTask } = useCare();
+  const [range, setRange] = useState<7 | 30>(7);
+  const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+  const attempted = useRef(new Set<string>());
+  const scenario = state.wellnessScenario ?? 'baseline';
+  const rows = useMemo(() => generateReadings(scenario), [scenario]);
+  const insights = useMemo(() => analyzeWellness(rows, state.sharing), [rows, state.sharing]);
+  const latest = rows.at(-1);
+  const primary = state.role === 'Primary Caregiver';
+  const patient = state.role === 'Patient';
+  async function escalate(insight: Insight) {
+    setBusy(insight.id);
+    const message = await createWellnessTask(insight);
+    setFeedback(f => ({ ...f, [insight.id]: message }));
+    setBusy(null);
+  }
+  useEffect(() => {
+    if (!primary) return;
+    for (const insight of insights) {
+      if (attempted.current.has(insight.id) || state.tasks.some(t => t.id === `wellness-${insight.id}`)) continue;
+      attempted.current.add(insight.id);
+      void escalate(insight);
+    }
+  }, [insights, primary, state.tasks]);
+  if (!latest) return null;
+  return <div className="wellness-page">
+    <PageHeading eyebrow="MAYA’S WELLNESS" title="Wellness & vitals" description="Maya Lin · Daily rhythms and timely care check-ins" action={<Link to="/board" className="small-link">Care board <ArrowUpRight size={15} /></Link>} />
+    <div className="wellness-feed-head"><img src={maya} alt="Maya Lin" width={48} height={48} /><div><h2>Maya Lin</h2><p>Scenario feed · No devices connected</p></div><div className="device-row"><span><Watch size={16} />Apple Watch</span><span><Activity size={16} />Oura Ring</span></div></div>
+    <section className="wellness-scenarios" aria-label="Wellness scenarios"><span className="text-xs text-muted-foreground">Scenario</span><div className="filter-tabs">{wellnessScenarios.map(s => <Button key={s.id} variant="ghost" aria-pressed={scenario === s.id} className={scenario === s.id ? 'selected' : ''} disabled={!primary} onClick={() => { update(current => ({ ...current, wellnessScenario: s.id })); setFeedback({}); }}>{s.label}</Button>)}</div></section>
+    <div className="wellness-overview"><div><span className={`risk-badge ${insights.some(i => i.risk === 'Urgent Alert') ? 'risk-urgent' : insights.length ? 'risk-decline' : 'risk-normal'}`}><Activity size={13} />{insights.some(i => i.risk === 'Urgent Alert') ? 'Urgent Alert' : insights.length ? 'Gradual Decline' : 'Normal'}</span><span className="text-xs text-muted-foreground">30-day analysis · Shared readings only</span></div><div className="view-toggle" aria-label="Trend period">{([7, 30] as const).map(n => <Button key={n} size="sm" variant="ghost" aria-pressed={range === n} className={range === n ? 'selected' : ''} onClick={() => setRange(n)}>{n}-Day</Button>)}</div></div>
+    <div className="vitals-grid">{metrics.map(m => {
+      const visible = patient || state.sharing[m.key];
+      const insight = insights.find(i => i.metrics.includes(m.key));
+      const value = m.key === 'Sleep' ? latest.sleep.toFixed(1) : m.key === 'Heart rate' ? latest.heart : m.key === 'Blood pressure' ? `${latest.systolic}/${latest.diastolic}` : latest.steps.toLocaleString();
+      return <article className={`vital-card chart-${m.tone}`} key={m.key}><header><h3><m.icon size={16} />{m.label}</h3>{visible && <span className={`risk-badge ${insight?.risk === 'Urgent Alert' ? 'risk-urgent' : insight ? 'risk-decline' : 'risk-normal'}`}>{insight?.risk ?? 'Normal'}</span>}</header><div className="vital-value">{visible ? value : '—'}<small>{m.unit}</small></div>{visible ? <>
+        <p className="vital-caption">{m.key === 'Sleep' ? `Sleep quality ${latest.quality}/100` : m.key === 'Blood pressure' ? 'Systolic / diastolic · Scenario measurement' : m.key === 'Heart rate' ? 'Resting baseline 66 bpm' : 'Daily movement'}</p>
+        <Trend rows={rows.slice(-range)} fields={m.fields} tone={m.tone} />
+        {m.key === 'Sleep' && <><div className="quality-label">Sleep quality / 100</div><Trend rows={rows.slice(-range)} fields={['quality']} tone="sleep" /></>}
+      </> : <div className="unshared-vital"><ShieldCheck size={24} /><p>Not shared by Maya</p></div>}</article>;
+    })}</div>
+    <div className="wellness-bottom"><section><div className="section-title"><h2>Care insights</h2><span className="small-link">{liveSms ? 'Live SMS enabled' : 'SMS simulated'}</span></div>{insights.length ? insights.map(insight => <article className={`wellness-insight ${insight.risk === 'Urgent Alert' ? 'insight-urgent' : ''}`} key={insight.id}><div className="insight-heading"><AlertTriangle size={20} /><div><span className={`risk-badge ${insight.risk === 'Urgent Alert' ? 'risk-urgent' : 'risk-decline'}`}>{insight.risk}</span><h3>{insight.title}</h3></div></div><p>{insight.detail}</p><p>{insight.risk === 'Urgent Alert' ? 'Check on Maya promptly and contact her care nurse. If she has severe symptoms, contact emergency services.' : 'A supportive conversation and care-team review can help understand what changed.'}</p>{primary && <Button variant="outline" disabled={busy === insight.id} onClick={() => void escalate(insight)}><Plus size={14} />{busy === insight.id ? 'Adding check-in…' : 'Assign Check-in Task to Circle'}</Button>}{state.tasks.some(t => t.id === `wellness-${insight.id}`) && <Link to="/board" className="insight-board-link"><Check size={14} />Check-in on Care Board <ArrowUpRight size={13} /></Link>}<p role="status">{feedback[insight.id]}</p></article>) : <div className="wellness-normal"><ShieldCheck size={24} /><h3>No shared alerts detected</h3><p>Shared readings are within the coordination thresholds.</p></div>}</section>
+    <section className="wellness-sharing"><h2><ShieldCheck size={18} />Maya decides what to share</h2><p className="text-xs text-muted-foreground mt-2">Wellness sharing is separate from hospital consent.</p>{metrics.map(m => <div className="toggle-row" key={m.key}><label htmlFor={`share-${m.key}`}>{m.label}</label><Switch id={`share-${m.key}`} checked={state.sharing[m.key] ?? false} disabled={!patient} onCheckedChange={checked => update(s => ({ ...s, sharing: { ...s.sharing, [m.key]: checked } }))} /></div>)}{!patient && <p className="text-xs text-muted-foreground mt-3">Only Maya can update her sharing preferences.</p>}</section></div>
+    <p className="wellness-footer">Wellness insights support care coordination and are not a medical diagnosis</p>
+  </div>;
+}
