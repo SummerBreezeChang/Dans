@@ -14,7 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      care_activity: {
+        Row: {
+          created_at: string
+          detail: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          detail: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      care_caregivers: {
+        Row: {
+          availability: string[]
+          cap: number
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          availability?: string[]
+          cap?: number
+          id: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          availability?: string[]
+          cap?: number
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      care_settings: {
+        Row: {
+          id: number
+          live_sms: boolean
+        }
+        Insert: {
+          id?: number
+          live_sms?: boolean
+        }
+        Update: {
+          id?: number
+          live_sms?: boolean
+        }
+        Relationships: []
+      }
+      care_sms_log: {
+        Row: {
+          created_at: string
+          key: string
+          ok: boolean
+          recipient: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          ok?: boolean
+          recipient: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          ok?: boolean
+          recipient?: string
+        }
+        Relationships: []
+      }
+      care_tasks: {
+        Row: {
+          day: number
+          declined_by: string[]
+          id: string
+          owner: string | null
+          published: boolean
+          slot: string
+          status: string
+          time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          day: number
+          declined_by?: string[]
+          id: string
+          owner?: string | null
+          published?: boolean
+          slot: string
+          status?: string
+          time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          day?: number
+          declined_by?: string[]
+          id?: string
+          owner?: string | null
+          published?: boolean
+          slot?: string
+          status?: string
+          time?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

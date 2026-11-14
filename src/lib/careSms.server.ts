@@ -28,7 +28,7 @@ export async function handleCareSms(request: Request): Promise<Response> {
     return Response.json({ error: 'Provide an E.164 recipient, message, and UUID idempotencyKey' }, { status: 400 });
   }
   const apiToken = process.env['LINQ_API_TOKEN'];
-  const from = process.env['LINQ_FROM_NUMBER'];
+  const from = (await import('./linq.server')).toE164(process.env['LINQ_FROM_NUMBER']);
   if (!apiToken || !from || !/^\+[1-9]\d{7,14}$/.test(from)) {
     return Response.json({ error: 'SMS service is not configured' }, { status: 503 });
   }

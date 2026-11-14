@@ -16,6 +16,7 @@ import { Route as CircleRouteImport } from './routes/circle'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as WearablesRouteImport } from './routes/wearables'
+import { Route as ApiPublicLinqWebhookRouteImport } from './routes/api.public.linq-webhook'
 import { Route as ApiPublicSendCareSmsRouteImport } from './routes/api.public.send-care-sms'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const WearablesRoute = WearablesRouteImport.update({
   path: '/wearables',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicLinqWebhookRoute = ApiPublicLinqWebhookRouteImport.update({
+  id: '/api/public/linq-webhook',
+  path: '/api/public/linq-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSendCareSmsRoute = ApiPublicSendCareSmsRouteImport.update({
   id: '/api/public/send-care-sms',
   path: '/api/public/send-care-sms',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/schedule': typeof ScheduleRoute
   '/wearables': typeof WearablesRoute
+  '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/schedule': typeof ScheduleRoute
   '/wearables': typeof WearablesRoute
+  '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/schedule': typeof ScheduleRoute
   '/wearables': typeof WearablesRoute
+  '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/schedule'
     | '/wearables'
+    | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/schedule'
     | '/wearables'
+    | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/schedule'
     | '/wearables'
+    | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ScheduleRoute: typeof ScheduleRoute
   WearablesRoute: typeof WearablesRoute
+  ApiPublicLinqWebhookRoute: typeof ApiPublicLinqWebhookRoute
   ApiPublicSendCareSmsRoute: typeof ApiPublicSendCareSmsRoute
 }
 
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WearablesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/linq-webhook': {
+      id: '/api/public/linq-webhook'
+      path: '/api/public/linq-webhook'
+      fullPath: '/api/public/linq-webhook'
+      preLoaderRoute: typeof ApiPublicLinqWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/send-care-sms': {
       id: '/api/public/send-care-sms'
       path: '/api/public/send-care-sms'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ScheduleRoute: ScheduleRoute,
   WearablesRoute: WearablesRoute,
+  ApiPublicLinqWebhookRoute: ApiPublicLinqWebhookRoute,
   ApiPublicSendCareSmsRoute: ApiPublicSendCareSmsRoute,
 }
 export const routeTree = rootRouteImport
