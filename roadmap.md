@@ -9,6 +9,7 @@
 - [x] Test authentication, validation, and LINQ request handling without sending live texts.
 
 ## Wellness monitoring
-- [ ] Interactive 7/30-day vitals, scenarios, privacy-aware trend analysis.
-- [ ] Deduplicated board/activity escalation and protected Linq alerts.
-- [ ] Test detection, privacy, escalation, and desktop/mobile flows.
+- [x] Interactive 7/30-day vitals, scenarios, privacy-aware trend analysis.
+- [x] Deduplicated board/activity escalation and protected Linq alerts.
+- [x] Test detection, privacy, escalation, and desktop/mobile flows.
+- [ ] Actual Apple Watch/Oura feeds: requires device authorization and a blood-pressure data source.
