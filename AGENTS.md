@@ -34,3 +34,4 @@ use the editor.
 - Keep pure availability, workload-cap, decline, and reschedule algorithms in `src/lib/assignmentEngine.ts` so production adapters can replace the demo without UI rewrites.
 - Build content views as independent TanStack routes under the shared care shell; use semantic tokens in the global stylesheet for consistent desktop and mobile presentation.
 - Role switching is a prototype perspective control, not authentication; only primary caregivers edit the care plan, only patients control consent and wellness sharing, and refusal notes remain primary-only in the UI.
+- Keep live SMS in an isolated server-only handler behind a dedicated service bearer secret and provider idempotency keys; never connect synthetic demo actions to it, to prevent accidental messages and duplicate sends.
