@@ -5,6 +5,41 @@ FirstCare+ is a caregiver-coordination app. It helps a patient or primary caregi
 
 Full PRD: https://claude.ai/artifact/Ts4DTNWLygEYzTwuhfExx5
 
+## Onboarding: the whole experience in ten screens
+
+![FirstCare+ onboarding: who you care for, connect Kaiser, the checklist, the circle, the group text](docs/firstcare-onboarding.gif)
+
+The guided setup at [/setup](https://firstcareplus.lovable.app/setup) walks through everything the app does. Each screen holds for three seconds.
+
+1. **Welcome.** Set up a care circle.
+2. **Who are you caring for?** Name, relationship, and what she is going through.
+3. **Bring in visits from Kaiser.** What comes in, and what helpers never see.
+4. **Kaiser consent.** The patient allows access. This screen is simulated for the demo, with a synthetic patient.
+5. **Here is what came in.** Three visits and two medicines.
+6. **The checklist.** Everyday tasks by treatment phase: chemotherapy, surgery, recovery and follow-up.
+7. **Who has offered to help?** Helpers see tasks only.
+8. **One group text.** Asks arrive by text. Reply yes, swap or can't.
+9. **Calendar.** Optional, coming soon.
+10. **The week has a plan.**
+
+## User flow at a glance
+
+![FirstCare+ user flow: onboarding, care circle, task view, rescheduling, text messages](docs/firstcare-user-flow.gif)
+
+The flow in seven steps, with screens from the live app. Each step holds for about four seconds.
+
+1. **The problem.** When someone you love is sick, the hard part is the logistics.
+2. **Onboarding: the checklist.** The primary caregiver enters the diagnosis and treatment plan, and a care checklist is built by phase. Kaiser appointments flow in (simulated for the demo).
+3. **Onboarding: the circle.** Family and friends set their availability and a weekly task cap. Auto-assign gives every task to someone who can do it.
+4. **Task view.** My tasks, Unclaimed, and a Summary of the week.
+5. **Rescheduling.** Chemo moves, and the linked ride, prescription pickup and meal move with it.
+6. **Messaging.** Each caregiver gets one clear text. A reply of "can't make it" passes the task to the next person. No medical details in the text.
+7. **Closing.** No one should do it alone.
+
+Try it: https://firstcareplus.lovable.app · Guided setup: https://firstcareplus.lovable.app/setup · Slides: [FirstCare-demo-deck.pdf](public/FirstCare-demo-deck.pdf)
+
+_These two GIFs and sections were added after the submission deadline._
+
 ## What it does
 
 1. The patient or primary caregiver creates an account and builds a care circle.
