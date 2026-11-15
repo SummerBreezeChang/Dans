@@ -35,6 +35,7 @@ use the editor.
 - Build content views as independent TanStack routes under the shared care shell; use semantic tokens in the global stylesheet for consistent desktop and mobile presentation.
 - Role switching is a prototype perspective control, not authentication; only primary caregivers edit the care plan, only patients control consent and wellness sharing, and refusal notes remain primary-only in the UI.
 - Preserve caregiver IDs when renaming display identities and normalize persisted and synced text in the care context so assignments and SMS recipient mappings stay intact.
+- Keep the care context object and consumer hook in a separate stable module from the provider so hot updates do not split provider and consumer identities.
 - Live SMS goes only through server code that looks up recipients from the caregiver table, honours the Live/Demo setting, and dedupes via the SMS log with deterministic idempotency keys; inbound Linq webhooks must pass Standard Webhooks signature checks, to prevent spoofing, spam, and duplicate sends.
 - Keep wellness scenario generation and privacy-aware detection in the pure wellness engine; real device connections must never be implied by synthetic readings.
 - Wellness escalation uses deterministic board/activity IDs and an authenticated server function calling the protected SMS endpoint; daily recipient deduplication and generic demo-labelled texts prevent alert spam and disclosure of vitals.

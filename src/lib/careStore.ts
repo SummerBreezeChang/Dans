@@ -1,4 +1,6 @@
-import { createElement, createContext, useContext, useEffect, useRef, useState, useMemo, type ReactNode } from 'react';
+import { createElement, useEffect, useRef, useState, useMemo, type ReactNode } from 'react';
+import { CareContext } from './careContext';
+export { useCare } from './careContext';
 import { getCareSync, setLiveSms, syncAssignments } from './careSync.functions';
 import { useServerFn } from '@tanstack/react-start';
 import { escalateWellness } from './wellness.functions';
@@ -28,8 +30,7 @@ export function generateCareChecklist(): CareTask[] {
 export interface Activity {id:string; title:string; detail:string; time:string}
 export interface CareState { role: Role; activePerson: string; people: Caregiver[]; tasks: CareTask[]; consent: boolean; connected: boolean; hospital: string; rescheduled: boolean; activities: Activity[]; refusals: {task:string; person:string; reason:string}[]; sharing: Record<string,boolean>; wellnessScenario?: WellnessScenario }
 const freshState = (): CareState => ({role:'Primary Caregiver',activePerson:'david',people:structuredClone(initialPeople),tasks:generateCareChecklist(),consent:true,connected:true,hospital:'Kaiser Permanente',rescheduled:false,activities:[{id:'a1',title:'Srishti accepted a task',detail:'Ride to blood draw · Wednesday',time:'24 min ago'},{id:'a2',title:'Your care plan is ready',detail:'10 tasks shared with the care circle',time:'1 hour ago'},{id:'a3',title:'Hospital record connected',detail:'Kaiser Permanente · Demo import',time:'2 hours ago'}],refusals:[],sharing:{...defaultSharing},wellnessScenario:'baseline'});
-interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>}
-const CareContext = createContext<CareContextValue|undefined>(undefined);
+export interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>}
 export function CareProvider({children}:{children:ReactNode}) {
  const escalate = useServerFn(escalateWellness);
  const [state,setState] = useState<CareState>(freshState);
@@ -61,5 +62,4 @@ export function CareProvider({children}:{children:ReactNode}) {
   },[state]);
   return createElement(CareContext.Provider, {value:{state:displayState,update,reset:()=>setState(freshState()),autoAssign,decline,reschedule,addActivity,liveSms,setLive,createWellnessTask}}, children);
 }
-export function useCare(){const context=useContext(CareContext);if(!context)throw new Error('CareProvider is required');return context;}
 export function notificationPreview(){return 'Your care circle has an update. Sign in securely to review: https://firstcare.example/sign-in';}
