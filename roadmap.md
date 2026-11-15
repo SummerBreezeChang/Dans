@@ -1,4 +1,5 @@
 # FirstCare+ demo
+- [x] Add showcase logout, prefilled signup/sign-in and deterministic demo dashboard; verify both flows.
 - [x] Restyle the role dropdown, simplify SMS settings, and remove visible em dashes; verify desktop and mobile.
 - [x] Shared demo store, assignment and schedule logic, with tests.
 - [x] Six interactive views, navigation, role switching, and reset.

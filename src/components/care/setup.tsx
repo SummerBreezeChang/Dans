@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useCare } from '@/lib/careStore';
 
 // Guided setup for a new care circle. Presentation and local state only:
 // nothing here reads or writes the care store, the database, or sends a message.
@@ -36,6 +38,7 @@ function Footer({ back, backLabel = 'Back', children }: { back: () => void; back
 }
 
 export function Setup() {
+  const { startShowcase } = useCare();
   const [step, setStep] = useState(0);
   const [condition, setCondition] = useState(conditions[0]);
   const [consent, setConsent] = useState(true);
@@ -65,6 +68,7 @@ export function Setup() {
   return <div className="setup">
     <header className={bare ? 'setup-top setup-top-bare' : 'setup-top'}>
       <span className="setup-wordmark">FirstCare+</span>
+      <div className="setup-quick-header"><Link to="/auth" className="setup-link">Sign in</Link><Button asChild variant="link" className="setup-link"><Link to="/board" onClick={startShowcase}>Skip to care board</Link></Button></div>
       {!bare && <span className="setup-progress" aria-hidden="true"><i data-step={stepOf[step]} /></span>}
       {step === 0 && <Link to="/board" className="setup-link">I was invited to help</Link>}
       {!bare && <span className="setup-count">{step === 8 ? 'Optional' : `Step ${stepOf[step]} of 5`}</span>}
@@ -146,7 +150,7 @@ export function Setup() {
     {step === LAST && <main className="setup-col setup-center">
       <h1 className="setup-hero">Maya's week has a plan.</h1>
       <p className="setup-lead">Asks go out to Srishti and Hardika in the group text. You'll hear as they answer.</p>
-      <div className="setup-row"><Link to="/board" className="setup-btn"><Check size={18} /> See the week</Link><button type="button" className="setup-link" onClick={() => setStep(0)}>Start over</button></div>
+      <div className="setup-row"><Link to="/board" className="setup-btn" onClick={startShowcase}><Check size={18} /> See the week</Link><button type="button" className="setup-link" onClick={() => setStep(0)}>Start over</button></div>
     </main>}
   </div>;
 }

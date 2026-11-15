@@ -48,6 +48,7 @@
 .sms-setting-row label{font-size:14px;cursor:pointer}.sms-setting-row [role=switch]{width:36px}
 @media(max-width:650px){.topbar-actions .role-picker{width:184px;font-size:11px;height:36px}.topbar-actions .active-caregiver-picker{width:80px;font-size:11px;height:36px}.topbar-actions:has(.active-caregiver-picker) .demo-badge{display:none}.topbar-actions{gap:6px}.sms-settings{padding:20px 0}.vital-value:has(+.unshared-vital){font-size:22px}}
 /* Guided setup (/setup). Presentation only. Uses the FirstCare+ tokens. */
+.showcase-auth{max-width:500px;justify-content:center}.showcase-form{display:flex;flex-direction:column;gap:20px}.showcase-form .setup-btn{margin-top:8px;width:100%;border-radius:8px}.showcase-form input{background:var(--card);border-radius:8px;width:100%}.showcase-password{position:relative}.showcase-password input{padding-right:52px}.showcase-password button{position:absolute;right:8px;top:8px}.showcase-skip{align-self:flex-start;white-space:normal;text-align:left;height:auto;gap:8px}.topbar-actions .logout-button{width:auto;flex-shrink:0;gap:6px;font-size:11px}.setup-quick-header{display:flex;align-items:center;gap:16px}
 .setup{min-height:100vh;display:flex;flex-direction:column;background:var(--canvas);color:var(--ink)}
 .setup-top{display:flex;align-items:center;gap:24px;padding:24px 48px;border-bottom:1px solid var(--hairline)}
 .setup-top-bare{border-bottom:0;justify-content:space-between}

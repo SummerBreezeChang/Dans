@@ -39,3 +39,4 @@ use the editor.
 - Live SMS goes only through server code that looks up recipients from the caregiver table, honours the Live/Demo setting, and dedupes via the SMS log with deterministic idempotency keys; inbound Linq webhooks must pass Standard Webhooks signature checks, to prevent spoofing, spam, and duplicate sends.
 - Keep wellness scenario generation and privacy-aware detection in the pure wellness engine; real device connections must never be implied by synthetic readings.
 - Wellness escalation uses deterministic board/activity IDs and an authenticated server function calling the protected SMS endpoint; daily recipient deduplication and generic demo-labelled texts prevent alert spam and disclosure of vitals.
+- Showcase signup/sign-in is explicitly simulated, stores no credentials, and resets the existing care-store seed; showcase mode disables remote sync and SMS so account presentations cannot alter the shared live demo.

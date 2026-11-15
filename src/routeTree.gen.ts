@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as CircleRouteImport } from './routes/circle'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as SetupRouteImport } from './routes/setup'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as WearablesRouteImport } from './routes/wearables'
 import { Route as ApiPublicLinqWebhookRouteImport } from './routes/api.public.linq-webhook'
 import { Route as ApiPublicSendCareSmsRouteImport } from './routes/api.public.send-care-sms'
@@ -23,6 +25,11 @@ import { Route as ApiPublicSendCareSmsRouteImport } from './routes/api.public.se
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BoardRoute = BoardRouteImport.update({
@@ -55,6 +62,11 @@ const SetupRoute = SetupRouteImport.update({
   path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WearablesRoute = WearablesRouteImport.update({
   id: '/wearables',
   path: '/wearables',
@@ -73,24 +85,28 @@ const ApiPublicSendCareSmsRoute = ApiPublicSendCareSmsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
   '/onboarding': typeof OnboardingRoute
   '/schedule': typeof ScheduleRoute
   '/setup': typeof SetupRoute
+  '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
   '/onboarding': typeof OnboardingRoute
   '/schedule': typeof ScheduleRoute
   '/setup': typeof SetupRoute
+  '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
@@ -98,12 +114,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
   '/onboarding': typeof OnboardingRoute
   '/schedule': typeof ScheduleRoute
   '/setup': typeof SetupRoute
+  '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
@@ -112,36 +130,42 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/board'
     | '/checklist'
     | '/circle'
     | '/onboarding'
     | '/schedule'
     | '/setup'
+    | '/signup'
     | '/wearables'
     | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/board'
     | '/checklist'
     | '/circle'
     | '/onboarding'
     | '/schedule'
     | '/setup'
+    | '/signup'
     | '/wearables'
     | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/board'
     | '/checklist'
     | '/circle'
     | '/onboarding'
     | '/schedule'
     | '/setup'
+    | '/signup'
     | '/wearables'
     | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
@@ -149,12 +173,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   BoardRoute: typeof BoardRoute
   ChecklistRoute: typeof ChecklistRoute
   CircleRoute: typeof CircleRoute
   OnboardingRoute: typeof OnboardingRoute
   ScheduleRoute: typeof ScheduleRoute
   SetupRoute: typeof SetupRoute
+  SignupRoute: typeof SignupRoute
   WearablesRoute: typeof WearablesRoute
   ApiPublicLinqWebhookRoute: typeof ApiPublicLinqWebhookRoute
   ApiPublicSendCareSmsRoute: typeof ApiPublicSendCareSmsRoute
@@ -167,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/board': {
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wearables': {
       id: '/wearables'
       path: '/wearables'
@@ -237,12 +277,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   BoardRoute: BoardRoute,
   ChecklistRoute: ChecklistRoute,
   CircleRoute: CircleRoute,
   OnboardingRoute: OnboardingRoute,
   ScheduleRoute: ScheduleRoute,
   SetupRoute: SetupRoute,
+  SignupRoute: SignupRoute,
   WearablesRoute: WearablesRoute,
   ApiPublicLinqWebhookRoute: ApiPublicLinqWebhookRoute,
   ApiPublicSendCareSmsRoute: ApiPublicSendCareSmsRoute,
