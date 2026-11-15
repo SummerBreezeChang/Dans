@@ -62,7 +62,7 @@ export function Wearables() {
       const visible = patient || state.sharing[m.key];
       const insight = insights.find(i => i.metrics.includes(m.key));
       const value = m.key === 'Sleep' ? latest.sleep.toFixed(1) : m.key === 'Heart rate' ? latest.heart : m.key === 'Blood pressure' ? `${latest.systolic}/${latest.diastolic}` : latest.steps.toLocaleString();
-      return <article className={`vital-card chart-${m.tone}`} key={m.key}><header><h3><m.icon size={16} />{m.label}</h3>{visible && <span className={`risk-badge ${insight?.risk === 'Urgent Alert' ? 'risk-urgent' : insight ? 'risk-decline' : 'risk-normal'}`}>{insight?.risk ?? 'Normal'}</span>}</header><div className="vital-value">{visible ? value : '—'}<small>{m.unit}</small></div>{visible ? <>
+      return <article className={`vital-card chart-${m.tone}`} key={m.key}><header><h3><m.icon size={16} />{m.label}</h3>{visible && <span className={`risk-badge ${insight?.risk === 'Urgent Alert' ? 'risk-urgent' : insight ? 'risk-decline' : 'risk-normal'}`}>{insight?.risk ?? 'Normal'}</span>}</header><div className="vital-value">{visible ? value : 'Not shared'}<small>{m.unit}</small></div>{visible ? <>
         <p className="vital-caption">{m.key === 'Sleep' ? `Sleep quality ${latest.quality}/100` : m.key === 'Blood pressure' ? 'Systolic / diastolic · Scenario measurement' : m.key === 'Heart rate' ? 'Resting baseline 66 bpm' : 'Daily movement'}</p>
         <Trend rows={rows.slice(-range)} fields={m.fields} tone={m.tone} />
         {m.key === 'Sleep' && <><div className="quality-label">Sleep quality / 100</div><Trend rows={rows.slice(-range)} fields={['quality']} tone="sleep" /></>}

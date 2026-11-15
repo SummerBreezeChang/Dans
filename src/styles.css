@@ -34,3 +34,16 @@
 .availability-table button.available{border-color:var(--mint)}
 .mini-heart{color:var(--ink)}
 .brand img{display:block;height:58px;width:auto}
+
+/* Care perspective dropdowns and notification preferences. */
+.role-picker{width:210px;height:38px;gap:9px;background:var(--muted);border-radius:8px;font-size:12px;box-shadow:none;flex-shrink:0}
+.role-picker>span{flex:1;text-align:left}.role-picker>svg{flex-shrink:0}
+.active-caregiver-picker{width:94px;height:38px;gap:6px;font-size:12px;background:var(--card);box-shadow:none}
+.care-select-menu{padding:4px;background:var(--card);border-color:var(--border);border-radius:8px}
+.care-select-menu [role=option]{min-height:38px;padding-left:10px;font-size:12px;cursor:pointer}
+.care-select-menu [role=option][data-state=checked]{background:var(--accent);font-weight:600}
+.sms-settings{margin-top:32px;padding:24px 0;border-block:1px solid var(--border)}
+.sms-settings-heading{display:flex;align-items:center;gap:9px}.sms-settings-heading svg{color:var(--muted-foreground)}
+.sms-settings h2{font-size:16px;font-weight:600}.sms-setting-row{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:20px}
+.sms-setting-row label{font-size:14px;cursor:pointer}.sms-setting-row [role=switch]{width:36px}
+@media(max-width:650px){.topbar-actions .role-picker{width:184px;font-size:11px;height:36px}.topbar-actions .active-caregiver-picker{width:80px;font-size:11px;height:36px}.topbar-actions:has(.active-caregiver-picker) .demo-badge{display:none}.topbar-actions{gap:6px}.sms-settings{padding:20px 0}.vital-value:has(+.unshared-vital){font-size:22px}}

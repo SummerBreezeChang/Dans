@@ -1,5 +1,5 @@
 # FirstCare+ demo
-- [ ] Restyle the role dropdown, simplify SMS settings, and remove visible em dashes; verify desktop and mobile.
+- [x] Restyle the role dropdown, simplify SMS settings, and remove visible em dashes; verify desktop and mobile.
 - [x] Shared demo store, assignment and schedule logic, with tests.
 - [x] Six interactive views, navigation, role switching, and reset.
 - [x] Verify desktop, mobile, and complete care coordination flow.

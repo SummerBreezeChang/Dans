@@ -51,7 +51,7 @@ export function analyzeWellness(rows: Reading[], sharing: Record<string, boolean
 
 export function wellnessTask(insight: Insight, day: number, slot: CareTask['slot']): CareTask {
   const urgent = insight.risk === 'Urgent Alert';
-  return { id: `wellness-${insight.id}`, title: urgent ? 'Urgent: Check in on Maya — call the care nurse' : 'Priority: Check in on Maya — sleep trend',
+  return { id: `wellness-${insight.id}`, title: urgent ? 'Urgent: Check in on Maya: call the care nurse' : 'Priority: Check in on Maya: sleep trend',
     category: 'At-Home Care', day, slot, time: urgent ? 'As soon as possible' : 'Today', duration: 20,
     approved: true, published: true, status: 'unclaimed', notes: 'Wellness coordination check-in. Review Maya’s preferences and contact her care team if needed.', priority: urgent ? 'urgent' : 'high' };
 }
