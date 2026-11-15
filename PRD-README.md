@@ -3,7 +3,6 @@
 **A little help. A lot of care.**
 FirstCare+ is a caregiver-coordination app. It helps a patient or primary caregiver turn "who's doing what this week?" into a shared plan that the whole care circle can see and pick up.
 
-Full PRD: https://claude.ai/artifact/Ts4DTNWLygEYzTwuhfExx5
 
 ## What it does
 
@@ -42,7 +41,6 @@ Full PRD: https://claude.ai/artifact/Ts4DTNWLygEYzTwuhfExx5
 
 - 4 hours, team of 3
 - 100 Lovable credits; the demo must be shown on Lovable (our sponsor)
-- Claude can't be used in the final presentation, so any live AI step uses Lovable's built-in AI
 - Synthetic demo data only; no real notifications are sent in the prototype
 
 ## Tech

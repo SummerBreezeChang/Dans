@@ -3,7 +3,19 @@
 **A little help. A lot of care.**
 FirstCare+ is a caregiver-coordination app. It helps a patient or primary caregiver turn "who's doing what this week?" into a shared plan that the whole care circle can see and pick up.
 
-Full PRD: https://claude.ai/artifact/Ts4DTNWLygEYzTwuhfExx5
+
+## The app, screen by screen
+
+<img src="docs/firstcare-app-screens.gif" alt="FirstCare+ on a phone: care board, checklist, care circle, appointments, hospital connection, wellness" width="320">
+
+FirstCare+ is a phone-first web app. Six screens, three seconds each:
+
+1. **Care board.** This week's tasks: mine, unclaimed, all, completed, and a summary.
+2. **Care checklist.** Tasks generated from the hospital record, reviewed before they are shared.
+3. **Care circle.** Each caregiver's visibility, weekly task cap and availability.
+4. **Appointments.** Upcoming visits from Kaiser, and rescheduling that moves the linked tasks.
+5. **Hospital connection.** Patient consent and the simulated Kaiser Permanente connection.
+6. **Wellness and vitals.** Simulated Apple Watch and Oura readings that can raise a check-in task.
 
 ## Onboarding: the whole experience in ten screens
 
@@ -77,7 +89,6 @@ _These two GIFs and sections were added after the submission deadline._
 
 - 4 hours, team of 3
 - 100 Lovable credits; the demo must be shown on Lovable (our sponsor)
-- Claude can't be used in the final presentation, so any live AI step uses Lovable's built-in AI
 - Synthetic demo data only; no real notifications are sent in the prototype
 
 ## Tech
