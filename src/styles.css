@@ -53,6 +53,7 @@
 .setup-top{display:flex;align-items:center;gap:24px;padding:24px 48px;border-bottom:1px solid var(--hairline)}
 .setup-top-bare{border-bottom:0;justify-content:space-between}
 .setup-wordmark{font-family:var(--font-display);font-weight:500;font-size:22px}
+.setup-logo{display:block;width:81px;height:44px;flex-shrink:0}
 .setup-progress{flex:1;height:6px;border-radius:3px;background:var(--hairline);overflow:hidden}
 .setup-progress i{display:block;height:6px;border-radius:3px;background:var(--mint);width:20%}
 .setup-progress i[data-step="2"]{width:40%}.setup-progress i[data-step="3"]{width:60%}.setup-progress i[data-step="4"]{width:80%}.setup-progress i[data-step="5"]{width:100%}

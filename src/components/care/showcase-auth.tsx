@@ -14,7 +14,7 @@ export function ShowcaseAuth({ signup = false }: { signup?: boolean }) {
     void navigate({ to: signup ? '/setup' : '/board' });
   }
   return <div className="setup">
-    <header className="setup-top setup-top-bare"><Link to="/" className="setup-wordmark">FirstCare+</Link><Link to={signup ? '/auth' : '/signup'} className="setup-link">{signup ? 'Sign in' : 'Sign up'}</Link></header>
+    <header className="setup-top setup-top-bare"><Link to="/" className="setup-wordmark"><img className="setup-logo" src="/firstcare-logo.svg" alt="FirstCare+" width={81} height={44} /></Link><Link to={signup ? '/auth' : '/signup'} className="setup-link">{signup ? 'Sign in' : 'Sign up'}</Link></header>
     <main className="setup-col showcase-auth">
       <span className="setup-tag">Showcase demo</span>
       <h1>{signup ? 'A little help starts here.' : 'Welcome back.'}</h1>

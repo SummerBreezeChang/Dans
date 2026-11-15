@@ -67,7 +67,7 @@ export function Setup() {
   const bare = step === 0 || step === LAST;
   return <div className="setup">
     <header className={bare ? 'setup-top setup-top-bare' : 'setup-top'}>
-      <span className="setup-wordmark">FirstCare+</span>
+      <img className="setup-logo" src="/firstcare-logo.svg" alt="FirstCare+" width={81} height={44} />
       <div className="setup-quick-header"><Link to="/auth" className="setup-link">Sign in</Link><Button asChild variant="link" className="setup-link"><Link to="/board" onClick={startShowcase}>Skip to care board</Link></Button></div>
       {!bare && <span className="setup-progress" aria-hidden="true"><i data-step={stepOf[step]} /></span>}
       {step === 0 && <Link to="/board" className="setup-link">I was invited to help</Link>}
