@@ -21,12 +21,29 @@ export const setLiveSms = createServerFn({ method: 'POST' })
     return { liveSms: data.live };
   });
 
+type When = { day: number; time: string };
+
+/** One text per person, task and event. A move is keyed by its new time, so each new time texts once. */
+export function smsKey(taskId: string, personId: string, event: 'assigned' | 'reassigned' | 'moved', when: When, today = new Date().toISOString().slice(0, 10)) {
+  return event === 'moved' ? `app:${taskId}:${personId}:moved:${when.day}-${when.time}` : `app:${taskId}:${personId}:${today}`;
+}
+
+/** The text a caregiver receives. A move says the new time and how to hand the task back. */
+export function careText(event: 'assigned' | 'reassigned' | 'moved', name: string, title: string, when: When) {
+  const first = name.split(' ')[0];
+  if (event === 'moved') return `FirstCare+: ${first}, plans changed. "${title}" is now ${days[when.day]} at ${when.time}. Reply "can't make it" if that no longer works.`;
+  return `FirstCare+: ${first}, you've been ${event} "${title}" on ${days[when.day]} at ${when.time}. Reply "can't make it" if something comes up.`;
+}
+
 const changeSchema = z.object({
   changes: z.array(z.object({
     id: z.string().regex(/^(task-\d{1,4}|wellness-(sleep|cardio))$/),
     owner: z.string().max(80).nullable(),
     status: z.enum(['unclaimed', 'assigned', 'accepted', 'done']),
-    event: z.enum(['assigned', 'reassigned']),
+    event: z.enum(['assigned', 'reassigned', 'moved']),
+    day: z.number().int().min(0).max(6).optional(),
+    slot: z.enum(['Morning', 'Afternoon', 'Evening']).optional(),
+    time: z.string().max(20).optional(),
   })).max(30),
 });
 
@@ -45,12 +62,11 @@ export const syncAssignments = createServerFn({ method: 'POST' })
     for (const c of data.changes) {
       const task = tasks?.find(t => t.id === c.id);
       if (!task) continue;
-      await db.from('care_tasks').update({ owner: c.owner, status: c.status, updated_at: new Date().toISOString() }).eq('id', c.id);
+      const when = { day: c.day ?? task.day, time: c.time ?? task.time };
+      await db.from('care_tasks').update({ owner: c.owner, status: c.status, ...(c.day !== undefined ? { day: c.day } : {}), ...(c.slot ? { slot: c.slot } : {}), ...(c.time ? { time: c.time } : {}), updated_at: new Date().toISOString() }).eq('id', c.id);
       const person = people?.find(p => p.id === c.owner);
       if (!settings?.live_sms || !person?.phone) continue;
-      const day = new Date().toISOString().slice(0, 10);
-      const r = await sendOnce(`app:${c.id}:${person.id}:${day}`, person.phone,
-        `FirstCare+: ${person.name.split(' ')[0]}, you've been ${c.event} "${task.title}" on ${days[task.day]} at ${task.time}. Reply "can't make it" if something comes up.`);
+      const r = await sendOnce(smsKey(c.id, person.id, c.event, when), person.phone, careText(c.event, person.name, task.title, when));
       if (r.ok) sent++;
     }
     return { sent };
