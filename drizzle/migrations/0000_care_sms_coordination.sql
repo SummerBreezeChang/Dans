@@ -24,7 +24,7 @@ CREATE TABLE public.care_sms_log (key text PRIMARY KEY, recipient text NOT NULL,
 GRANT ALL ON public.care_sms_log TO service_role;
 ALTER TABLE public.care_sms_log ENABLE ROW LEVEL SECURITY;
 
-INSERT INTO public.care_settings (id, live_sms) VALUES (1, true);
+INSERT INTO public.care_settings (id, live_sms) VALUES (1, false);
 INSERT INTO public.care_caregivers (id, name, phone, availability) VALUES
 ('summer','Summer Chang',NULL,ARRAY['0-Morning','0-Evening','1-Morning','1-Evening','2-Morning','2-Evening','3-Morning','3-Evening','4-Evening','5-Morning','5-Afternoon','6-Morning']),
 ('henry','Henry',NULL,ARRAY['0-Afternoon','1-Afternoon','2-Morning','2-Afternoon','3-Afternoon','4-Afternoon','4-Evening','5-Evening','6-Afternoon']),
