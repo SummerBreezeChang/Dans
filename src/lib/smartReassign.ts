@@ -1,4 +1,4 @@
-import { canAssign, type CareTask, type Caregiver } from './assignmentEngine';
+import { canAssign, canHelp, type CareTask, type Caregiver } from './assignmentEngine';
 
 const UNAVAILABLE = /(not free|can'?t make it|cannot make it|can ?not make it|something came up|unavailable|not available|can'?t do it|won'?t make it|busy)/i;
 export const isUnavailableMessage = (text: string) => UNAVAILABLE.test(text.replace(/[’‘]/g, "'"));
@@ -12,9 +12,9 @@ export function upcomingTask(ownerId: string, tasks: CareTask[]) {
     .sort((a, b) => a.day - b.day || order[a.slot] - order[b.slot])[0];
 }
 
-/** Lowest current load wins; caregivers available for the slot are preferred. */
+/** Lowest current load wins; caregivers available for the slot are preferred. Only people who do this kind of help. */
 export function pickReplacement(task: CareTask, fromId: string, people: Caregiver[], tasks: CareTask[]) {
   const others = people.filter(p => p.id !== fromId && p.role !== 'Patient' && !task.declinedBy?.includes(p.id));
   const byLoad = (list: Caregiver[]) => [...list].sort((a, b) => load(a.id, tasks) - load(b.id, tasks))[0];
-  return byLoad(others.filter(p => canAssign(p, task, tasks))) ?? byLoad(others);
+  return byLoad(others.filter(p => canAssign(p, task, tasks))) ?? byLoad(others.filter(p => canHelp(p, task)));
 }

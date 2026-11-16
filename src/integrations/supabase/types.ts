@@ -39,6 +39,7 @@ export type Database = {
         Row: {
           availability: string[]
           cap: number
+          helps: string[] | null
           id: string
           name: string
           phone: string | null
@@ -46,6 +47,7 @@ export type Database = {
         Insert: {
           availability?: string[]
           cap?: number
+          helps?: string[] | null
           id: string
           name: string
           phone?: string | null
@@ -53,6 +55,7 @@ export type Database = {
         Update: {
           availability?: string[]
           cap?: number
+          helps?: string[] | null
           id?: string
           name?: string
           phone?: string | null
@@ -97,6 +100,7 @@ export type Database = {
       }
       care_tasks: {
         Row: {
+          category: string
           day: number
           declined_by: string[]
           id: string
@@ -109,6 +113,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string
           day: number
           declined_by?: string[]
           id: string
@@ -121,6 +126,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string
           day?: number
           declined_by?: string[]
           id?: string

@@ -15,6 +15,6 @@ describe('SMS smart reassignment', () => {
     const task = tasks.find(t => t.id === 'task-2')!;
     const next = pickReplacement(task, 'henry', initialPeople, tasks);
     expect(next?.id).not.toBe('henry');
-    expect(next?.id).toBe('jack');
+    expect(next?.id).toBe('nancy'); // Jack has the lightest week but does not do meals
   });
 });

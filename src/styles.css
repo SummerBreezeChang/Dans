@@ -122,3 +122,9 @@
 .kaiser-allow{background:#2F6DB5;color:#fff;border:0}.kaiser-deny{background:#fff;color:#2F6DB5;border:1px solid #2F6DB5}
 .kaiser-side{padding:24px;border:1px solid #D5D8DC;border-radius:4px}
 @media(max-width:760px){.setup-top{padding:16px 20px}.setup-col{padding:32px 20px}.setup-col h1{font-size:30px}.setup-fields,.setup-phases,.kaiser-cols{grid-template-columns:1fr}.kaiser-card{flex-direction:column}.kaiser-actions{flex:none}.kaiser-bar{padding:0 20px}.setup-footer{flex-direction:column-reverse;align-items:stretch}.setup-footer .setup-btn{width:100%}}
+
+/* Care circle: what each person can help with */
+.help-chips{display:flex;flex-wrap:wrap;gap:8px}
+.help-chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--hairline);background:var(--card);color:var(--muted-foreground);font-size:13px;font-weight:500}
+.help-chip.is-on{background:var(--mint-soft);border-color:var(--mint);color:var(--ink)}
+.help-chip:disabled{cursor:default}

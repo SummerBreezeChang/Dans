@@ -11,9 +11,9 @@ export const initialPeople: Caregiver[] = [
  {id:'summer',name:'Summer Chang',initials:'SC',role:'Primary Caregiver',visibility:'Full medical details',cap:5,availability:['0-Morning','0-Evening','1-Morning','1-Evening','2-Morning','2-Evening','3-Morning','3-Evening','4-Evening','5-Morning','5-Afternoon','6-Morning']},
  {id:'henry',name:'Henry',initials:'H',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Afternoon','1-Afternoon','2-Morning','2-Afternoon','3-Afternoon','4-Afternoon','4-Evening','5-Evening','6-Afternoon']},
  {id:'nancy',name:'Nancy',initials:'N',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Evening','1-Morning','2-Evening','3-Morning','3-Afternoon','3-Evening','4-Morning','4-Afternoon','5-Morning','6-Evening']},
- {id:'jack',name:'Jack',initials:'J',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['1-Evening','3-Evening','5-Morning','5-Afternoon','6-Morning','6-Afternoon']},
- {id:'mary',name:'Mary',initials:'M',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Morning','2-Morning','4-Morning','4-Afternoon','4-Evening']},
- {id:'karen',name:'Karen',initials:'K',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['1-Afternoon','3-Afternoon','5-Evening','6-Evening']},
+ {id:'jack',name:'Jack',initials:'J',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['1-Evening','3-Evening','5-Morning','5-Afternoon','6-Morning','6-Afternoon'],helps:['Rides','Pickups']},
+ {id:'mary',name:'Mary',initials:'M',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Morning','2-Morning','4-Morning','4-Afternoon','4-Evening'],helps:['Meals','At home','Calls and paperwork']},
+ {id:'karen',name:'Karen',initials:'K',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['1-Afternoon','3-Afternoon','5-Evening','6-Evening'],helps:['Meals','At home']},
 ];
 export function generateCareChecklist(): CareTask[] {
  const rows: [string, Category, number, 'Morning'|'Afternoon'|'Evening', string, number, string|undefined, string|undefined, CareTask['status']][] = [

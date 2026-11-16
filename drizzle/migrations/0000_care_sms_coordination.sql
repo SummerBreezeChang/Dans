@@ -1,8 +1,8 @@
-CREATE TABLE public.care_caregivers (id text PRIMARY KEY, name text NOT NULL, phone text, cap int NOT NULL DEFAULT 5, availability text[] NOT NULL DEFAULT '{}');
+CREATE TABLE public.care_caregivers (id text PRIMARY KEY, name text NOT NULL, phone text, cap int NOT NULL DEFAULT 5, availability text[] NOT NULL DEFAULT '{}', helps text[]);
 GRANT ALL ON public.care_caregivers TO service_role;
 ALTER TABLE public.care_caregivers ENABLE ROW LEVEL SECURITY;
 
-CREATE TABLE public.care_tasks (id text PRIMARY KEY, title text NOT NULL, day int NOT NULL, slot text NOT NULL, time text NOT NULL, owner text, status text NOT NULL DEFAULT 'unclaimed', published boolean NOT NULL DEFAULT true, declined_by text[] NOT NULL DEFAULT '{}', updated_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE public.care_tasks (id text PRIMARY KEY, title text NOT NULL, day int NOT NULL, slot text NOT NULL, time text NOT NULL, owner text, status text NOT NULL DEFAULT 'unclaimed', category text NOT NULL DEFAULT 'At-Home Care', published boolean NOT NULL DEFAULT true, declined_by text[] NOT NULL DEFAULT '{}', updated_at timestamptz NOT NULL DEFAULT now());
 GRANT SELECT ON public.care_tasks TO anon, authenticated;
 GRANT ALL ON public.care_tasks TO service_role;
 ALTER TABLE public.care_tasks ENABLE ROW LEVEL SECURITY;
@@ -43,3 +43,12 @@ INSERT INTO public.care_tasks (id,title,day,slot,time,owner,status) VALUES
 ('task-8','Collect questions for the oncologist',2,'Evening','6:00 PM','summer','assigned'),
 ('task-9','Update emergency contact list',1,'Morning','10:00 AM','nancy','done'),
 ('task-10','Set up a comfortable recovery space',3,'Morning','8:00 AM',NULL,'unclaimed');
+UPDATE public.care_tasks SET category = 'Rides to & from Appointments' WHERE id IN ('task-1','task-4');
+UPDATE public.care_tasks SET category = 'Meal Planning' WHERE id IN ('task-2','task-7');
+UPDATE public.care_tasks SET category = 'Medicine Pickup' WHERE id = 'task-3';
+UPDATE public.care_tasks SET category = 'Appointment Management' WHERE id = 'task-5';
+UPDATE public.care_tasks SET category = 'Follow-ups' WHERE id = 'task-8';
+UPDATE public.care_tasks SET category = 'Emergency Contacts' WHERE id = 'task-9';
+UPDATE public.care_caregivers SET helps = ARRAY['Rides','Pickups'] WHERE id = 'jack';
+UPDATE public.care_caregivers SET helps = ARRAY['Meals','At home','Calls and paperwork'] WHERE id = 'mary';
+UPDATE public.care_caregivers SET helps = ARRAY['Meals','At home'] WHERE id = 'karen';
