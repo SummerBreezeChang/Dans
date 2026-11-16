@@ -1,5 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { NavIcon } from './parts';
 
 // The calm shell: one column, four places to go. Nothing else on the frame.
 
@@ -19,7 +20,8 @@ export function CalmShell({ children }: { children: ReactNode }) {
       <nav className="c-nav" aria-label="Main">
         {places.map(p => (
           <Link key={p.to} to={p.to} className={here(p.to) ? 'c-nav-item is-here' : 'c-nav-item'} aria-current={here(p.to) ? 'page' : undefined}>
-            {p.label}
+            <NavIcon name={p.label} filled={here(p.to)} />
+            <span>{p.label}</span>
           </Link>
         ))}
       </nav>

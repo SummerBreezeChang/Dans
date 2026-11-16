@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import type { CareTask } from '@/lib/assignmentEngine';
-import { byTime, dayNames, doesWhat, firstName, numberWord, pillFor, suggest, visitsFor, weekLabel } from '@/lib/week';
-import { PillTag } from './shell';
+import { byTime, dayNames, doesWhat, firstName, helpWord, numberWord, suggest, visitsFor, weekLabel } from '@/lib/week';
+import { KindIcon, TaskRow } from './parts';
 
 // Home answers one question: is the week covered? The one thing that is not sits on top.
 
@@ -29,15 +29,7 @@ export function Home() {
     ? `${numberWord(covered)} of ${numberWord(tasks.length).toLowerCase()} are covered. ${numberWord(open.length)} ${open.length === 1 ? 'needs' : 'need'} someone.`
     : `All ${numberWord(tasks.length).toLowerCase()} are covered.`;
 
-  const row = (t: CareTask) => {
-    const pill = pillFor(t, state.people, ME);
-    return (
-      <li key={t.id} className="c-row">
-        <span>{t.title}</span>
-        <PillTag tone={pill.tone}>{pill.label}</PillTag>
-      </li>
-    );
-  };
+  const row = (t: CareTask) => <TaskRow key={t.id} task={t} people={state.people} me={ME} />;
 
   const loose = tasks.filter(t => !t.appointment).sort(byTime);
 
@@ -54,11 +46,14 @@ export function Home() {
             <span className="c-eyebrow c-ink">Needs someone</span>
             {open.length > 1 && <span className="c-count">{(skip % open.length) + 1} of {open.length}</span>}
           </div>
-          <div>
+          <div className="c-ask-main">
+            <span className="c-tile c-tile-ask"><KindIcon help={helpWord(ask)} /></span>
+            <div>
             <h2 className="c-ask-title">{ask.title}</h2>
             <p className="c-ask-body">
               {dayNames[ask.day]}, {ask.time}. {who ? `${firstName(who)} is free then and ${doesWhat(ask)}.` : 'Nobody else is free then.'}
             </p>
+            </div>
           </div>
           <div className="c-ask-actions">
             {who && <button type="button" className="c-btn c-btn-main" onClick={() => give(ask, who.id, 'assigned')}>Ask {firstName(who)}</button>}
@@ -72,7 +67,7 @@ export function Home() {
         {visits.map(v => {
           const mine = tasks.filter(t => t.appointment === v.id).sort(byTime);
           return (
-            <div key={v.id} className="c-group">
+            <div key={v.id} className="c-card">
               <Link to="/visits/$id" params={{ id: v.id }} className="c-group-head">
                 <span>{v.date} · {v.short}</span>
                 <small>{v.time}</small>
@@ -82,7 +77,7 @@ export function Home() {
           );
         })}
         {loose.length > 0 && (
-          <div className="c-group">
+          <div className="c-card">
             <div className="c-group-head"><span>Around the week</span></div>
             <ul className="c-rows">{loose.map(row)}</ul>
           </div>

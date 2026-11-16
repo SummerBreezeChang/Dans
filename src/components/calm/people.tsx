@@ -15,7 +15,7 @@ export function People() {
         <p className="c-eyebrow">Maya's circle</p>
         <h1 className="c-title">{numberWord(state.people.length)} people are sharing this week.</h1>
       </header>
-      <ul className="c-rows c-rows-closed">
+      <ul className="c-rows c-card">
         {state.people.map(p => {
           const n = load(p.id);
           const pct = p.cap ? Math.min(100, Math.round((n / p.cap) * 100)) : 0;
@@ -46,7 +46,7 @@ export function More() {
         <p className="c-eyebrow">Settings</p>
         <h1 className="c-title">Set things up your way.</h1>
       </header>
-      <ul className="c-rows c-rows-closed">
+      <ul className="c-rows c-card">
         <li className="c-row c-row-tall">
           <span className="c-stack">
             <strong>Text messages</strong>

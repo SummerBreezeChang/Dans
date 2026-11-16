@@ -1,8 +1,9 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import { rescheduleTasks, type CareTask } from '@/lib/assignmentEngine';
-import { byTime, firstName, helpWord, list, numberWord, pillFor, visitsFor } from '@/lib/week';
+import { byTime, firstName, helpWord, list, numberWord, visitsFor } from '@/lib/week';
 import { PillTag } from './shell';
+import { TaskRow } from './parts';
 
 const ME = 'summer';
 const isCovered = (t: CareTask) => Boolean(t.owner) || t.status === 'done';
@@ -17,7 +18,7 @@ export function Visits() {
         <p className="c-eyebrow">Visits</p>
         <h1 className="c-title">{numberWord(visits.length)} visits coming up.</h1>
       </header>
-      <ul className="c-rows c-rows-closed">
+      <ul className="c-rows c-card">
         {visits.map(v => {
           const tasks = state.tasks.filter(t => t.published && t.appointment === v.id);
           const done = tasks.filter(isCovered).length;
@@ -65,19 +66,8 @@ export function Visit({ id }: { id: string }) {
           <span className="c-eyebrow">Checklist for this visit</span>
           <small>{covered} of {tasks.length} covered</small>
         </div>
-        <ul className="c-rows c-rows-closed">
-          {tasks.map(t => {
-            const pill = pillFor(t, state.people, ME);
-            return (
-              <li key={t.id} className="c-row c-row-tall">
-                <span className="c-stack">
-                  <strong>{t.title}</strong>
-                  <small>{t.time} · {helpWord(t)}</small>
-                </span>
-                <PillTag tone={pill.tone}>{pill.label}</PillTag>
-              </li>
-            );
-          })}
+        <ul className="c-rows c-card">
+          {tasks.map(t => <TaskRow key={t.id} task={t} people={state.people} me={ME} sub={`${t.time} · ${helpWord(t)}`} />)}
         </ul>
       </section>
     </>
@@ -117,7 +107,7 @@ export function MoveVisit({ id }: { id: string }) {
       </header>
       <section>
         <div className="c-list-head"><span className="c-eyebrow">What changes</span></div>
-        <ul className="c-rows c-rows-closed">
+        <ul className="c-rows c-card">
           {changes.map(({ now, outcome }) => (
             <li key={now.id} className="c-row c-row-tall">
               <span className="c-stack">
