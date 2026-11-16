@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { CareTask, Caregiver, Category, Help, Slot } from './assignmentEngine';
 import { isUnavailableMessage, pickReplacement, upcomingTask } from './smartReassign';
-import { sendOnce, toE164 } from './linq.server';
+import { routeText, sendOnce, toE164 } from './linq.server';
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -57,6 +57,7 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
   await db.from('care_tasks').update({ owner: next?.id ?? null, status: next ? 'assigned' : 'unclaimed', declined_by: [...task.declinedBy!, sender.id], updated_at: new Date().toISOString() }).eq('id', task.id);
   await db.from('care_activity').insert({ title: next ? 'Task reassigned by text' : 'Task needs a new helper', detail: `${sender.name} replied they're unavailable for "${task.title}" (${when}).${next ? ` Now with ${next.name}.` : ''}` });
   await sendOnce(`wh:${id}:orig`, from, `No problem, ${sender.name.split(' ')[0]}. "${task.title}" (${when}) has been ${next ? `reassigned to ${next.name}` : 'released to the care circle'}. Take care.`);
-  if (next?.contact) await sendOnce(`wh:${id}:new`, next.contact, `FirstCare+: ${next.name.split(' ')[0]}, you've been assigned "${task.title}" on ${when} because ${sender.name.split(' ')[0]} can't make it. Reply "can't make it" if you're unavailable.`);
+  const nextRoute = next ? routeText(next.contact, next.name) : null;
+  if (next && nextRoute) await sendOnce(`wh:${id}:new`, nextRoute.to, nextRoute.prefix + `FirstCare+: ${next.name.split(' ')[0]}, you've been assigned "${task.title}" on ${when} because ${sender.name.split(' ')[0]} can't make it. Reply "can't make it" if you're unavailable.`);
   return Response.json({ reassigned: true, task: task.id, to: next?.id ?? null });
 }

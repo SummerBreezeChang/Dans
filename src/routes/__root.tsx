@@ -81,7 +81,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     // twitter:image here: every page without its own would inherit the root's preview image.
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#FFFAF0" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Dans" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { title: "FirstCare+ | Shared care, lighter days" },
       { name: "description", content: "A thoughtful shared care plan for patients and their care circles." },
       { name: "author", content: "FirstCare+" },
@@ -92,6 +97,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       
     ],
     links: [
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/svg+xml", href: "/icon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Funnel+Display:wght@500&display=swap" },
       {

@@ -35,3 +35,38 @@ Steps 1 to 3 are enough to test a schedule change from `localhost`.
 - Reassignment logic: unit tests (`assignmentEngine.test.ts`, `smartReassign.test.ts`).
 - Screens: local build checked at phone width first, then desktop.
 - Live texts: one text to one known phone per step, with live texting off by default.
+
+## Update: mobile first, installable, one-phone testing
+
+Direction: Dans is a progressive web app, designed for the phone first and responsive up to desktop. The web gets a landing page. Navigation has five items or fewer.
+
+### Where it stands
+
+| Area | State |
+|---|---|
+| Installable | Manifest, icon and install tags added. No offline support yet. |
+| Layout | Built desktop first, then squeezed. Bottom bar has six items. Top bar overflows at phone width. |
+| Texting with one phone | Sandbox mode: every text goes to one number, tagged with who it was for. Replies not handled yet. |
+| Landing page | None. `/` opens the app. |
+| Sign up and sign in | Demo screens only. No real accounts. |
+
+### Navigation proposal (four items)
+
+| Item | Main caregiver | Helper |
+|---|---|---|
+| Home | The week: what is covered, the one thing that is not | Today: asks first, then my tasks |
+| Visits | Appointments, change a visit, the checklist per visit | Read only |
+| Circle | People, free times, limits, what they help with | My own settings |
+| More | Hospital connection, privacy, texting, wellness, sign out | Same, less |
+
+### Build order from here
+
+1. One-phone text test of a schedule change (ready once the sandbox number is in `.env`).
+2. Mobile-first shell: four-item bottom bar, the same items as a side rail on desktop, header that fits a phone.
+3. Home for the main caregiver (the Paper "ask first" week) and Today for helpers.
+4. Landing page at `/` on the web, app moved behind sign in.
+5. Sign up, invite by text, join flow for helpers.
+6. Replies by text: yes, can't, still OK. Needs a public address.
+7. Offline shell and install prompt.
+
+Each step is checked at 390 px wide first, then 768 and 1440, and added to the phone's home screen before it is called done.

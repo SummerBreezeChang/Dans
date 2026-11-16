@@ -52,7 +52,7 @@ export const syncAssignments = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => changeSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
-    const { sendOnce } = await import('./linq.server');
+    const { sendOnce, routeText } = await import('./linq.server');
     const [{ data: settings }, { data: people }, { data: tasks }] = await Promise.all([
       db.from('care_settings').select('live_sms').eq('id', 1).maybeSingle(),
       db.from('care_caregivers').select('id,name,phone'),
@@ -65,8 +65,9 @@ export const syncAssignments = createServerFn({ method: 'POST' })
       const when = { day: c.day ?? task.day, time: c.time ?? task.time };
       await db.from('care_tasks').update({ owner: c.owner, status: c.status, ...(c.day !== undefined ? { day: c.day } : {}), ...(c.slot ? { slot: c.slot } : {}), ...(c.time ? { time: c.time } : {}), updated_at: new Date().toISOString() }).eq('id', c.id);
       const person = people?.find(p => p.id === c.owner);
-      if (!settings?.live_sms || !person?.phone) continue;
-      const r = await sendOnce(smsKey(c.id, person.id, c.event, when), person.phone, careText(c.event, person.name, task.title, when));
+      const route = person ? routeText(person.phone, person.name) : null;
+      if (!settings?.live_sms || !person || !route) continue;
+      const r = await sendOnce(smsKey(c.id, person.id, c.event, when), route.to, route.prefix + careText(c.event, person.name, task.title, when));
       if (r.ok) sent++;
     }
     return { sent };
