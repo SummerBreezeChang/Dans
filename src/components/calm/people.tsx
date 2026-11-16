@@ -43,8 +43,8 @@ export function More() {
   return (
     <>
       <header className="c-head">
-        <p className="c-eyebrow">More</p>
-        <h1 className="c-title">Settings and the rest.</h1>
+        <p className="c-eyebrow">Settings</p>
+        <h1 className="c-title">Set things up your way.</h1>
       </header>
       <ul className="c-rows c-rows-closed">
         <li className="c-row c-row-tall">

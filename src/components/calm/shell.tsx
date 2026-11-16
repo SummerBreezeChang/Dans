@@ -7,7 +7,7 @@ const places = [
   { to: '/', label: 'Home' },
   { to: '/visits', label: 'Visits' },
   { to: '/people', label: 'Circle' },
-  { to: '/more', label: 'More' },
+  { to: '/more', label: 'Settings' },
 ] as const;
 
 export function CalmShell({ children }: { children: ReactNode }) {
