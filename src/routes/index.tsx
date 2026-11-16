@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Board } from '@/components/care/board';
+import { Home } from '@/components/calm/home';
 export const Route = createFileRoute('/')({
- head: () => ({ meta: [{ title: 'Care Board | FirstCare+' }, { name: 'description', content: 'Coordinate Maya’s care with a shared task board and balanced caregiver assignments.' }, { property: 'og:title', content: 'Care Board | FirstCare+' }, { property: 'og:description', content: 'Coordinate Maya’s care with a shared task board and balanced caregiver assignments.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }),
- component: Board,
+  head: () => ({ meta: [{ title: "Maya's week | Dans" }, { name: 'description', content: 'See what is covered this week and the one thing that still needs someone.' }] }),
+  component: Home,
 });

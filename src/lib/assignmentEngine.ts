@@ -35,7 +35,14 @@ export function rescheduleTasks(tasks: CareTask[], people: Caregiver[]) {
     if (owner && !owner.availability.includes(`${moved.day}-${moved.slot}`) && moved.status !== 'done') { moved.owner = undefined; moved.status = 'unclaimed'; }
     return moved;
   });
-  return assignTasks(changed, people);
+  // Only the tasks tied to this visit look for a new person. Other open tasks stay as they were.
+  for (const task of changed) {
+    if (task.appointment !== 'chemo' || task.owner || !task.published || task.status === 'done') continue;
+    const load = (id: string) => changed.filter(t => t.owner === id && t.status !== 'done').length;
+    const next = people.filter(p => canAssign(p, task, changed)).sort((a, b) => load(a.id) - load(b.id))[0];
+    if (next) { task.owner = next.id; task.status = 'assigned'; }
+  }
+  return changed;
 }
 
 export function canViewMedical(role: Role, person: Caregiver | undefined) {

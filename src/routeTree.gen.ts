@@ -14,13 +14,18 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as CircleRouteImport } from './routes/circle'
+import { Route as MoreRouteImport } from './routes/more'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PeopleRouteImport } from './routes/people'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as WearablesRouteImport } from './routes/wearables'
+import { Route as VisitsIndexRouteImport } from './routes/visits.index'
 import { Route as ApiPublicLinqWebhookRouteImport } from './routes/api.public.linq-webhook'
 import { Route as ApiPublicSendCareSmsRouteImport } from './routes/api.public.send-care-sms'
+import { Route as VisitsIdIndexRouteImport } from './routes/visits.$id.index'
+import { Route as VisitsIdMoveRouteImport } from './routes/visits.$id.move'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,9 +52,19 @@ const CircleRoute = CircleRouteImport.update({
   path: '/circle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoreRoute = MoreRouteImport.update({
+  id: '/more',
+  path: '/more',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeopleRoute = PeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScheduleRoute = ScheduleRouteImport.update({
@@ -72,6 +87,11 @@ const WearablesRoute = WearablesRouteImport.update({
   path: '/wearables',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VisitsIndexRoute = VisitsIndexRouteImport.update({
+  id: '/visits/',
+  path: '/visits/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLinqWebhookRoute = ApiPublicLinqWebhookRouteImport.update({
   id: '/api/public/linq-webhook',
   path: '/api/public/linq-webhook',
@@ -82,6 +102,16 @@ const ApiPublicSendCareSmsRoute = ApiPublicSendCareSmsRouteImport.update({
   path: '/api/public/send-care-sms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VisitsIdIndexRoute = VisitsIdIndexRouteImport.update({
+  id: '/visits/$id/',
+  path: '/visits/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisitsIdMoveRoute = VisitsIdMoveRouteImport.update({
+  id: '/visits/$id/move',
+  path: '/visits/$id/move',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,13 +119,18 @@ export interface FileRoutesByFullPath {
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
+  '/more': typeof MoreRoute
   '/onboarding': typeof OnboardingRoute
+  '/people': typeof PeopleRoute
   '/schedule': typeof ScheduleRoute
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
+  '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
+  '/visits/$id/move': typeof VisitsIdMoveRoute
+  '/visits/$id/': typeof VisitsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,13 +138,18 @@ export interface FileRoutesByTo {
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
+  '/more': typeof MoreRoute
   '/onboarding': typeof OnboardingRoute
+  '/people': typeof PeopleRoute
   '/schedule': typeof ScheduleRoute
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
+  '/visits': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
+  '/visits/$id/move': typeof VisitsIdMoveRoute
+  '/visits/$id': typeof VisitsIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,13 +158,18 @@ export interface FileRoutesById {
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
+  '/more': typeof MoreRoute
   '/onboarding': typeof OnboardingRoute
+  '/people': typeof PeopleRoute
   '/schedule': typeof ScheduleRoute
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
+  '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
+  '/visits/$id/move': typeof VisitsIdMoveRoute
+  '/visits/$id/': typeof VisitsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,13 +179,18 @@ export interface FileRouteTypes {
     | '/board'
     | '/checklist'
     | '/circle'
+    | '/more'
     | '/onboarding'
+    | '/people'
     | '/schedule'
     | '/setup'
     | '/signup'
     | '/wearables'
+    | '/visits/'
     | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
+    | '/visits/$id/move'
+    | '/visits/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,13 +198,18 @@ export interface FileRouteTypes {
     | '/board'
     | '/checklist'
     | '/circle'
+    | '/more'
     | '/onboarding'
+    | '/people'
     | '/schedule'
     | '/setup'
     | '/signup'
     | '/wearables'
+    | '/visits'
     | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
+    | '/visits/$id/move'
+    | '/visits/$id'
   id:
     | '__root__'
     | '/'
@@ -162,13 +217,18 @@ export interface FileRouteTypes {
     | '/board'
     | '/checklist'
     | '/circle'
+    | '/more'
     | '/onboarding'
+    | '/people'
     | '/schedule'
     | '/setup'
     | '/signup'
     | '/wearables'
+    | '/visits/'
     | '/api/public/linq-webhook'
     | '/api/public/send-care-sms'
+    | '/visits/$id/move'
+    | '/visits/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -177,13 +237,18 @@ export interface RootRouteChildren {
   BoardRoute: typeof BoardRoute
   ChecklistRoute: typeof ChecklistRoute
   CircleRoute: typeof CircleRoute
+  MoreRoute: typeof MoreRoute
   OnboardingRoute: typeof OnboardingRoute
+  PeopleRoute: typeof PeopleRoute
   ScheduleRoute: typeof ScheduleRoute
   SetupRoute: typeof SetupRoute
   SignupRoute: typeof SignupRoute
   WearablesRoute: typeof WearablesRoute
+  VisitsIndexRoute: typeof VisitsIndexRoute
   ApiPublicLinqWebhookRoute: typeof ApiPublicLinqWebhookRoute
   ApiPublicSendCareSmsRoute: typeof ApiPublicSendCareSmsRoute
+  VisitsIdMoveRoute: typeof VisitsIdMoveRoute
+  VisitsIdIndexRoute: typeof VisitsIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -223,11 +288,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CircleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/more': {
+      id: '/more'
+      path: '/more'
+      fullPath: '/more'
+      preLoaderRoute: typeof MoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/people': {
+      id: '/people'
+      path: '/people'
+      fullPath: '/people'
+      preLoaderRoute: typeof PeopleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/schedule': {
@@ -258,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WearablesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visits/': {
+      id: '/visits/'
+      path: '/visits'
+      fullPath: '/visits/'
+      preLoaderRoute: typeof VisitsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/linq-webhook': {
       id: '/api/public/linq-webhook'
       path: '/api/public/linq-webhook'
@@ -272,6 +358,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSendCareSmsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visits/$id/': {
+      id: '/visits/$id/'
+      path: '/visits/$id'
+      fullPath: '/visits/$id/'
+      preLoaderRoute: typeof VisitsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visits/$id/move': {
+      id: '/visits/$id/move'
+      path: '/visits/$id/move'
+      fullPath: '/visits/$id/move'
+      preLoaderRoute: typeof VisitsIdMoveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -281,13 +381,18 @@ const rootRouteChildren: RootRouteChildren = {
   BoardRoute: BoardRoute,
   ChecklistRoute: ChecklistRoute,
   CircleRoute: CircleRoute,
+  MoreRoute: MoreRoute,
   OnboardingRoute: OnboardingRoute,
+  PeopleRoute: PeopleRoute,
   ScheduleRoute: ScheduleRoute,
   SetupRoute: SetupRoute,
   SignupRoute: SignupRoute,
   WearablesRoute: WearablesRoute,
+  VisitsIndexRoute: VisitsIndexRoute,
   ApiPublicLinqWebhookRoute: ApiPublicLinqWebhookRoute,
   ApiPublicSendCareSmsRoute: ApiPublicSendCareSmsRoute,
+  VisitsIdMoveRoute: VisitsIdMoveRoute,
+  VisitsIdIndexRoute: VisitsIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

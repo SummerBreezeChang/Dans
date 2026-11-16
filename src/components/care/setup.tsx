@@ -68,9 +68,9 @@ export function Setup() {
   return <div className="setup">
     <header className={bare ? 'setup-top setup-top-bare' : 'setup-top'}>
       <img className="setup-logo" src="/firstcare-logo.svg" alt="FirstCare+" width={81} height={44} />
-      <div className="setup-quick-header"><Link to="/auth" className="setup-link">Sign in</Link><Button asChild variant="link" className="setup-link"><Link to="/board" onClick={startShowcase}>Skip to care board</Link></Button></div>
+      <div className="setup-quick-header"><Link to="/auth" className="setup-link">Sign in</Link><Button asChild variant="link" className="setup-link"><Link to="/" onClick={startShowcase}>Skip to the week</Link></Button></div>
       {!bare && <span className="setup-progress" aria-hidden="true"><i data-step={stepOf[step]} /></span>}
-      {step === 0 && <Link to="/board" className="setup-link">I was invited to help</Link>}
+      {step === 0 && <Link to="/" className="setup-link">I was invited to help</Link>}
       {!bare && <span className="setup-count">{step === 8 ? 'Optional' : `Step ${stepOf[step]} of 5`}</span>}
       {step === LAST && <span className="setup-count">All set</span>}
     </header>
@@ -150,7 +150,7 @@ export function Setup() {
     {step === LAST && <main className="setup-col setup-center">
       <h1 className="setup-hero">Maya's week has a plan.</h1>
       <p className="setup-lead">Asks go out to Henry, Nancy, Jack, Mary and Karen in the group text. You'll hear as they answer.</p>
-      <div className="setup-row"><Link to="/board" className="setup-btn" onClick={startShowcase}><Check size={18} /> See the week</Link><button type="button" className="setup-link" onClick={() => setStep(0)}>Start over</button></div>
+      <div className="setup-row"><Link to="/" className="setup-btn" onClick={startShowcase}><Check size={18} /> See the week</Link><button type="button" className="setup-link" onClick={() => setStep(0)}>Start over</button></div>
     </main>}
   </div>;
 }
