@@ -10,7 +10,7 @@ vi.mock('@tanstack/react-start', () => ({ createServerFn: () => {
 vi.mock('@tanstack/react-start/server', () => ({ getRequest: () => new Request('https://firstcareplus.lovable.app/wearables') }));
 vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth: {} }));
 vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { from: (table: string) => {
-  const result = table === 'care_caregivers' ? { data: [{ id: 'priya', phone: '+16086585812' }, { id: 'david', phone: null }], error: null } : { data: null, error: null };
+  const result = table === 'care_caregivers' ? { data: [{ id: 'henry', phone: '+12025550142' }, { id: 'summer', phone: null }], error: null } : { data: null, error: null };
   const chain = { select: () => chain, eq: () => chain, single: async () => ({ data: { live_sms: state.live } }),
     upsert: async (row: { id: string }) => { (table === 'care_tasks' ? state.tasks : state.activity).add(row.id); return { error: null }; },
     insert: async (row: { key: string }) => { if (state.keys.has(row.key)) return { error: { code: '23505' } }; state.keys.add(row.key); return { error: null }; },
@@ -35,7 +35,7 @@ describe('Wellness escalation delivery', () => {
     const [url, options] = vi.mocked(fetch).mock.calls[0] ?? [];
     expect(String(url)).toBe('https://firstcareplus.lovable.app/api/public/send-care-sms');
     const body = JSON.parse(String(options?.body));
-    expect(body.to).toBe('+16086585812');
+    expect(body.to).toBe('+12025550142');
     expect(body.message).not.toContain('148'); expect(body.message).not.toContain('104');
     expect(body.message).toContain('DEMO');
   });

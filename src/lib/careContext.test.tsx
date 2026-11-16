@@ -20,7 +20,7 @@ describe('Care context boundary', () => {
       return <output>{state.people.find(p => p.id === state.activePerson)?.name}</output>;
     }
     render(<CareProvider><Consumer /></CareProvider>);
-    expect(screen.getByRole('status')).toHaveTextContent('Hardika Narula');
+    expect(screen.getByRole('status')).toHaveTextContent('Summer Chang');
     expect(CareContext).toBeDefined();
   });
   it('restores the same ten demo tasks and primary perspective on every showcase entry', async () => {
@@ -32,7 +32,7 @@ describe('Care context boundary', () => {
     fireEvent.click(screen.getByText('Change'));
     expect(JSON.parse(screen.getByRole('status').textContent ?? '{}').count).toBe(0);
     fireEvent.click(screen.getByText('Enter'));
-    await waitFor(() => expect(JSON.parse(screen.getByRole('status').textContent ?? '{}')).toEqual({ count: 10, role: 'Primary Caregiver', owner: 'david', hospital: 'Kaiser Permanente', names: ['Hardika Narula', 'Srishti Lodha', 'Summer Chang'], liveSms: false }));
+    await waitFor(() => expect(JSON.parse(screen.getByRole('status').textContent ?? '{}')).toEqual({ count: 10, role: 'Primary Caregiver', owner: 'summer', hospital: 'Kaiser Permanente', names: ['Summer Chang', 'Henry', 'Nancy', 'Jack', 'Mary', 'Karen'], liveSms: false }));
     fireEvent.click(screen.getByText('Change'));
     fireEvent.click(screen.getByText('Enter'));
     expect(JSON.parse(screen.getByRole('status').textContent ?? '{}').count).toBe(10);

@@ -26,17 +26,20 @@ ALTER TABLE public.care_sms_log ENABLE ROW LEVEL SECURITY;
 
 INSERT INTO public.care_settings (id, live_sms) VALUES (1, true);
 INSERT INTO public.care_caregivers (id, name, phone, availability) VALUES
-('david','David Lin',NULL,ARRAY['0-Morning','0-Evening','1-Morning','1-Evening','2-Morning','2-Evening','3-Morning','3-Evening','4-Evening','5-Morning','5-Afternoon','6-Morning']),
-('priya','Priya Patel','+16086585812',ARRAY['0-Afternoon','1-Afternoon','2-Morning','2-Afternoon','3-Afternoon','4-Afternoon','4-Evening','5-Evening','6-Afternoon']),
-('marcus','Marcus Vance',NULL,ARRAY['0-Evening','1-Morning','2-Evening','3-Morning','3-Afternoon','3-Evening','4-Morning','4-Afternoon','5-Morning','6-Evening']);
+('summer','Summer Chang',NULL,ARRAY['0-Morning','0-Evening','1-Morning','1-Evening','2-Morning','2-Evening','3-Morning','3-Evening','4-Evening','5-Morning','5-Afternoon','6-Morning']),
+('henry','Henry',NULL,ARRAY['0-Afternoon','1-Afternoon','2-Morning','2-Afternoon','3-Afternoon','4-Afternoon','4-Evening','5-Evening','6-Afternoon']),
+('nancy','Nancy',NULL,ARRAY['0-Evening','1-Morning','2-Evening','3-Morning','3-Afternoon','3-Evening','4-Morning','4-Afternoon','5-Morning','6-Evening']),
+('jack','Jack',NULL,ARRAY['1-Evening','3-Evening','5-Morning','5-Afternoon','6-Morning','6-Afternoon']),
+('mary','Mary',NULL,ARRAY['0-Morning','2-Morning','4-Morning','4-Afternoon','4-Evening']),
+('karen','Karen',NULL,ARRAY['1-Afternoon','3-Afternoon','5-Evening','6-Evening']);
 INSERT INTO public.care_tasks (id,title,day,slot,time,owner,status) VALUES
-('task-1','Ride to chemotherapy',3,'Morning','9:00 AM','david','accepted'),
-('task-2','Prepare a post-chemo meal',3,'Evening','6:00 PM','priya','assigned'),
+('task-1','Ride to chemotherapy',3,'Morning','9:00 AM','summer','accepted'),
+('task-2','Prepare a post-chemo meal',3,'Evening','6:00 PM','henry','assigned'),
 ('task-3','Pick up prescriptions',3,'Afternoon','12:30 PM',NULL,'unclaimed'),
-('task-4','Ride to blood draw',2,'Morning','7:45 AM','priya','accepted'),
-('task-5','Confirm oncology follow-up',0,'Morning','10:00 AM','david','done'),
-('task-6','Check in with Maya',4,'Evening','7:00 PM','marcus','assigned'),
+('task-4','Ride to blood draw',2,'Morning','7:45 AM','henry','accepted'),
+('task-5','Confirm oncology follow-up',0,'Morning','10:00 AM','summer','done'),
+('task-6','Check in with Maya',4,'Evening','7:00 PM','nancy','assigned'),
 ('task-7','Prepare meals for the weekend',5,'Morning','11:00 AM',NULL,'unclaimed'),
-('task-8','Collect questions for the oncologist',2,'Evening','6:00 PM','david','assigned'),
-('task-9','Update emergency contact list',1,'Morning','10:00 AM','marcus','done'),
+('task-8','Collect questions for the oncologist',2,'Evening','6:00 PM','summer','assigned'),
+('task-9','Update emergency contact list',1,'Morning','10:00 AM','nancy','done'),
 ('task-10','Set up a comfortable recovery space',3,'Morning','8:00 AM',NULL,'unclaimed');

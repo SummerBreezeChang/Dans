@@ -127,15 +127,15 @@ export function Setup() {
     {step === 6 && <main className="setup-col">
       <h1>Who has offered to help?</h1>
       <p className="setup-lead">They can say yes, swap or can't to anything. Nobody is signed up without agreeing.</p>
-      <ul className="setup-people"><li><i className="mint">S</i><div><strong>Srishti</strong><span>(415) 555-0142 · sees tasks only</span></div></li><li><i className="peach">H</i><div><strong>Hardika</strong><span>(510) 555-0178 · sees tasks only</span></div></li></ul>
+      <ul className="setup-people"><li><i className="mint">H</i><div><strong>Henry</strong><span>(415) 555-0142 · sees tasks only</span></div></li><li><i className="peach">N</i><div><strong>Nancy</strong><span>(510) 555-0178 · sees tasks only</span></div></li><li><i className="mint">J</i><div><strong>Jack</strong><span>(415) 555-0116 · sees tasks only</span></div></li><li><i className="peach">M</i><div><strong>Mary</strong><span>(510) 555-0193 · sees tasks only</span></div></li><li><i className="mint">K</i><div><strong>Karen</strong><span>(415) 555-0127 · sees tasks only</span></div></li></ul>
       <p className="setup-muted">"Tasks only" means they see the ride, not the reason. Maya can share more with anyone later.</p>
-      <Footer back={back}><button type="button" className="setup-btn" onClick={next}>Continue with 2 people</button></Footer>
+      <Footer back={back}><button type="button" className="setup-btn" onClick={next}>Continue with 5 people</button></Footer>
     </main>}
 
     {step === 7 && <main className="setup-col">
       <h1>Put everyone in one group text.</h1>
       <p className="setup-lead">Asks arrive there. People reply yes, swap or can't. No app to download.</p>
-      <div className="setup-thread"><small>Maya's circle · you, Srishti, Hardika</small><p>Hi Srishti and Hardika. Summer set up a care circle for Maya. A few things could use a hand this week.</p><p>Srishti, could you drive Maya on Thursday at 9? Reply yes, swap or can't.</p><p className="me">Yes</p><p>Thank you. It's yours, Srishti.</p></div>
+      <div className="setup-thread"><small>Maya's circle · you, Henry, Nancy, Jack, Mary, Karen</small><p>Hi everyone. Summer set up a care circle for Maya. A few things could use a hand this week.</p><p>Henry, could you drive Maya on Thursday at 9? Reply yes, swap or can't.</p><p className="me">Yes</p><p>Thank you. It's yours, Henry.</p></div>
       <p className="setup-muted">Texts never mention health details. Only the task and a link. This preview sends nothing.</p>
       <Footer back={back}><button type="button" className="setup-btn" onClick={next}>Start the group text</button></Footer>
     </main>}
@@ -149,7 +149,7 @@ export function Setup() {
 
     {step === LAST && <main className="setup-col setup-center">
       <h1 className="setup-hero">Maya's week has a plan.</h1>
-      <p className="setup-lead">Asks go out to Srishti and Hardika in the group text. You'll hear as they answer.</p>
+      <p className="setup-lead">Asks go out to Henry, Nancy, Jack, Mary and Karen in the group text. You'll hear as they answer.</p>
       <div className="setup-row"><Link to="/board" className="setup-btn" onClick={startShowcase}><Check size={18} /> See the week</Link><button type="button" className="setup-link" onClick={() => setStep(0)}>Start over</button></div>
     </main>}
   </div>;

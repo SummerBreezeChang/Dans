@@ -20,7 +20,7 @@ export function ShowcaseAuth({ signup = false }: { signup?: boolean }) {
       <h1>{signup ? 'A little help starts here.' : 'Welcome back.'}</h1>
       <p className="setup-lead">{signup ? 'Create your care circle.' : 'Your care circle is ready.'}</p>
       <form onSubmit={submit} noValidate className="showcase-form">
-        {signup && <label className="setup-field"><span>Your name</span><input autoComplete="off" defaultValue="Hardika Narula" /></label>}
+        {signup && <label className="setup-field"><span>Your name</span><input autoComplete="off" defaultValue="Summer Chang" /></label>}
         <label className="setup-field"><span>Email</span><input type="email" autoComplete="off" defaultValue="showcase@example.com" /></label>
         <label className="setup-field"><span>Password</span><div className="showcase-password"><input type={visible ? 'text' : 'password'} autoComplete="off" defaultValue="FirstCareDemo2026" /><Button type="button" variant="ghost" size="icon" aria-label={visible ? 'Hide password' : 'Show password'} onClick={() => setVisible(v => !v)}>{visible ? <EyeOff /> : <Eye />}</Button></div></label>
         <Button type="submit" className="setup-btn">{signup ? 'Sign up' : 'Sign in'}<ArrowRight size={18}/></Button>

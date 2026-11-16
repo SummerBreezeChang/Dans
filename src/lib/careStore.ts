@@ -8,28 +8,31 @@ import { defaultSharing, wellnessTask, type Insight, type WellnessScenario } fro
 import { assignTasks, declineTask, rescheduleTasks, type CareTask, type Caregiver, type Role, type Category } from './assignmentEngine';
 export const categories: Category[] = ['Appointment Management', 'Follow-ups', 'At-Home Care', 'Meal Planning', 'Medicine Pickup', 'Rides to & from Appointments', 'Emergency Contacts'];
 export const initialPeople: Caregiver[] = [
- {id:'david',name:'Hardika Narula',initials:'HN',role:'Primary Caregiver',visibility:'Full medical details',cap:5,availability:['0-Morning','0-Evening','1-Morning','1-Evening','2-Morning','2-Evening','3-Morning','3-Evening','4-Evening','5-Morning','5-Afternoon','6-Morning']},
- {id:'priya',name:'Srishti Lodha',initials:'SL',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Afternoon','1-Afternoon','2-Morning','2-Afternoon','3-Afternoon','4-Afternoon','4-Evening','5-Evening','6-Afternoon']},
- {id:'marcus',name:'Summer Chang',initials:'SC',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Evening','1-Morning','2-Evening','3-Morning','3-Afternoon','3-Evening','4-Morning','4-Afternoon','5-Morning','6-Evening']},
+ {id:'summer',name:'Summer Chang',initials:'SC',role:'Primary Caregiver',visibility:'Full medical details',cap:5,availability:['0-Morning','0-Evening','1-Morning','1-Evening','2-Morning','2-Evening','3-Morning','3-Evening','4-Evening','5-Morning','5-Afternoon','6-Morning']},
+ {id:'henry',name:'Henry',initials:'H',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Afternoon','1-Afternoon','2-Morning','2-Afternoon','3-Afternoon','4-Afternoon','4-Evening','5-Evening','6-Afternoon']},
+ {id:'nancy',name:'Nancy',initials:'N',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Evening','1-Morning','2-Evening','3-Morning','3-Afternoon','3-Evening','4-Morning','4-Afternoon','5-Morning','6-Evening']},
+ {id:'jack',name:'Jack',initials:'J',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['1-Evening','3-Evening','5-Morning','5-Afternoon','6-Morning','6-Afternoon']},
+ {id:'mary',name:'Mary',initials:'M',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['0-Morning','2-Morning','4-Morning','4-Afternoon','4-Evening']},
+ {id:'karen',name:'Karen',initials:'K',role:'Secondary Caregiver',visibility:'Task-only',cap:5,availability:['1-Afternoon','3-Afternoon','5-Evening','6-Evening']},
 ];
 export function generateCareChecklist(): CareTask[] {
  const rows: [string, Category, number, 'Morning'|'Afternoon'|'Evening', string, number, string|undefined, string|undefined, CareTask['status']][] = [
- ['Ride to chemotherapy','Rides to & from Appointments',3,'Morning','9:00 AM',60,'chemo','david','accepted'],
- ['Prepare a post-chemo meal','Meal Planning',3,'Evening','6:00 PM',45,'chemo','priya','assigned'],
+ ['Ride to chemotherapy','Rides to & from Appointments',3,'Morning','9:00 AM',60,'chemo','summer','accepted'],
+ ['Prepare a post-chemo meal','Meal Planning',3,'Evening','6:00 PM',45,'chemo','henry','assigned'],
  ['Pick up prescriptions','Medicine Pickup',3,'Afternoon','12:30 PM',30,'chemo',undefined,'unclaimed'],
- ['Ride to blood draw','Rides to & from Appointments',2,'Morning','7:45 AM',45,'labs','priya','accepted'],
- ['Confirm oncology follow-up','Appointment Management',0,'Morning','10:00 AM',15,undefined,'david','done'],
- ['Check in with Maya','At-Home Care',4,'Evening','7:00 PM',20,undefined,'marcus','assigned'],
+ ['Ride to blood draw','Rides to & from Appointments',2,'Morning','7:45 AM',45,'labs','henry','accepted'],
+ ['Confirm oncology follow-up','Appointment Management',0,'Morning','10:00 AM',15,undefined,'summer','done'],
+ ['Check in with Maya','At-Home Care',4,'Evening','7:00 PM',20,undefined,'nancy','assigned'],
  ['Prepare meals for the weekend','Meal Planning',5,'Morning','11:00 AM',60,undefined,undefined,'unclaimed'],
- ['Collect questions for the oncologist','Follow-ups',2,'Evening','6:00 PM',20,'oncology','david','assigned'],
- ['Update emergency contact list','Emergency Contacts',1,'Morning','10:00 AM',15,undefined,'marcus','done'],
+ ['Collect questions for the oncologist','Follow-ups',2,'Evening','6:00 PM',20,'oncology','summer','assigned'],
+ ['Update emergency contact list','Emergency Contacts',1,'Morning','10:00 AM',15,undefined,'nancy','done'],
  ['Set up a comfortable recovery space','At-Home Care',3,'Morning','8:00 AM',30,undefined,undefined,'unclaimed'],
  ];
  return rows.map((r,i) => ({id:`task-${i+1}`,title:r[0],category:r[1],day:r[2],slot:r[3],time:r[4],duration:r[5],appointment:r[6],owner:r[7],status:r[8],approved:true,published:true,notes:'Coordinate with Maya before the task. Follow the care team’s instructions.'}));
 }
 export interface Activity {id:string; title:string; detail:string; time:string}
 export interface CareState { role: Role; activePerson: string; people: Caregiver[]; tasks: CareTask[]; consent: boolean; connected: boolean; hospital: string; rescheduled: boolean; activities: Activity[]; refusals: {task:string; person:string; reason:string}[]; sharing: Record<string,boolean>; wellnessScenario?: WellnessScenario }
-const freshState = (): CareState => ({role:'Primary Caregiver',activePerson:'david',people:structuredClone(initialPeople),tasks:generateCareChecklist(),consent:true,connected:true,hospital:'Kaiser Permanente',rescheduled:false,activities:[{id:'a1',title:'Srishti accepted a task',detail:'Ride to blood draw · Wednesday',time:'24 min ago'},{id:'a2',title:'Your care plan is ready',detail:'10 tasks shared with the care circle',time:'1 hour ago'},{id:'a3',title:'Hospital record connected',detail:'Kaiser Permanente · Demo import',time:'2 hours ago'}],refusals:[],sharing:{...defaultSharing},wellnessScenario:'baseline'});
+const freshState = (): CareState => ({role:'Primary Caregiver',activePerson:'summer',people:structuredClone(initialPeople),tasks:generateCareChecklist(),consent:true,connected:true,hospital:'Kaiser Permanente',rescheduled:false,activities:[{id:'a1',title:'Henry accepted a task',detail:'Ride to blood draw · Wednesday',time:'24 min ago'},{id:'a2',title:'Your care plan is ready',detail:'10 tasks shared with the care circle',time:'1 hour ago'},{id:'a3',title:'Hospital record connected',detail:'Kaiser Permanente · Demo import',time:'2 hours ago'}],refusals:[],sharing:{...defaultSharing},wellnessScenario:'baseline'});
 export interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; startShowcase:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>}
 export function CareProvider({children}:{children:ReactNode}) {
  const escalate = useServerFn(escalateWellness);
@@ -61,7 +64,7 @@ export function CareProvider({children}:{children:ReactNode}) {
    } catch {return 'Added to this care board · sign-in required to sync and send live SMS';}
  };
   const displayState=useMemo(()=>{
-    const rename=(text:string)=>text.replace(/\bPriya Patel\b/g,'Srishti Lodha').replace(/\bDavid Lin\b/g,'Hardika Narula').replace(/\bMarcus Vance\b/g,'Summer Chang').replace(/\bPriya\b/g,'Srishti').replace(/\bDavid\b/g,'Hardika').replace(/\bMarcus\b/g,'Summer');
+    const rename=(text:string)=>text.replace(/\bPriya Patel\b/g,'Henry').replace(/\bDavid Lin\b/g,'Summer Chang').replace(/\bMarcus Vance\b/g,'Nancy').replace(/\bPriya\b/g,'Henry').replace(/\bDavid\b/g,'Summer').replace(/\bMarcus\b/g,'Nancy');
     return {...state,people:state.people.map(person=>{const identity=initialPeople.find(p=>p.id===person.id);return identity?{...person,name:identity.name,initials:identity.initials}:person;}),tasks:state.tasks.map(task=>({...task,title:rename(task.title),notes:rename(task.notes)})),activities:state.activities.map(a=>({...a,title:rename(a.title),detail:rename(a.detail)})),refusals:state.refusals.map(r=>({...r,task:rename(r.task),reason:rename(r.reason)}))};
   },[state]);
   return createElement(CareContext.Provider, {value:{state:displayState,update,reset:()=>setState(freshState()),startShowcase,autoAssign,decline,reschedule,addActivity,liveSms,setLive,createWellnessTask}}, children);
