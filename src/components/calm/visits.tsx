@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import { rescheduleTasks, type CareTask } from '@/lib/assignmentEngine';
-import { byTime, firstName, helpWord, list, numberWord, visitsFor } from '@/lib/week';
+import { byTime, firstName, list, numberWord, shortTitle, visitsFor, visitWhen } from '@/lib/week';
 import { PillTag } from './shell';
 import { TaskRow } from './parts';
 
@@ -27,7 +27,7 @@ export function Visits() {
               <Link to="/visits/$id" params={{ id: v.id }} className="c-row c-row-tall">
                 <span className="c-stack">
                   <strong>{v.title}</strong>
-                  <small>{v.date} · {v.time}</small>
+                  <small>{visitWhen(v)}</small>
                 </span>
                 <PillTag tone={done === tasks.length ? 'mint' : 'peach'}>{done} of {tasks.length} covered</PillTag>
               </Link>
@@ -67,7 +67,7 @@ export function Visit({ id }: { id: string }) {
           <small>{covered} of {tasks.length} covered</small>
         </div>
         <ul className="c-rows c-card">
-          {tasks.map(t => <TaskRow key={t.id} task={t} people={state.people} me={ME} sub={`${t.time} · ${helpWord(t)}`} />)}
+          {tasks.map(t => <TaskRow key={t.id} task={t} people={state.people} me={ME} sub={t.time} title={shortTitle(t)} />)}
         </ul>
       </section>
     </>
@@ -111,8 +111,8 @@ export function MoveVisit({ id }: { id: string }) {
           {changes.map(({ now, outcome }) => (
             <li key={now.id} className="c-row c-row-tall">
               <span className="c-stack">
-                <strong>{now.title}</strong>
-                <small>Friday, {now.time}</small>
+                <strong>{shortTitle(now)}</strong>
+                <small>Fri {now.time}</small>
               </span>
               <span className="c-outcome">{outcome}</span>
             </li>

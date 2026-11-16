@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import type { CareTask } from '@/lib/assignmentEngine';
-import { byTime, dayNames, doesWhat, firstName, helpWord, numberWord, suggest, visitsFor, weekLabel } from '@/lib/week';
+import { byTime, firstName, helpWord, shortTitle, shortWhen, suggest, visitsFor, visitWhen } from '@/lib/week';
 import { KindIcon, TaskRow } from './parts';
 
 // Home answers one question: is the week covered? The one thing that is not sits on top.
@@ -25,41 +25,37 @@ export function Home() {
     setSkip(0);
   };
 
-  const headline = open.length
-    ? `${numberWord(covered)} of ${numberWord(tasks.length).toLowerCase()} are covered. ${numberWord(open.length)} ${open.length === 1 ? 'needs' : 'need'} someone.`
-    : `All ${numberWord(tasks.length).toLowerCase()} are covered.`;
+  const headline = open.length ? `${open.length} ${open.length === 1 ? 'needs' : 'need'} someone` : 'All covered';
 
-  const row = (t: CareTask) => <TaskRow key={t.id} task={t} people={state.people} me={ME} />;
+  const row = (t: CareTask) => <TaskRow key={t.id} task={t} people={state.people} me={ME} title={shortTitle(t)} {...(t.appointment ? {} : { sub: shortWhen(t) })} />;
 
   const loose = tasks.filter(t => !t.appointment).sort(byTime);
 
   return (
     <>
-      <header className="c-head">
-        <p className="c-eyebrow">Maya's week · {weekLabel}</p>
-        <h1 className="c-title">{headline}</h1>
+      <header className="c-head c-head-tight">
+        <h1 className="c-title c-title-big">{headline}</h1>
+        <p className="c-body c-quiet">{covered} of {tasks.length} covered this week</p>
       </header>
 
       {ask && (
         <section className="c-ask" aria-label="Needs someone">
-          <div className="c-ask-top">
-            <span className="c-eyebrow c-ink">Needs someone</span>
-            {open.length > 1 && <span className="c-count">{(skip % open.length) + 1} of {open.length}</span>}
-          </div>
           <div className="c-ask-main">
             <span className="c-tile c-tile-ask"><KindIcon help={helpWord(ask)} /></span>
-            <div>
-            <h2 className="c-ask-title">{ask.title}</h2>
-            <p className="c-ask-body">
-              {dayNames[ask.day]}, {ask.time}. {who ? `${firstName(who)} is free then and ${doesWhat(ask)}.` : 'Nobody else is free then.'}
-            </p>
+            <div className="c-grow">
+              <h2 className="c-ask-title">{ask.title}</h2>
+              <p className="c-ask-body">{shortWhen(ask)}</p>
             </div>
+            {open.length > 1 && (
+              <button type="button" className="c-next" aria-label="Show the next one" onClick={() => setSkip(n => n + 1)}>
+                {(skip % open.length) + 1} / {open.length}
+              </button>
+            )}
           </div>
           <div className="c-ask-actions">
             {who && <button type="button" className="c-btn c-btn-main" onClick={() => give(ask, who.id, 'assigned')}>Ask {firstName(who)}</button>}
             <button type="button" className={who ? 'c-btn c-btn-white' : 'c-btn c-btn-main'} onClick={() => give(ask, ME, 'accepted')}>I'll take it</button>
           </div>
-          {open.length > 1 && <button type="button" className="c-link" onClick={() => setSkip(s => s + 1)}>Show the next one</button>}
         </section>
       )}
 
@@ -69,8 +65,8 @@ export function Home() {
           return (
             <div key={v.id} className="c-card">
               <Link to="/visits/$id" params={{ id: v.id }} className="c-group-head">
-                <span>{v.date} · {v.short}</span>
-                <small>{v.time}</small>
+                <span>{v.short}</span>
+                <small>{visitWhen(v)}</small>
               </Link>
               <ul className="c-rows">{mine.map(row)}</ul>
             </div>

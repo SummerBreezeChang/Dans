@@ -1,4 +1,4 @@
-import { canAssign, helpNeeded, type CareTask, type Caregiver, type Help } from './assignmentEngine';
+import { canAssign, days, helpNeeded, type CareTask, type Caregiver, type Help } from './assignmentEngine';
 
 // The week as Summer reads it: visits, the tasks that hang off them, and who has each one.
 
@@ -32,7 +32,7 @@ export interface Pill { label: string; tone: 'mint' | 'peach' | 'plain' | 'quiet
 
 export function pillFor(task: CareTask, people: Caregiver[], me: string): Pill {
   if (task.status === 'done') return { label: 'Done', tone: 'quiet' };
-  if (!task.owner) return { label: 'Needs someone', tone: 'peach' };
+  if (!task.owner) return { label: 'Open', tone: 'peach' };
   if (task.owner === me) return { label: 'You', tone: 'mint' };
   const name = firstName(people.find(p => p.id === task.owner));
   return task.status === 'assigned' ? { label: `${name}, asked`, tone: 'plain' } : { label: name, tone: 'mint' };
@@ -55,3 +55,11 @@ export function list(names: string[]) {
   if (names.length <= 1) return names[0] ?? '';
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
+
+/** "Thu 12:30 PM". One short form for every day and time on screen. */
+export const shortWhen = (task: Pick<CareTask, 'day' | 'time'>) => `${days[task.day] ?? ''} ${task.time}`.trim();
+export const visitWhen = (v: Visit) => `${v.day > 6 ? 'Next ' : ''}${v.date.split(' ')[0]} ${v.time}`;
+
+const shortFor: Partial<Record<Help, string>> = { Rides: 'Ride there', Pickups: 'Prescriptions', Meals: 'Meal after' };
+/** Under a visit heading the visit name is already said, so the task can be brief. */
+export const shortTitle = (task: CareTask) => (task.appointment ? shortFor[helpNeeded(task)] ?? task.title : task.title);
