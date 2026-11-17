@@ -21,6 +21,6 @@ if (process.argv[2] === 'check') {
   process.exit(0);
 }
 
-const ask = "Hi Henry. Could you pick up Maya's prescriptions Thu 12:30 PM?\n\u{1F44D} Got it\n\u{1F44E} Pass it on";
+const ask = "Hi Henry. Could you pick up Maya's prescriptions?\nThu, Nov 19 at 12:30 PM\n\n\u{1F44D} or reply YES: Got it\n\u{1F44E} or reply PASS: Pass it on";
 const res = await fetch(`${base}/chats/${chat.id}/messages`, { method: 'POST', headers, body: JSON.stringify({ message: { parts: [{ type: 'text', value: ask }] } }) });
 console.log('ask sent:', res.status);
