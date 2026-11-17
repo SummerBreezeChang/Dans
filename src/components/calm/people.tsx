@@ -54,6 +54,7 @@ export function More() {
           </span>
           <button type="button" className="c-btn c-btn-small" aria-pressed={liveSms} onClick={() => setLive(!liveSms)}>{liveSms ? 'Turn off' : 'Turn on'}</button>
         </li>
+        <li><Link to="/notifications" className="c-row c-row-tall"><span className="c-stack"><strong>Notifications</strong><small>What Dans texts you about</small></span></Link></li>
         <li><Link to="/wearables" className="c-row c-row-tall"><span className="c-stack"><strong>Wellness</strong><small>Sleep and heart readings Maya shares</small></span></Link></li>
         <li><Link to="/start" className="c-row c-row-tall"><span className="c-stack"><strong>Invite the circle</strong><small>Ask Maya first, then send links</small></span></Link></li>
         <li className="c-row c-row-tall">

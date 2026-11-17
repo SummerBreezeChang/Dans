@@ -28,3 +28,22 @@ describe('reminders and passes', () => {
     expect(parseAskRef(askRef('task-3', 'nancy', '+14155550100', 'lead'))).toMatchObject({ personId: 'nancy', kind: 'lead' });
   });
 });
+
+import { passedText } from './careSync.functions';
+import { defaultPrefs, parsePrefs } from './notify';
+
+describe('passes handled by Dans', () => {
+  it('tells the lead who Dans already asked', () => {
+    expect(passedText('Summer Chang', 'Henry', 'Pick up prescriptions', { day: 3, time: '12:30 PM' }, 'Nancy'))
+      .toBe("Summer, Henry can't pick up Maya's prescriptions Thu, Nov 19 at 12:30 PM. I asked Nancy.");
+  });
+  it('says so when nobody is free', () => {
+    expect(passedText('Summer', 'Henry', 'Ride to blood draw', { day: 2, time: '7:45 AM' }, undefined)).toContain("It's open in Dans.");
+  });
+  it('asks the next person automatically unless told to check first', () => {
+    expect(defaultPrefs).toEqual({ pass: 'auto', nobody: true, passed: false });
+    expect(parsePrefs('{"pass":"check","nobody":false,"passed":true}')).toEqual({ pass: 'check', nobody: false, passed: true });
+    expect(parsePrefs('not json')).toEqual(defaultPrefs);
+    expect(parsePrefs('{"pass":"nonsense"}').pass).toBe('auto');
+  });
+});

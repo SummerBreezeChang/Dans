@@ -16,6 +16,7 @@ import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as CircleRouteImport } from './routes/circle'
 import { Route as MayaRouteImport } from './routes/maya'
 import { Route as MoreRouteImport } from './routes/more'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PeopleRouteImport } from './routes/people'
 import { Route as ScheduleRouteImport } from './routes/schedule'
@@ -64,6 +65,11 @@ const MayaRoute = MayaRouteImport.update({
 const MoreRoute = MoreRouteImport.update({
   id: '/more',
   path: '/more',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/circle': typeof CircleRoute
   '/maya': typeof MayaRoute
   '/more': typeof MoreRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/people': typeof PeopleRoute
   '/schedule': typeof ScheduleRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/circle': typeof CircleRoute
   '/maya': typeof MayaRoute
   '/more': typeof MoreRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/people': typeof PeopleRoute
   '/schedule': typeof ScheduleRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/circle': typeof CircleRoute
   '/maya': typeof MayaRoute
   '/more': typeof MoreRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/people': typeof PeopleRoute
   '/schedule': typeof ScheduleRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/circle'
     | '/maya'
     | '/more'
+    | '/notifications'
     | '/onboarding'
     | '/people'
     | '/schedule'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/circle'
     | '/maya'
     | '/more'
+    | '/notifications'
     | '/onboarding'
     | '/people'
     | '/schedule'
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/circle'
     | '/maya'
     | '/more'
+    | '/notifications'
     | '/onboarding'
     | '/people'
     | '/schedule'
@@ -287,6 +299,7 @@ export interface RootRouteChildren {
   CircleRoute: typeof CircleRoute
   MayaRoute: typeof MayaRoute
   MoreRoute: typeof MoreRoute
+  NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   PeopleRoute: typeof PeopleRoute
   ScheduleRoute: typeof ScheduleRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/more'
       fullPath: '/more'
       preLoaderRoute: typeof MoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -463,6 +483,7 @@ const rootRouteChildren: RootRouteChildren = {
   CircleRoute: CircleRoute,
   MayaRoute: MayaRoute,
   MoreRoute: MoreRoute,
+  NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   PeopleRoute: PeopleRoute,
   ScheduleRoute: ScheduleRoute,

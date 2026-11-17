@@ -59,6 +59,12 @@ export function leadText(lead: string, passed: string, title: string, when: When
   return next ? `${said} ${next.split(' ')[0]} is free then. Ask ${next.split(' ')[0]}?` : `${said} Nobody else is free then. It's open in Dans.`;
 }
 
+/** What the lead hears when Dans has already asked the next person, or nobody is free. */
+export function passedText(lead: string, passed: string, title: string, when: When, next: string | undefined) {
+  const said = `${lead.split(' ')[0]}, ${passed.split(' ')[0]} can't ${askPhrase(title)} ${whenText(when)}.`;
+  return next ? `${said} I asked ${next.split(' ')[0]}.` : `${said} Nobody else is free then. It's open in Dans.`;
+}
+
 /** The morning-of reminder. Wording from Summer, 2026-11-16. */
 export function reminderText(name: string, title: string, time: string) {
   return `${name.split(' ')[0]}, today at ${time} you will ${askPhrase(title)}. Are you still able to do it?`;

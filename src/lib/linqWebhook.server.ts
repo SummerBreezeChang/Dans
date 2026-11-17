@@ -1,4 +1,5 @@
-import { answerLine, careQuestion, leadId, leadText, whenText } from './careSync.functions';
+import { answerLine, careQuestion, leadId, leadText, passedText, whenText } from './careSync.functions';
+import { loadPrefs } from './notify.functions';
 import { readChoice, readReply, readThumb, type Answer } from './answers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { CareTask, Caregiver, Category, Help, Slot } from './assignmentEngine';
@@ -115,13 +116,27 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
     return Response.json({ changed: !already, task: task.id, status: 'accepted' });
   }
 
-  // A pass. The task opens up, and the lead decides who is asked next. Dans suggests someone who is free then.
+  // A pass. Dans finds the next free person (never the lead). By default it asks them straight away.
+  // With "Check with me first" on, the task opens and the lead is asked before anyone else is.
+  const prefs = await loadPrefs(db);
   const next = pickReplacement(task, person.id, people.filter(p => p.id !== leadId), tasks);
-  await db.from('care_tasks').update({ owner: null, status: 'unclaimed', declined_by: [...(task.declinedBy ?? []), person.id], updated_at: new Date().toISOString() }).eq('id', task.id);
+  const declined = [...(task.declinedBy ?? []), person.id];
+  const leadRoute = lead ? routeText(lead.contact, lead.name) : null;
+  const nextRoute = next ? routeText(next.contact, next.name) : null;
+
+  if (prefs.pass === 'auto' && next) {
+    await db.from('care_tasks').update({ owner: next.id, status: 'assigned', declined_by: declined, updated_at: new Date().toISOString() }).eq('id', task.id);
+    await db.from('care_activity').insert({ title: `${first} passed, asked ${next.name.split(' ')[0]}`, detail: `${person.name} passed on "${task.title}" (${when}). Dans asked ${next.name}.` });
+    await sendOnce(`wh:${id}:orig`, from, `No problem, ${first}. I'll ask someone else.`);
+    if (nextRoute) await sendAsk(`wh:${id}:new`, nextRoute.to, nextRoute.prefix + careQuestion('reassigned', next.name, task.title, at), answerLine, task.id, next.id);
+    if (prefs.passed && lead && leadRoute) await sendOnce(`wh:${id}:lead`, leadRoute.to, leadRoute.prefix + passedText(lead.name, person.name, task.title, at, next.name));
+    return Response.json({ changed: true, task: task.id, asked: next.id });
+  }
+
+  await db.from('care_tasks').update({ owner: null, status: 'unclaimed', declined_by: declined, updated_at: new Date().toISOString() }).eq('id', task.id);
   await db.from('care_activity').insert({ title: `${first} passed`, detail: `${person.name} passed on "${task.title}" (${when}).${next ? ` ${next.name} is free then.` : ' Nobody else is free then.'}` });
   await sendOnce(`wh:${id}:orig`, from, `No problem, ${first}. I'll let ${lead?.name.split(' ')[0] ?? 'the family'} know.`);
-  const leadRoute = lead ? routeText(lead.contact, lead.name) : null;
-  if (lead && leadRoute) {
+  if (lead && leadRoute && (next || prefs.nobody)) {
     const text = leadRoute.prefix + leadText(lead.name, person.name, task.title, at, next?.name);
     if (next) await sendAsk(`wh:${id}:lead`, leadRoute.to, text, answerLine, task.id, next.id, 'lead');
     else await sendOnce(`wh:${id}:lead`, leadRoute.to, text);

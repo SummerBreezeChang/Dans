@@ -11,11 +11,12 @@ export type Scope = (typeof scopes)[number];
 
 export const getStart = createServerFn({ method: 'GET' }).handler(async () => {
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
-  const [{ data: people }, { data: log }] = await Promise.all([
+  const [{ data: people }, { data: log }, { data: consent }] = await Promise.all([
     db.from('care_caregivers').select('id,name'),
-    db.from('care_activity').select('title,detail,created_at').order('created_at', { ascending: false }).limit(300),
+    db.from('care_activity').select('title,detail,created_at').like('title', '% joined').order('created_at', { ascending: false }).limit(100),
+    db.from('care_activity').select('title,detail,created_at').eq('title', consentTitle).order('created_at', { ascending: false }).limit(1),
   ]);
-  const consentRow = (log ?? []).find(a => a.title === consentTitle);
+  const consentRow = consent?.[0];
   const scope = consentRow?.detail?.replace('scope:', '');
   const joined = new Set((log ?? []).filter(a => a.title.endsWith(' joined')).map(a => a.title.replace(/ joined$/, '')));
   return {
