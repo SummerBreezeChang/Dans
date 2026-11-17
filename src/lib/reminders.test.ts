@@ -41,8 +41,8 @@ describe('passes handled by Dans', () => {
     expect(passedText('Summer', 'Henry', 'Ride to blood draw', { day: 2, time: '7:45 AM' }, undefined)).toContain("It's open in Dans.");
   });
   it('asks the next person automatically unless told to check first', () => {
-    expect(defaultPrefs).toEqual({ pass: 'auto', nobody: true, passed: false });
-    expect(parsePrefs('{"pass":"check","nobody":false,"passed":true}')).toEqual({ pass: 'check', nobody: false, passed: true });
+    expect(defaultPrefs).toEqual({ pass: 'auto', nobody: true, passed: false, note: true });
+    expect(parsePrefs('{"pass":"check","nobody":false,"passed":true}')).toEqual({ pass: 'check', nobody: false, passed: true, note: true });
     expect(parsePrefs('not json')).toEqual(defaultPrefs);
     expect(parsePrefs('{"pass":"nonsense"}').pass).toBe('auto');
   });

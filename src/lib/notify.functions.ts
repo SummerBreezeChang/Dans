@@ -13,7 +13,7 @@ export const getPrefs = createServerFn({ method: 'GET' }).handler(async () => {
 });
 
 export const savePrefs = createServerFn({ method: 'POST' })
-  .inputValidator((d: unknown) => z.object({ pass: z.enum(['auto', 'check']), nobody: z.boolean(), passed: z.boolean() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ pass: z.enum(['auto', 'check']), nobody: z.boolean(), passed: z.boolean(), note: z.boolean() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
     const { error } = await db.from('care_activity').insert({ title: prefsTitle, detail: JSON.stringify(data) });

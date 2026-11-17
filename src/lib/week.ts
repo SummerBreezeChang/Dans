@@ -63,3 +63,14 @@ export const visitWhen = (v: Visit) => `${v.day > 6 ? 'Next ' : ''}${v.date.spli
 const shortFor: Partial<Record<Help, string>> = { Rides: 'Ride there', Pickups: 'Prescriptions', Meals: 'Meal after' };
 /** Under a visit heading the visit name is already said, so the task can be brief. */
 export const shortTitle = (task: CareTask) => (task.appointment ? shortFor[helpNeeded(task)] ?? task.title : task.title);
+
+/** A task as Maya reads it: what someone is doing for her. */
+export function forMaya(title: string) {
+  if (/^ride to /i.test(title)) return 'Driving you to your visit';
+  if (/prescription/i.test(title)) return 'Picking up your prescriptions';
+  if (/meal/i.test(title)) return 'Bringing a meal';
+  return title;
+}
+
+/** "Thu 12:30 PM", and "Next Mon 11:00 AM" for the day after this week. */
+export const whenLabel = (day: number, time: string) => `${day > 6 ? 'Next ' : ''}${days[day % 7] ?? ''} ${time}`.trim();

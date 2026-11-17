@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { getStart, saveConsent, type Scope } from '@/lib/start.functions';
+import { getMayaWeek, getStart, saveConsent, sendNote, type Scope } from '@/lib/start.functions';
 import { useCare } from '@/lib/careStore';
-import { firstName, shortWhen } from '@/lib/week';
 import { Check } from './join';
 
 // Starting the circle. Maya agrees first (her own link), then Summer invites helpers.
@@ -105,18 +104,36 @@ const sees: { scope: Scope; title: string; sub: string }[] = [
 
 /** Maya's own screens: the request, what helpers can see, thank you. */
 export function Maya() {
-  const { state, addDemoTask } = useCare();
-  const [step, setStep] = useState<'ask' | 'see' | 'done' | 'later' | 'note'>('ask');
+  const [week, setWeek] = useState<Awaited<ReturnType<typeof getMayaWeek>> | null>(null);
+  const [step, setStep] = useState<'ask' | 'see' | 'view' | 'later' | 'note'>('ask');
   const [words, setWords] = useState('');
+  const [sent, setSent] = useState(false);
   const [scope, setScope] = useState<Scope>('tasks');
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  // Someone who has already agreed goes straight to their week. The week refreshes while it is open.
+  useEffect(() => {
+    let alive = true; let first = true;
+    const pull = () => getMayaWeek().then(w => { if (!alive) return; setWeek(w); if (first && w.consented) setStep('view'); first = false; }).catch(() => { if (alive && first) { setWeek({ consented: false, rows: [] }); first = false; } });
+    pull();
+    const t = setInterval(pull, 10000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+
   const yes = async () => {
     setSaving(true); setFailed(false);
-    try { const r = await saveConsent({ data: { scope } }); if (r.ok) setStep('done'); else setFailed(true); } catch { setFailed(true); }
+    try { const r = await saveConsent({ data: { scope } }); if (r.ok) { setWeek(await getMayaWeek()); setStep('view'); } else setFailed(true); } catch { setFailed(true); }
     setSaving(false);
   };
+
+  const send = async () => {
+    setSaving(true); setFailed(false);
+    try { const r = await sendNote({ data: { text: words } }); if (r.ok) { setWords(''); setSent(true); setStep('view'); } else setFailed(true); } catch { setFailed(true); }
+    setSaving(false);
+  };
+
+  if (!week) return <div className="c-join" aria-busy="true" />;
 
   if (step === 'ask') return (
     <div className="c-join">
@@ -161,35 +178,42 @@ export function Maya() {
   if (step === 'note') return (
     <div className="c-join">
       <div className="c-join-top">
-        <button type="button" className="c-link" onClick={() => setStep('done')}>Back</button>
+        <div className="c-step"><button type="button" className="c-link" onClick={() => setStep('view')}>Back</button></div>
         <h1 className="c-title c-title-big">Tell Summer</h1>
         <p className="c-body">What would help this week?</p>
-        <label className="c-fill">In your words<textarea value={words} onChange={e => setWords(e.target.value)} /></label>
+        <div className="c-chips">
+          {['A meal', 'A ride', 'Company'].map(c => <button type="button" key={c} className={words === c ? 'c-chip is-on' : 'c-chip'} onClick={() => setWords(c)}>{c}</button>)}
+        </div>
+        <label className="c-fill">In your words<textarea value={words} maxLength={280} onChange={e => setWords(e.target.value)} /></label>
+        {failed && <p className="c-body" role="alert">That didn't send. Try again.</p>}
       </div>
       <div className="c-join-end">
-        <button type="button" className="c-btn c-btn-main c-btn-full" disabled={!words.trim()} onClick={() => { void addDemoTask({ title: words.trim(), category: 'At-Home Care', day: 4, slot: 'Evening', time: '6:00 PM', appointment: 'extra' }); setStep('done'); }}>Send to Summer</button>
+        <button type="button" className="c-btn c-btn-main c-btn-full" disabled={!words.trim() || saving} onClick={send}>{saving ? 'Sending' : 'Send to Summer'}</button>
       </div>
     </div>
   );
 
-  if (step === 'done') {
-    const coming = state.tasks.filter(t => t.published && t.owner && t.status !== 'done');
-    return (
-      <div className="c-join">
-        <div className="c-join-top">
-          <p className="c-eyebrow">Nov 16 to 22</p>
-          <h1 className="c-title c-title-big">Who's coming</h1>
-          <div className="c-fills">
-            {coming.map(t => <div key={t.id} className="c-fill"><strong>{firstName(state.people.find(p => p.id === t.owner))}</strong><small>{shortWhen(t)} · {t.title}</small></div>)}
-            {!coming.length && <p className="c-body">Nothing is set yet.</p>}
-          </div>
-        </div>
-        <div className="c-join-end">
-          <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => setStep('note')}>Tell Summer something</button>
-        </div>
+  if (step === 'view') return (
+    <div className="c-join">
+      <div className="c-join-top">
+        <span className="c-eyebrow">Nov 16 to 22</span>
+        <h1 className="c-title c-title-big">Who's coming</h1>
+        {sent && <p className="c-muted" role="status">Sent to Summer.</p>}
+        <ul className="c-people">
+          {week.rows.map(r => (
+            <li key={r.id} className="c-person">
+              <span className="c-person-when">{r.when}</span>
+              <span className="c-stack c-grow"><strong>{r.who}</strong><small>{r.what}</small></span>
+            </li>
+          ))}
+        </ul>
+        {!week.rows.length && <p className="c-body">Nobody is lined up yet. Summer is working on it.</p>}
       </div>
-    );
-  }
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => { setSent(false); setStep('note'); }}>Tell Summer something</button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="c-join">

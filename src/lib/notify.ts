@@ -8,15 +8,17 @@ export interface Prefs {
   nobody: boolean;
   /** Text Summer each time a helper passes. */
   passed: boolean;
+  /** Text Summer when Maya sends a note. */
+  note: boolean;
 }
 
-export const defaultPrefs: Prefs = { pass: 'auto', nobody: true, passed: false };
+export const defaultPrefs: Prefs = { pass: 'auto', nobody: true, passed: false, note: true };
 export const prefsTitle = 'Notification settings';
 
 export function parsePrefs(detail: string | null | undefined): Prefs {
   try {
     const j = JSON.parse(detail ?? '');
-    return { pass: j.pass === 'check' ? 'check' : 'auto', nobody: j.nobody !== false, passed: j.passed === true };
+    return { pass: j.pass === 'check' ? 'check' : 'auto', nobody: j.nobody !== false, passed: j.passed === true, note: j.note !== false };
   } catch {
     return defaultPrefs;
   }

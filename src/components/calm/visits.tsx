@@ -90,7 +90,7 @@ export function Visit({ id }: { id: string }) {
     <>
       <div className="c-bar">
         <Link to="/visits" className="c-link">Visits</Link>
-        <PillTag tone="soft">From Kaiser</PillTag>
+        <PillTag tone="soft">Sample visit</PillTag>
       </div>
       <header className="c-head c-head-tight">
         <h1 className="c-title">{visit.title}</h1>

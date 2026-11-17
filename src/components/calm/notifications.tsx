@@ -7,8 +7,9 @@ import { Check } from './join';
 // What Summer is texted about. Only Summer. Maya and helpers are never sent these.
 // Drawn in Paper, "Dans · mobile flow", N1. Changes save as you tap.
 
-const toggles: { key: 'nobody' | 'passed'; title: string; sub: string }[] = [
+const toggles: { key: 'nobody' | 'note' | 'passed'; title: string; sub: string }[] = [
   { key: 'nobody', title: 'Nobody is free', sub: 'A task has no one left to ask' },
+  { key: 'note', title: 'Maya sends a note', sub: 'What she says she needs' },
   { key: 'passed', title: 'Someone passes', sub: 'Each time a helper cannot make it' },
 ];
 
