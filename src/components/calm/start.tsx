@@ -139,8 +139,8 @@ export function Maya() {
   return (
     <div className="c-join">
       <div className="c-join-top c-join-hero">
-        <h1 className="c-title c-title-big">{step === 'done' ? 'Thank you, Maya.' : 'No problem.'}</h1>
-        <p className="c-body">{step === 'done' ? 'Summer can invite helpers now.' : 'Summer will wait until you are ready.'}</p>
+        <h1 className="c-title c-title-big">{step === 'done' ? 'Saved.' : 'Not now.'}</h1>
+        <p className="c-body">{step === 'done' ? "Maya's choice is saved. Summer can invite helpers now." : 'Summer will wait until Maya is ready.'}</p>
       </div>
     </div>
   );
