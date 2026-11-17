@@ -47,3 +47,25 @@ describe('passes handled by Dans', () => {
     expect(parsePrefs('{"pass":"nonsense"}').pass).toBe('auto');
   });
 });
+
+import { recordAnswer, viaFor } from './answers.server';
+
+describe('recording answers per person', () => {
+  it('names how a person answered', () => {
+    expect(viaFor('reaction.added')).toBe('thumb');
+    expect(viaFor('message.received')).toBe('typed');
+    expect(viaFor('poll.vote.added')).toBe('choice');
+  });
+  it('writes who answered, about which task, and how', async () => {
+    const rows: any[] = [];
+    const db = { from: (t: string) => ({ insert: async (r: any) => { rows.push([t, r]); return { error: null }; } }) };
+    expect(await recordAnswer(db, { personId: 'henry', taskId: 'task-3', answer: 'pass', via: 'thumb' })).toBe(true);
+    expect(rows[0]).toEqual(['care_answers', { person_id: 'henry', task_id: 'task-3', answer: 'pass', via: 'thumb', note: null }]);
+  });
+  it('keeps replies working when the table does not exist yet', async () => {
+    const missing = { from: () => ({ insert: async () => ({ error: { message: 'relation does not exist' } }) }) };
+    const broken = { from: () => ({ insert: async () => { throw new Error('down'); } }) };
+    expect(await recordAnswer(missing, { personId: 'henry', answer: 'yes', via: 'typed' })).toBe(false);
+    expect(await recordAnswer(broken, { personId: 'henry', answer: 'yes', via: 'typed' })).toBe(false);
+  });
+});
