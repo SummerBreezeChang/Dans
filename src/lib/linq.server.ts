@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { choices } from './answers';
 
 export function toE164(raw: string | undefined | null): string | null {
   if (!raw) return null;
@@ -90,9 +89,9 @@ export function parseAskRef(ref: string) {
 }
 
 /**
- * Sends an ask: the question, then two choices to tap ("Got it" / "Pass it on").
- * Tappable choices only exist on iMessage. Where they cannot be sent, the typed way to answer goes instead.
- * At most once per key. Remembers which task each message was about.
+ * Sends an ask as one message: the question, a blank line, then how to answer (thumb or one word).
+ * Summer chose this over tappable poll choices on 2026-11-16: polls show a blank box on older iPhones
+ * and let helpers add their own choices. At most once per key. Remembers which task the message was about.
  */
 export async function sendAsk(key: string, to: string, question: string, typedAnswers: string, taskId: string, personId: string) {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
@@ -102,21 +101,13 @@ export async function sendAsk(key: string, to: string, question: string, typedAn
   const { error } = await supabaseAdmin.from('care_sms_log').insert({ key, recipient });
   if (error) return { ok: false, duplicate: true };
 
-  const first = await post('/chats', { from, to: [recipient], message: { parts: [{ type: 'text', value: question }], idempotency_key: keyToUuid(key) } });
+  const first = await post('/chats', { from, to: [recipient], message: { parts: [{ type: 'text', value: `${question}\n\n${typedAnswers}` }], idempotency_key: keyToUuid(key) } });
   await supabaseAdmin.from('care_sms_log').update({ ok: first.ok }).eq('key', key);
   if (!first.ok) return { ok: false, ...(first.status ? { status: first.status } : {}) };
 
-  const chatId: string | undefined = first.json?.chat?.id ?? first.json?.chat_id ?? first.json?.id;
   const questionId: string | undefined = first.json?.chat?.message?.id ?? first.json?.message?.id ?? first.json?.message_id;
-  let pollId: string | undefined;
-  if (chatId) {
-    const poll = await post(`/chats/${chatId}/polls`, { poll: { options: [{ text: choices.yes }, { text: choices.pass }] } });
-    pollId = poll.ok ? poll.json?.message_id ?? poll.json?.poll?.message_id ?? poll.json?.id : undefined;
-    if (!poll.ok) await post(`/chats/${chatId}/messages`, { message: { parts: [{ type: 'text', value: typedAnswers }] } });
-  }
   const ref = askRef(taskId, personId, recipient);
-  const ids = [questionId, pollId].filter((x): x is string => !!x);
-  const rows = (ids.length ? ids : [key]).map(id => ({ key: `ask:${id}`, recipient: ref, ok: true }));
+  const rows = [{ key: `ask:${questionId ?? key}`, recipient: ref, ok: true }];
   await supabaseAdmin.from('care_sms_log').upsert(rows, { onConflict: 'key' });
-  return { ok: true, poll: !!pollId };
+  return { ok: true };
 }
