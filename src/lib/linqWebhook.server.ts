@@ -4,7 +4,6 @@ import { readChoice, readReply, readThumb, type Answer } from './answers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { CareTask, Caregiver, Category, Help, Slot } from './assignmentEngine';
 import { pickReplacement, upcomingTask } from './smartReassign';
-import { nextOpen } from './weekPlan';
 import { currentReactions, parseAskRef, pollOptionText, routeText, sendAsk, sendOnce, toE164 } from './linq.server';
 
 /** Standard Webhooks verification (webhook-id / webhook-timestamp / webhook-signature). */
@@ -126,14 +125,6 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
     if (!already) {
       await db.from('care_tasks').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', task.id);
       await db.from('care_activity').insert({ title: `${first} said yes`, detail: `${person.name} took "${task.title}" (${when}).` });
-      const after = tasks.map(t => t.id === task.id ? { ...t, status: 'accepted' as const } : t);
-      const nxt = nextOpen(after);
-      const who = nxt ? pickReplacement(nxt, '', people.filter(p => p.id !== leadId), after) : undefined;
-      const whoRoute = who ? routeText(who.contact, who.name) : null;
-      if (nxt && who && whoRoute) {
-        await db.from('care_tasks').update({ owner: who.id, status: 'assigned', updated_at: new Date().toISOString() }).eq('id', nxt.id);
-        await sendAsk(`wh:${id}:next`, whoRoute.to, whoRoute.prefix + careQuestion('assigned', who.name, nxt.title, { day: nxt.day, time: nxt.time }), answerLine, nxt.id, who.id);
-      }
     }
     await sendOnce(`wh:${id}:yes`, from, already ? `Thank you, ${first}.` : `Thank you, ${first}. It's yours.`);
     return Response.json({ changed: !already, task: task.id, status: 'accepted' });
