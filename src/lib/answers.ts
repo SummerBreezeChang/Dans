@@ -6,7 +6,7 @@ export type Answer = 'yes' | 'pass';
 export const choices = { yes: 'Got it', pass: 'Pass it on' } as const;
 
 const YES = /^(yes|y|yep|yeah|yup|ok|okay|sure|got it|will do|i can|i'?ll do it|i'?ll take it)\b/;
-const PASS = /^(pass|no|n|nope|pass it on)\b/;
+const PASS = /^(pass|no|n|nope|pass it on|change|changed)\b/;
 const CANNOT = /(not free|can'?t make it|cannot make it|can ?not make it|something came up|unavailable|not available|can'?t do it|won'?t make it|busy|can'?t)/;
 
 /** A typed reply. Returns null when it is neither a yes nor a pass, so a person can read it instead. */

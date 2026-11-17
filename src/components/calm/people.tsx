@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import { getStart } from '@/lib/start.functions';
 import { firstName, numberWord, weekTitle } from '@/lib/week';
+import { CheckinRows } from './checkin';
 
 // The circle: who is sharing the week, what each person does, and how full they are.
 
@@ -77,6 +78,7 @@ export function More() {
           </span>
           <button type="button" className="c-btn c-btn-small" aria-pressed={liveSms} onClick={() => (liveSms ? setLive(false) : setAsking('live'))}>{liveSms ? 'Turn off' : 'Turn on'}</button>
         </li>
+        <CheckinRows />
         <li><Link to="/notifications" className="c-row c-row-tall"><span className="c-stack"><strong>Notifications</strong><small>What Dans texts you about</small></span></Link></li>
         <li><Link to="/start" className="c-row c-row-tall"><span className="c-stack"><strong>Invite the circle</strong><small>Ask Maya first, then send links</small></span></Link></li>
         <li className="c-row c-row-tall">

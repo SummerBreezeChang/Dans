@@ -6,7 +6,8 @@ const run = async ({ request }: { request: Request }) => {
   const secret = process.env['CRON_SECRET'];
   if (secret && request.headers.get('authorization') !== `Bearer ${secret}`) return Response.json({ error: 'Not allowed' }, { status: 401 });
   const { sendReminders } = await import('@/lib/reminders.server');
-  return Response.json(await sendReminders());
+  const { runWeeklyCycle } = await import('@/lib/checkin.server');
+  return Response.json({ reminders: await sendReminders(), weekly: await runWeeklyCycle() });
 };
 
 export const Route = createFileRoute('/api/public/remind')({

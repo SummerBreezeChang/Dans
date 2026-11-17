@@ -83,12 +83,12 @@ export async function pollOptionText(messageId: string, optionId: string): Promi
 }
 
 /** What an ask was about, stored beside the text log so an answer can find its task. */
-export type AskKind = 'helper' | 'lead';
-export const askRef = (taskId: string, personId: string, to: string, kind: AskKind = 'helper') => `${kind === 'lead' ? 'lead:' : ''}${taskId}|${personId}|${to}`;
+export type AskKind = 'helper' | 'lead' | 'checkin';
+export const askRef = (taskId: string, personId: string, to: string, kind: AskKind = 'helper') => `${kind === 'helper' ? '' : `${kind}:`}${taskId}|${personId}|${to}`;
 /** personId is who the ask is about: the helper being asked, or for a lead ask, the helper Dans suggests. */
 export function parseAskRef(ref: string) {
-  const kind: AskKind = ref.startsWith('lead:') ? 'lead' : 'helper';
-  const [taskId, personId, to] = ref.replace(/^lead:/, '').split('|');
+  const kind: AskKind = ref.startsWith('lead:') ? 'lead' : ref.startsWith('checkin:') ? 'checkin' : 'helper';
+  const [taskId, personId, to] = ref.replace(/^(lead|checkin):/, '').split('|');
   return taskId && personId && to ? { taskId, personId, to, kind } : null;
 }
 
