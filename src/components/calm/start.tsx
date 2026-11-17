@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { getStart, saveConsent, type Scope } from '@/lib/start.functions';
+import { useCare } from '@/lib/careStore';
+import { firstName, shortWhen } from '@/lib/week';
 import { Check } from './join';
 
 // Starting the circle. Maya agrees first (her own link), then Summer invites helpers.
@@ -20,6 +22,9 @@ async function share(text: string, path: string) {
 }
 
 export function Start() {
+  const { state, nameLead } = useCare();
+  const [leadName, setLeadName] = useState('Summer');
+  const [phone, setPhone] = useState('');
   const [data, setData] = useState<StartData | null>(null);
   const [note, setNote] = useState<Record<string, string>>({});
   const [waiting, setWaiting] = useState(false);
@@ -31,6 +36,21 @@ export function Start() {
     const t = setInterval(pull, 5000);
     return () => { alive = false; clearInterval(t); };
   }, []);
+
+  if (!state.named) return (
+    <div className="c-join">
+      <div className="c-join-top">
+        <p className="c-eyebrow">1 of 3</p>
+        <h1 className="c-title c-title-big">What's your name?</h1>
+        <p className="c-body">You're setting this up, so Dans texts you when something needs you.</p>
+        <label className="c-fill">Your first name<input value={leadName} onChange={e => setLeadName(e.target.value)} /></label>
+        <label className="c-fill">Your mobile number<input value={phone} onChange={e => setPhone(e.target.value)} inputMode="tel" /></label>
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" disabled={leadName.trim().length < 1 || phone.trim().length < 7} onClick={() => void nameLead(leadName.trim(), phone.trim())}>Continue</button>
+      </div>
+    </div>
+  );
 
   if (!data) return <div className="c-join" aria-busy="true" />;
 
@@ -85,7 +105,9 @@ const sees: { scope: Scope; title: string; sub: string }[] = [
 
 /** Maya's own screens: the request, what helpers can see, thank you. */
 export function Maya() {
-  const [step, setStep] = useState<'ask' | 'see' | 'done' | 'later'>('ask');
+  const { state, addDemoTask } = useCare();
+  const [step, setStep] = useState<'ask' | 'see' | 'done' | 'later' | 'note'>('ask');
+  const [words, setWords] = useState('');
   const [scope, setScope] = useState<Scope>('tasks');
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -136,11 +158,44 @@ export function Maya() {
     </div>
   );
 
+  if (step === 'note') return (
+    <div className="c-join">
+      <div className="c-join-top">
+        <button type="button" className="c-link" onClick={() => setStep('done')}>Back</button>
+        <h1 className="c-title c-title-big">Tell Summer</h1>
+        <p className="c-body">What would help this week?</p>
+        <label className="c-fill">In your words<textarea value={words} onChange={e => setWords(e.target.value)} /></label>
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" disabled={!words.trim()} onClick={() => { void addDemoTask({ title: words.trim(), category: 'At-Home Care', day: 4, slot: 'Evening', time: '6:00 PM', appointment: 'extra' }); setStep('done'); }}>Send to Summer</button>
+      </div>
+    </div>
+  );
+
+  if (step === 'done') {
+    const coming = state.tasks.filter(t => t.published && t.owner && t.status !== 'done');
+    return (
+      <div className="c-join">
+        <div className="c-join-top">
+          <p className="c-eyebrow">Nov 16 to 22</p>
+          <h1 className="c-title c-title-big">Who's coming</h1>
+          <div className="c-fills">
+            {coming.map(t => <div key={t.id} className="c-fill"><strong>{firstName(state.people.find(p => p.id === t.owner))}</strong><small>{shortWhen(t)} · {t.title}</small></div>)}
+            {!coming.length && <p className="c-body">Nothing is set yet.</p>}
+          </div>
+        </div>
+        <div className="c-join-end">
+          <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => setStep('note')}>Tell Summer something</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="c-join">
       <div className="c-join-top c-join-hero">
-        <h1 className="c-title c-title-big">{step === 'done' ? 'Saved.' : 'Not now.'}</h1>
-        <p className="c-body">{step === 'done' ? "Maya's choice is saved. Summer can invite helpers now." : 'Summer will wait until Maya is ready.'}</p>
+        <h1 className="c-title c-title-big">Not now.</h1>
+        <p className="c-body">Summer will wait until Maya is ready.</p>
       </div>
     </div>
   );

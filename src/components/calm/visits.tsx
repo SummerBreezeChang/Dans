@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
-import { rescheduleTasks, type CareTask } from '@/lib/assignmentEngine';
+import { helpKinds, rescheduleTasks, type CareTask, type Category, type Help, type Slot } from '@/lib/assignmentEngine';
 import { byTime, firstName, list, numberWord, shortTitle, visitsFor, visitWhen } from '@/lib/week';
+import { visitIds } from '@/lib/weekPlan';
 import { PillTag } from './shell';
 import { TaskRow } from './parts';
 
@@ -9,8 +11,43 @@ const ME = 'summer';
 const isCovered = (t: CareTask) => Boolean(t.owner) || t.status === 'done';
 
 /** Every visit, with how much of its checklist is covered. */
+const helpCategory: Record<Help, Category> = {
+  Rides: 'Rides to & from Appointments',
+  Meals: 'Meal Planning',
+  Pickups: 'Medicine Pickup',
+  'At home': 'At-Home Care',
+  'Calls and paperwork': 'Follow-ups',
+};
+
+export function Review() {
+  const { confirmWeek } = useCare();
+  const [kept, setKept] = useState<string[]>([...visitIds]);
+  const [saving, setSaving] = useState(false);
+  const visits = visitsFor(false);
+  const toggle = (id: string) => setKept(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
+  return (
+    <>
+      <header className="c-head">
+        <p className="c-eyebrow">Nov 16 to 22</p>
+        <h1 className="c-title">Review the week</h1>
+        <p className="c-body">Dans asks helpers from the visits you keep.</p>
+      </header>
+      <div className="c-fills">
+        {visits.map(v => (
+          <button type="button" key={v.id} className={kept.includes(v.id) ? 'c-fill c-fill-mint' : 'c-fill'} aria-pressed={kept.includes(v.id)} onClick={() => toggle(v.id)}>
+            <span className="c-stack"><strong>{v.short}</strong><small>{visitWhen(v)}</small></span>
+            <span>{kept.includes(v.id) ? 'Kept' : 'Left out'}</span>
+          </button>
+        ))}
+      </div>
+      <button type="button" className="c-btn c-btn-main c-btn-full" disabled={!kept.length || saving} onClick={() => { setSaving(true); void confirmWeek(kept).finally(() => setSaving(false)); }}>{saving ? 'Saving' : 'Confirm the week'}</button>
+    </>
+  );
+}
+
 export function Visits() {
   const { state } = useCare();
+  if (!state.confirmed) return <Review />;
   const visits = visitsFor(state.rescheduled);
   return (
     <>
@@ -41,7 +78,10 @@ export function Visits() {
 
 /** One visit and the tasks that hang off it. */
 export function Visit({ id }: { id: string }) {
-  const { state } = useCare();
+  const { state, releaseTask, addDemoTask } = useCare();
+  const [adding, setAdding] = useState(false);
+  const [help, setHelp] = useState<Help>('Rides');
+  const [when, setWhen] = useState('Thursday, 6:00 PM');
   const visit = visitsFor(state.rescheduled).find(v => v.id === id);
   if (!visit) return <p className="c-body">That visit is not on the calendar. <Link to="/visits" className="c-link">Back to visits</Link></p>;
   const tasks = state.tasks.filter(t => t.published && t.appointment === id).sort(byTime);
@@ -59,16 +99,33 @@ export function Visit({ id }: { id: string }) {
         {visit.movedFrom && <p className="c-muted">Moved from {visit.movedFrom}.</p>}
       </header>
       {id === 'chemo' && !state.rescheduled && (
-        <Link to="/visits/$id/move" params={{ id }} className="c-btn c-btn-line">This visit moved</Link>
+        <Link to="/visits/$id/move" params={{ id }} className="c-fill">This visit moved</Link>
       )}
       <section>
         <div className="c-list-head">
           <span className="c-eyebrow">Checklist for this visit</span>
           <small>{covered} of {tasks.length} covered</small>
         </div>
-        <ul className="c-rows c-card">
-          {tasks.map(t => <TaskRow key={t.id} task={t} people={state.people} me={ME} sub={t.time} title={shortTitle(t)} />)}
-        </ul>
+        <div className="c-fills">
+          {tasks.map(t => (
+            <div key={t.id} className={t.owner ? 'c-fill c-fill-mint c-fill-stack' : 'c-fill c-fill-peach c-fill-stack'}>
+              <TaskRow task={t} people={state.people} me={ME} sub={t.time} title={shortTitle(t)} />
+              {t.owner && t.status !== 'done' && <button type="button" className="c-link" onClick={() => releaseTask(t.id)}>They cancelled</button>}
+            </div>
+          ))}
+        </div>
+        <button type="button" className="c-link" onClick={() => setAdding(v => !v)}>Add a task to this visit</button>
+        {adding && (
+          <form className="c-fills" onSubmit={e => { e.preventDefault(); const time = when.split(',')[1]?.trim() || '6:00 PM'; void addDemoTask({ title: help, category: helpCategory[help], day: visit.day, slot: /am/i.test(time) ? 'Morning' : 'Evening', time, appointment: id }); setAdding(false); }}>
+            <label className="c-fill">Kind of help
+              <select value={help} onChange={e => setHelp(e.target.value as Help)}>{helpKinds.map(h => <option key={h}>{h}</option>)}</select>
+            </label>
+            <label className="c-fill">Day and time
+              <input value={when} onChange={e => setWhen(e.target.value)} />
+            </label>
+            <button type="submit" className="c-btn c-btn-main c-btn-full">Add</button>
+          </form>
+        )}
       </section>
     </>
   );

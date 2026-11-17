@@ -34,13 +34,13 @@ export function NavIcon({ name, filled }: { name: keyof typeof nav; filled?: boo
 export function TaskRow({ task, people, me, sub, title }: { task: CareTask; people: Caregiver[]; me: string; sub?: string; title?: string }) {
   const pill = pillFor(task, people, me);
   return (
-    <li className="c-row">
+    <div className="c-row">
       <span className={`c-tile c-tile-${pill.tone}`}><KindIcon help={helpNeeded(task)} /></span>
       <span className="c-stack c-grow">
         <span>{title ?? task.title}</span>
         {sub && <small>{sub}</small>}
       </span>
       <span className={pill.tone === 'plain' || pill.tone === 'quiet' ? 'c-status c-status-quiet' : 'c-status'}>{pill.label}</span>
-    </li>
+    </div>
   );
 }

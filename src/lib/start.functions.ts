@@ -25,6 +25,14 @@ export const getStart = createServerFn({ method: 'GET' }).handler(async () => {
   };
 });
 
+export const saveLead = createServerFn({ method: 'POST' })
+  .inputValidator((d: unknown) => z.object({ name: z.string().trim().min(1).max(40), phone: z.string().trim().min(7).max(20) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+    const { error } = await db.from('care_caregivers').update({ name: data.name, phone: data.phone }).eq('id', leadId);
+    return { ok: !error };
+  });
+
 export const saveConsent = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => z.object({ scope: z.enum(scopes) }).parse(d))
   .handler(async ({ data }) => {

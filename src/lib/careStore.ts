@@ -1,7 +1,9 @@
 import { createElement, useEffect, useRef, useState, useMemo, type ReactNode } from 'react';
 import { CareContext } from './careContext';
 export { useCare } from './careContext';
-import { getCareSync, setLiveSms, syncAssignments } from './careSync.functions';
+import { getCareSync, saveWeek, setLiveSms, syncAssignments } from './careSync.functions';
+import { saveLead } from './start.functions';
+import { demoTasks, fits, nextOpen, visitIds } from './weekPlan';
 import { useServerFn } from '@tanstack/react-start';
 import { escalateWellness } from './wellness.functions';
 import { defaultSharing, wellnessTask, type Insight, type WellnessScenario } from './wellnessEngine';
@@ -31,24 +33,60 @@ export function generateCareChecklist(): CareTask[] {
  return rows.map((r,i) => ({id:`task-${i+1}`,title:r[0],category:r[1],day:r[2],slot:r[3],time:r[4],duration:r[5],appointment:r[6],owner:r[7],status:r[8],approved:true,published:true,notes:'Coordinate with Maya before the task. Follow the care team’s instructions.'}));
 }
 export interface Activity {id:string; title:string; detail:string; time:string}
-export interface CareState { role: Role; activePerson: string; people: Caregiver[]; tasks: CareTask[]; consent: boolean; connected: boolean; hospital: string; rescheduled: boolean; activities: Activity[]; refusals: {task:string; person:string; reason:string}[]; sharing: Record<string,boolean>; wellnessScenario?: WellnessScenario }
-const freshState = (): CareState => ({role:'Primary Caregiver',activePerson:'summer',people:structuredClone(initialPeople),tasks:generateCareChecklist(),consent:true,connected:true,hospital:'Kaiser Permanente',rescheduled:false,activities:[{id:'a1',title:'Henry accepted a task',detail:'Ride to blood draw · Wednesday',time:'24 min ago'},{id:'a2',title:'Your care plan is ready',detail:'10 tasks shared with the care circle',time:'1 hour ago'},{id:'a3',title:'Hospital record connected',detail:'Kaiser Permanente · Demo import',time:'2 hours ago'}],refusals:[],sharing:{...defaultSharing},wellnessScenario:'baseline'});
-export interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; startShowcase:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>}
+export interface CareState { role: Role; activePerson: string; people: Caregiver[]; tasks: CareTask[]; consent: boolean; connected: boolean; hospital: string; rescheduled: boolean; confirmed: boolean; named: boolean; activities: Activity[]; refusals: {task:string; person:string; reason:string}[]; sharing: Record<string,boolean>; wellnessScenario?: WellnessScenario }
+const freshState = (): CareState => ({role:'Primary Caregiver',activePerson:'summer',people:structuredClone(initialPeople),tasks:demoTasks(visitIds, false),consent:true,connected:true,hospital:'Kaiser Permanente',rescheduled:false,confirmed:false,named:false,activities:[],refusals:[],sharing:{...defaultSharing},wellnessScenario:'baseline'});
+export interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; startShowcase:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>; confirmWeek:(kept:string[])=>Promise<void>; askPerson:(taskId:string,personId:string)=>void; takeTask:(taskId:string)=>void; releaseTask:(taskId:string)=>void; addDemoTask:(task:Pick<CareTask,'title'|'category'|'day'|'slot'|'time'|'appointment'>)=>Promise<void>; nameLead:(name:string,phone:string)=>Promise<void>}
 export function CareProvider({children}:{children:ReactNode}) {
  const escalate = useServerFn(escalateWellness);
+ const persistWeek = useServerFn(saveWeek);
+ const persistLead = useServerFn(saveLead);
  const [state,setState] = useState<CareState>(freshState);
  const [loaded,setLoaded] = useState(false);
  const [showcase,setShowcase] = useState(false);
  const showcaseRef=useRef(false);
- useEffect(()=> {try {showcaseRef.current=localStorage.getItem('firstcare-showcase')==='true';setShowcase(showcaseRef.current);if(showcaseRef.current)setLiveState(false);const saved=localStorage.getItem('firstcare-demo-v1'); if(saved) {const parsed=JSON.parse(saved); if(Array.isArray(parsed.tasks)&&Array.isArray(parsed.people)&&parsed.sharing) setState({...parsed,sharing:parsed.wellnessScenario?{...defaultSharing,...parsed.sharing}:{...defaultSharing,...parsed.sharing,'Heart rate':true},wellnessScenario:parsed.wellnessScenario??'baseline'});}} catch { /* Demo can run without browser storage. */ } setLoaded(true);},[]);
-  useEffect(()=>{if(loaded) {try {localStorage.setItem('firstcare-demo-v1',JSON.stringify(state));}catch{/* Storage may be disabled. */}}},[state,loaded]);
+ useEffect(()=> {try {showcaseRef.current=localStorage.getItem('firstcare-showcase')==='true';setShowcase(showcaseRef.current);if(showcaseRef.current)setLiveState(false);const saved=localStorage.getItem('firstcare-demo-v2'); if(saved) {const parsed=JSON.parse(saved); if(Array.isArray(parsed.tasks)&&Array.isArray(parsed.people)&&parsed.sharing) setState({...freshState(),...parsed,confirmed:parsed.confirmed===true,named:parsed.named===true,sharing:parsed.wellnessScenario?{...defaultSharing,...parsed.sharing}:{...defaultSharing,...parsed.sharing,'Heart rate':true},wellnessScenario:parsed.wellnessScenario??'baseline'});}} catch { /* Demo can run without browser storage. */ } setLoaded(true);},[]);
+  useEffect(()=>{if(loaded) {try {localStorage.setItem('firstcare-demo-v2',JSON.stringify(state));}catch{/* Storage may be disabled. */}}},[state,loaded]);
   const [liveSms,setLiveState]=useState(true);
   const owners=useRef<Record<string,{owner:string|undefined;when:string}>|null>(null);
   const remoteSeen=useRef(new Set<string>());
   useEffect(()=>{if(!loaded||showcaseRef.current)return;let alive=true;const pull=async()=>{try{const r=await getCareSync();if(!alive||showcaseRef.current)return;setLiveState(r.liveSms);setState(s=>{const tasks=s.tasks.map(t=>{const row=r.tasks.find(x=>x.id===t.id);if(!row||(row.owner??undefined)===t.owner&&row.status===t.status)return t;return {...t,owner:row.owner??undefined,status:row.status as CareTask['status'],declinedBy:row.declined_by,updated:true};});const remoteWellness=r.tasks.filter(row=>row.id.startsWith('wellness-')&&!tasks.some(t=>t.id===row.id)).map(row=>({id:row.id,title:row.title,day:row.day,slot:(row.slot==='Morning'||row.slot==='Afternoon'?row.slot:'Evening') as CareTask['slot'],time:row.time,published:row.published,owner:row.owner??undefined,status:row.status as CareTask['status'],category:'At-Home Care' as const,duration:20,approved:true,notes:'Wellness coordination check-in.',priority:(row.id==='wellness-cardio'?'urgent':'high') as 'urgent'|'high'}));tasks.push(...remoteWellness);const fresh=r.activity.filter(a=>!remoteSeen.current.has(a.id)&&!s.activities.some(x=>x.id===a.id));fresh.forEach(a=>remoteSeen.current.add(a.id));owners.current=Object.fromEntries(tasks.map(t=>[t.id,{owner:t.owner,when:`${t.day}-${t.time}`}]));return {...s,tasks,activities:[...fresh.map(a=>({id:a.id,title:a.title,detail:a.detail,time:new Date(a.created_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})})),...s.activities]};});}catch{/* keep local demo */}};pull();const t=setInterval(pull,10000);return()=>{alive=false;clearInterval(t);};},[loaded,showcase]);
   useEffect(()=>{if(!loaded||showcaseRef.current)return;const now:Record<string,{owner:string|undefined;when:string}>={};for(const t of state.tasks)now[t.id]={owner:t.owner,when:`${t.day}-${t.time}`};const prev=owners.current;owners.current=now;if(!prev)return;const changes=state.tasks.flatMap(t=>{const was=prev[t.id];if(!t.published||!was)return [];const ownerChanged=was.owner!==t.owner;if(!ownerChanged&&was.when===`${t.day}-${t.time}`)return [];const event:'assigned'|'reassigned'|'moved'=ownerChanged?(was.owner?'reassigned':'assigned'):'moved';return [{id:t.id,owner:t.owner??null,status:t.status,day:t.day,slot:t.slot,time:t.time,event}];});if(changes.length)syncAssignments({data:{changes}}).catch(()=>{});},[state.tasks,loaded,showcase]);
   const setLive=(v:boolean)=>{if(showcaseRef.current){setLiveState(false);return;}setLiveState(v);setLiveSms({data:{live:v}}).catch(()=>{});};
-  const startShowcase=()=>{showcaseRef.current=true;setShowcase(true);setLiveState(false);owners.current=null;setState(freshState());try{localStorage.setItem('firstcare-showcase','true');localStorage.setItem('firstcare-demo-v1',JSON.stringify(freshState()));}catch{/* Showcase works without storage. */}};
+  const startShowcase=()=>{showcaseRef.current=true;setShowcase(true);setLiveState(false);owners.current=null;setState(freshState());try{localStorage.setItem('firstcare-showcase','true');localStorage.setItem('firstcare-demo-v2',JSON.stringify(freshState()));}catch{/* Showcase works without storage. */}};
+  const rowOf = (t: CareTask) => ({ id: t.id, title: t.title, category: t.category, day: t.day, slot: t.slot, time: t.time, published: t.published, owner: t.owner ?? null, status: t.status });
+  const confirmWeek = async (kept: string[]) => {
+    const tasks = demoTasks(kept, true);
+    try { await persistWeek({ data: { tasks: tasks.map(rowOf) } }); } catch { /* The week still shows here. */ }
+    update(s => ({ ...s, confirmed: true, tasks: [...tasks, ...s.tasks.filter(t => t.appointment === 'extra')] }));
+  };
+  const askPerson = (taskId: string, personId: string) => update(s => ({ ...s, tasks: s.tasks.map(t => t.id === taskId ? { ...t, owner: personId, status: 'assigned' as const, updated: true } : t) }));
+  const takeTask = (taskId: string) => update(s => {
+    let tasks = s.tasks.map(t => t.id === taskId ? { ...t, owner: 'summer', status: 'accepted' as const, updated: true } : t);
+    const nxt = nextOpen(tasks);
+    const who = nxt ? fits(nxt, tasks, s.people)[0] : undefined;
+    if (nxt && who) tasks = tasks.map(t => t.id === nxt.id ? { ...t, owner: who.id, status: 'assigned' as const, updated: true } : t);
+    return { ...s, tasks };
+  });
+  const releaseTask = (taskId: string) => update(s => {
+    const task = s.tasks.find(t => t.id === taskId);
+    if (!task?.owner) return s;
+    const declined = [...(task.declinedBy ?? []), task.owner];
+    const cleared = s.tasks.map(t => t.id === taskId ? { ...t, owner: undefined, status: 'unclaimed' as const, declinedBy: declined, updated: true } : t);
+    const current = cleared.find(t => t.id === taskId)!;
+    const who = fits(current, cleared, s.people)[0];
+    const tasks = who ? cleared.map(t => t.id === taskId ? { ...t, owner: who.id, status: 'assigned' as const } : t) : cleared;
+    return { ...s, tasks };
+  });
+  const addDemoTask = async (task: Pick<CareTask, 'title' | 'category' | 'day' | 'slot' | 'time' | 'appointment'>) => {
+    const id = `task-${Date.now() % 10000}`;
+    const created: CareTask = { id, ...task, duration: 30, status: 'unclaimed', approved: true, published: true, notes: '' };
+    update(s => ({ ...s, tasks: [...s.tasks, { ...created, published: s.confirmed }] }));
+    try { await persistWeek({ data: { tasks: [rowOf({ ...created, published: true })] } }); } catch { /* It stays on this phone. */ }
+  };
+  const nameLead = async (name: string, phone: string) => {
+    update(s => ({ ...s, named: true, people: s.people.map(p => p.id === 'summer' ? { ...p, name, initials: name.slice(0, 2).toUpperCase() } : p) }));
+    try { await persistLead({ data: { name, phone } }); } catch { /* The name is kept on this phone. */ }
+  };
   const update=(fn:(s:CareState)=>CareState)=>setState(fn);
  const activity=(title:string,detail:string):Activity=>({id:crypto.randomUUID(),title,detail,time:'Just now'});
  const addActivity=(title:string,detail:string)=>update(s=>({...s,activities:[activity(title,detail),...s.activities]}));
@@ -67,6 +105,6 @@ export function CareProvider({children}:{children:ReactNode}) {
     const rename=(text:string)=>text.replace(/\bPriya Patel\b/g,'Henry').replace(/\bDavid Lin\b/g,'Summer Chang').replace(/\bMarcus Vance\b/g,'Nancy').replace(/\bPriya\b/g,'Henry').replace(/\bDavid\b/g,'Summer').replace(/\bMarcus\b/g,'Nancy');
     return {...state,people:state.people.map(person=>{const identity=initialPeople.find(p=>p.id===person.id);return identity?{...person,name:identity.name,initials:identity.initials}:person;}),tasks:state.tasks.map(task=>({...task,title:rename(task.title),notes:rename(task.notes)})),activities:state.activities.map(a=>({...a,title:rename(a.title),detail:rename(a.detail)})),refusals:state.refusals.map(r=>({...r,task:rename(r.task),reason:rename(r.reason)}))};
   },[state]);
-  return createElement(CareContext.Provider, {value:{state:displayState,update,reset:()=>setState(freshState()),startShowcase,autoAssign,decline,reschedule,addActivity,liveSms,setLive,createWellnessTask}}, children);
+  return createElement(CareContext.Provider, {value:{state:displayState,update,reset:()=>setState(freshState()),startShowcase,autoAssign,decline,reschedule,addActivity,liveSms,setLive,createWellnessTask,confirmWeek,askPerson,takeTask,releaseTask,addDemoTask,nameLead}}, children);
 }
 export function notificationPreview(){return 'Your care circle has an update. Sign in securely to review: https://firstcare.example/sign-in';}
