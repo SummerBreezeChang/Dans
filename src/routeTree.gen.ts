@@ -25,6 +25,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as WearablesRouteImport } from './routes/wearables'
+import { Route as CheckinWhoRouteImport } from './routes/checkin.$who'
 import { Route as JoinWhoRouteImport } from './routes/join.$who'
 import { Route as VisitsIndexRouteImport } from './routes/visits.index'
 import { Route as ApiPublicLinqWebhookRouteImport } from './routes/api.public.linq-webhook'
@@ -113,6 +114,11 @@ const WearablesRoute = WearablesRouteImport.update({
   path: '/wearables',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckinWhoRoute = CheckinWhoRouteImport.update({
+  id: '/checkin/$who',
+  path: '/checkin/$who',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JoinWhoRoute = JoinWhoRouteImport.update({
   id: '/join/$who',
   path: '/join/$who',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
+  '/checkin/$who': typeof CheckinWhoRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
+  '/checkin/$who': typeof CheckinWhoRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
+  '/checkin/$who': typeof CheckinWhoRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/summary'
     | '/wearables'
+    | '/checkin/$who'
     | '/join/$who'
     | '/visits/'
     | '/api/public/linq-webhook'
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/summary'
     | '/wearables'
+    | '/checkin/$who'
     | '/join/$who'
     | '/visits'
     | '/api/public/linq-webhook'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/summary'
     | '/wearables'
+    | '/checkin/$who'
     | '/join/$who'
     | '/visits/'
     | '/api/public/linq-webhook'
@@ -320,6 +332,7 @@ export interface RootRouteChildren {
   StartRoute: typeof StartRoute
   SummaryRoute: typeof SummaryRoute
   WearablesRoute: typeof WearablesRoute
+  CheckinWhoRoute: typeof CheckinWhoRoute
   JoinWhoRoute: typeof JoinWhoRoute
   VisitsIndexRoute: typeof VisitsIndexRoute
   ApiPublicLinqWebhookRoute: typeof ApiPublicLinqWebhookRoute
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WearablesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkin/$who': {
+      id: '/checkin/$who'
+      path: '/checkin/$who'
+      fullPath: '/checkin/$who'
+      preLoaderRoute: typeof CheckinWhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/join/$who': {
       id: '/join/$who'
       path: '/join/$who'
@@ -512,6 +532,7 @@ const rootRouteChildren: RootRouteChildren = {
   StartRoute: StartRoute,
   SummaryRoute: SummaryRoute,
   WearablesRoute: WearablesRoute,
+  CheckinWhoRoute: CheckinWhoRoute,
   JoinWhoRoute: JoinWhoRoute,
   VisitsIndexRoute: VisitsIndexRoute,
   ApiPublicLinqWebhookRoute: ApiPublicLinqWebhookRoute,

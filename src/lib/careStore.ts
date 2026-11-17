@@ -3,6 +3,7 @@ import { CareContext } from './careContext';
 export { useCare } from './careContext';
 import { getCareSync, saveWeek, setLiveSms, syncAssignments } from './careSync.functions';
 import { saveLead } from './start.functions';
+import { matchWeekNow } from './checkin.functions';
 import { demoTasks, fits, matchWeek, nextOpen, visitIds } from './weekPlan';
 import { useServerFn } from '@tanstack/react-start';
 import { escalateWellness } from './wellness.functions';
@@ -40,6 +41,7 @@ export function CareProvider({children}:{children:ReactNode}) {
  const escalate = useServerFn(escalateWellness);
  const persistWeek = useServerFn(saveWeek);
  const persistLead = useServerFn(saveLead);
+ const runMatch = useServerFn(matchWeekNow);
  const [state,setState] = useState<CareState>(freshState);
  const [loaded,setLoaded] = useState(false);
  const [showcase,setShowcase] = useState(false);
@@ -54,11 +56,20 @@ export function CareProvider({children}:{children:ReactNode}) {
   const setLive=(v:boolean)=>{if(showcaseRef.current){setLiveState(false);return;}setLiveState(v);setLiveSms({data:{live:v}}).catch(()=>{});};
   const startShowcase=()=>{showcaseRef.current=true;setShowcase(true);setLiveState(false);owners.current=null;setState(freshState());try{localStorage.setItem('firstcare-showcase','true');localStorage.setItem('firstcare-demo-v2',JSON.stringify(freshState()));}catch{/* Showcase works without storage. */}};
   const rowOf = (t: CareTask) => ({ id: t.id, title: t.title, category: t.category, day: t.day, slot: t.slot, time: t.time, published: t.published, owner: t.owner ?? null, status: t.status });
-  // Confirming the week matches every task at once. The texts go out from the change this makes to the owners.
+  // Confirming the week matches every task at once, on the server, from the people saved in the database.
+  // If the server cannot be reached the week is matched here from the demo people, so the screen still works.
   const confirmWeek = async (kept: string[]) => {
-    const matched = matchWeek([...demoTasks(kept, true), ...state.tasks.filter(t => t.appointment === 'extra')], state.people);
-    try { await persistWeek({ data: { tasks: matched.filter(t => t.appointment !== 'extra').map(rowOf) } }); } catch { /* The week still shows here. */ }
-    update(s => ({ ...s, confirmed: true, tasks: matched }));
+    const week = demoTasks(kept, true);
+    const extras = state.tasks.filter(t => t.appointment === 'extra');
+    let tasks: CareTask[];
+    try {
+      await persistWeek({ data: { tasks: week.map(rowOf) } });
+      const r = await runMatch();
+      tasks = week.map(t => { const m = r.assigned.find(a => a.id === t.id); return m ? { ...t, owner: m.owner, status: 'assigned' as const, updated: true } : t; });
+    } catch {
+      tasks = matchWeek(week, state.people);
+    }
+    update(s => ({ ...s, confirmed: true, tasks: [...tasks, ...extras] }));
   };
   const askPerson = (taskId: string, personId: string) => update(s => ({ ...s, tasks: s.tasks.map(t => t.id === taskId ? { ...t, owner: personId, status: 'assigned' as const, updated: true } : t) }));
   const takeTask = (taskId: string) => update(s => {

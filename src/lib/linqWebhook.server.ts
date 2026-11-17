@@ -1,5 +1,7 @@
 import { answerLine, careQuestion, leadId, leadText, passedText, whenText } from './careSync.functions';
 import { loadPrefs } from './notify.functions';
+import { changeText } from './checkin';
+import { checkinLink, saveWeekAnswer } from './checkin.server';
 import { recordAnswer, viaFor } from './answers.server';
 import { readChoice, readReply, readThumb, type Answer } from './answers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
@@ -77,6 +79,20 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
   if (!ref && typed && !messageId) {
     person = people.find(p => toE164(p.contact) === from);
     task = person ? upcomingTask(person.id, tasks) : undefined;
+  }
+  // The Monday check-in. Yes keeps last week's answers for this week. Change sends the page.
+  if (ref?.kind === 'checkin' && person) {
+    const name = person.name.split(' ')[0] ?? person.name;
+    if (answer === 'yes') {
+      await saveWeekAnswer(db, { person: person.id, week: ref.taskId, answer: 'same' });
+      await sendOnce(`wh:${id}:checkin`, from, `Thank you, ${name}. Same as last week.`);
+      return Response.json({ checkin: 'same' });
+    }
+    if (answer === 'pass') {
+      await sendOnce(`wh:${id}:checkin`, from, changeText(person.name, checkinLink(person.id)));
+      return Response.json({ checkin: 'change' });
+    }
+    return Response.json({ ignored: true });
   }
   if (!person) return Response.json({ ignored: true });
   const lead = people.find(p => p.id === leadId);
