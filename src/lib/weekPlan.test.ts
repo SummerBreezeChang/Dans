@@ -29,7 +29,7 @@ describe('matching the whole week', () => {
     const matched = matchWeek(week, initialPeople);
     for (const t of matched.filter(x => x.owner)) {
       const person = initialPeople.find(p => p.id === t.owner)!;
-      expect(person.availability).toContain(`${t.day}-${t.slot}`);
+      expect(person.availability).toContain(`${t.day % 7}-${t.slot}`);
       expect(canHelp(person, t)).toBe(true);
       expect(t.status).toBe('assigned');
     }
