@@ -1,3 +1,7 @@
 {
-  "crons": [{ "path": "/api/public/remind", "schedule": "0 15 * * *" }]
+  "crons": [{ "path": "/api/public/remind", "schedule": "0 15 * * *" }],
+  "redirects": [
+    { "source": "/", "has": [{ "type": "host", "value": "start-dans-support.vercel.app" }], "destination": "/start", "permanent": false },
+    { "source": "/", "has": [{ "type": "host", "value": "maya-dans-support.vercel.app" }], "destination": "/maya", "permanent": false }
+  ]
 }
