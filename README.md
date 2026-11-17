@@ -1,101 +1,64 @@
-# FirstCare+ — Product Requirements (README)
+# Dans
 
-**A little help. A lot of care.**
-FirstCare+ is a caregiver-coordination app. It helps a patient or primary caregiver turn "who's doing what this week?" into a shared plan that the whole care circle can see and pick up.
+A little help for the people who are helping. Dans lets one person organize who does what for someone going through treatment. Helpers answer with a thumbs up or down in a text, so nobody installs an app.
 
+Live demo: https://dans-support.vercel.app (sample data, no login yet)
 
-## The app, screen by screen
+Dans is the second version of FirstCare+, built at the She Builds hackathon. The first version's README is in [docs/firstcare-v1-readme.md](docs/firstcare-v1-readme.md).
 
-<img src="docs/firstcare-app-screens.gif" alt="FirstCare+ on a phone: care board, checklist, care circle, appointments, hospital connection, wellness" width="320">
+## The three people
 
-FirstCare+ is a phone-first web app. Six screens, three seconds each:
+| Who | What they do | Where |
+|---|---|---|
+| **Summer**, the owner | Sets up, confirms the week, sees who is coming, chooses what she is texted about | `/` Home, `/visits`, `/people`, `/more`, `/notifications`, `/summary`, `/start` |
+| **Maya**, the person being cared for | Says yes to sharing her week, sees who is coming, tells Summer what she needs | `/maya` |
+| **Helpers**: Henry, Nancy, Jack, Mary, Karen | Join from a link, say what they can do and when they are free, answer asks by text | `/join/<name>` |
 
-1. **Care board.** This week's tasks: mine, unclaimed, all, completed, and a summary.
-2. **Care checklist.** Tasks generated from the hospital record, reviewed before they are shared.
-3. **Care circle.** Each caregiver's visibility, weekly task cap and availability.
-4. **Appointments.** Upcoming visits from Kaiser, and rescheduling that moves the linked tasks.
-5. **Hospital connection.** Patient consent and the simulated Kaiser Permanente connection.
-6. **Wellness and vitals.** Simulated Apple Watch and Oura readings that can raise a check-in task.
+## How a week works
 
-## Onboarding: the whole experience in ten screens
+1. Summer asks Maya first. Maya agrees and chooses what helpers can see.
+2. Summer sends each helper their own link. They say what they can do and when they are free.
+3. Dans asks one helper at a time by text: "Henry, can you pick up Maya's prescriptions Thu, Nov 19 at 12:30 PM?" with "👍 reply YES / 👎 reply PASS".
+4. A thumbs down, or a typed PASS, and Dans asks the next free person on its own. If nobody is free, Dans texts Summer and asks whether she can take it.
+5. Each morning at 7 AM Pacific, anyone with a task that day is asked if they can still do it.
 
-![FirstCare+ onboarding: who you care for, connect Kaiser, the checklist, the circle, the group text](docs/firstcare-onboarding.gif)
+## What is real and what is sample
 
-The guided setup at [/setup](https://dans-support.vercel.app/setup) walks through everything the app does. Each screen holds for three seconds.
+- Real: texting through Linq, replies, the database, the morning reminder, who is asked next.
+- Sample: the week of visits (labelled "Sample visit"), the people, and the times people are free.
+- Not built yet: login, a calendar connection (Kaiser or any other), editing the list of tasks.
 
-1. **Welcome.** Set up a care circle.
-2. **Who are you caring for?** Name, relationship, and what she is going through.
-3. **Bring in visits from Kaiser.** What comes in, and what helpers never see.
-4. **Kaiser consent.** The patient allows access. This screen is simulated for the demo, with a synthetic patient.
-5. **Here is what came in.** Three visits and two medicines.
-6. **The checklist.** Everyday tasks by treatment phase: chemotherapy, surgery, recovery and follow-up.
-7. **Who has offered to help?** Helpers see tasks only.
-8. **One group text.** Asks arrive by text. Reply yes, swap or can't.
-9. **Calendar.** Optional, coming soon.
-10. **The week has a plan.**
+## How it is built
 
-## User flow at a glance
+TanStack Start, Vite, Tailwind v4 and Vitest. Supabase for the database. Linq for texts. Vercel hosts it, and every push to `main` deploys.
 
-![FirstCare+ user flow: onboarding, care circle, task view, rescheduling, text messages](docs/firstcare-user-flow.gif)
+```bash
+npm install
+cp .env.example .env     # fill in the values, never commit .env
+npm run dev              # http://localhost:4180
+npm test
+npx tsc --noEmit
+```
 
-The flow in seven steps, with screens from the live app. Each step holds for about four seconds.
+## Where things live
 
-1. **The problem.** When someone you love is sick, the hard part is the logistics.
-2. **Onboarding: the checklist.** The primary caregiver enters the diagnosis and treatment plan, and a care checklist is built by phase. Kaiser appointments flow in (simulated for the demo).
-3. **Onboarding: the circle.** Family and friends set their availability and a weekly task cap. Auto-assign gives every task to someone who can do it.
-4. **Task view.** My tasks, Unclaimed, and a Summary of the week.
-5. **Rescheduling.** Chemo moves, and the linked ride, prescription pickup and meal move with it.
-6. **Messaging.** Each caregiver gets one clear text. A reply of "can't make it" passes the task to the next person. No medical details in the text.
-7. **Closing.** No one should do it alone.
+| Folder | What is in it |
+|---|---|
+| `src/components/calm` | The phone screens |
+| `src/routes` | One file per address, and the `api.*` endpoints (Linq webhook, morning reminder) |
+| `src/lib` | The rules: who can be asked, the wording of each text, how replies are read |
+| `scripts` | Small tools for testing texts and saving phone numbers |
+| `drizzle/migrations` | The database tables |
+| `docs` | Plans, mock data, and the old FirstCare+ documents |
 
-Try it: https://dans-support.vercel.app · Guided setup: https://dans-support.vercel.app/setup · Slides: [FirstCare-demo-deck.pdf](public/FirstCare-demo-deck.pdf)
+## Working on Dans
 
-_These two GIFs and sections were added after the submission deadline._
+Read [AGENTS.md](AGENTS.md) first. It says who edits what and how texting and the database are set up.
 
-## What it does
+## Links
 
-1. The patient or primary caregiver creates an account and builds a care circle.
-2. A weekly care plan is created: appointments plus the tasks around them (rides, meals, medicine pickup, at-home care, follow-ups).
-3. Tasks are assigned automatically based on each caregiver's availability and weekly task cap. Caregivers can also sign up for open tasks, swap, or decline with a private reason.
-4. When plans change (for example, a rescheduled chemo infusion), linked tasks move with it and the circle is notified.
-5. Every caregiver is notified by email or phone number.
+- Paper (design): https://app.paper.design/file/01M7E17JT8PJJVVZNVBKRQ1MGV/p-8-1
+- Status and test plan: https://app.notion.com/p/41b2d5cd4ef481e5848acfab769389fb
+- Project links: https://app.notion.com/p/41a2d5cd4ef4810c917afecc5844aa67
 
-## App structure (tabs)
-
-| # | Tab | Purpose |
-|---|-----|---------|
-| 1 | My tasks (landing) | What you've taken on |
-| 2 | Unclaimed | Open tasks that still need a helping hand, with a count badge |
-| 3 | All tasks | Everyone's tasks, with sign-up and swap options |
-| 4 | Completed | What's already taken care of |
-| 5 | Summary | Week calendar with all tasks and assignees, plus the four stat tiles (Tasks this week, Taken care of, Need a helping hand, Your care circle) |
-
-## PRD contents
-
-- Project description (presentation-ready)
-- Overview, goals, non-goals and success metrics
-- Personas
-- Core journey
-- Functional requirements (P0 = hackathon build)
-- Assignment logic
-- Notifications
-- Integrations (hospital record connection starting with Kaiser; Linq messaging is optional)
-- Privacy
-- Hackathon build plan (4 hours)
-- Version 2: wearables (Apple Watch, Garmin, Oura and similar) feeding data back for caregiver review
-- Risks and open questions (all answered)
-
-## Hackathon constraints
-
-- 4 hours, team of 3
-- Synthetic demo data only; no real notifications are sent in the prototype
-
-## Tech
-
-- React, Vite, Tailwind, Supabase, deployed on Vercel from GitHub
-- Messaging via Linq (iMessage/RCS/SMS) is optional
-
-## Team workflow
-
-- GitHub is the shared source of truth. Pull before you start, commit small, push often.
-- One person edits a given screen at a time to avoid merge conflicts.
+Made-up data only. Not medical advice.
