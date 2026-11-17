@@ -243,3 +243,4 @@
 .c-stepper-btn:disabled{color:var(--muted-foreground)}
 .c-stepper-num{width:48px;font-family:var(--font-display);font-weight:500;font-size:40px;line-height:48px;text-align:center;color:var(--ink)}
 .c-pick:focus-visible,.c-cell:focus-visible,.c-stepper-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.c-join .c-title-big{font-size:30px;line-height:34px}
