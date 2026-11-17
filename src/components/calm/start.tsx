@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { getMayaWeek, getStart, saveConsent, sendNote, type Scope } from '@/lib/start.functions';
+import { weekTitle } from '@/lib/week';
 import { useCare } from '@/lib/careStore';
 import { Check } from './join';
 
@@ -21,7 +22,7 @@ async function share(text: string, path: string) {
 }
 
 export function Start() {
-  const { state, nameLead } = useCare();
+  const { state, nameLead, setOwner } = useCare();
   const [leadName, setLeadName] = useState('Summer');
   const [phone, setPhone] = useState('');
   const [data, setData] = useState<StartData | null>(null);
@@ -51,9 +52,27 @@ export function Start() {
     </div>
   );
 
+  if (!state.owner) return (
+    <div className="c-join">
+      <div className="c-join-top">
+        <p className="c-eyebrow">2 of 3</p>
+        <h1 className="c-title c-title-big">Who runs the week?</h1>
+        <p className="c-body">One person decides. Helpers only answer yes or pass.</p>
+        <div className="c-picks">
+          <button type="button" className="c-pick" onClick={() => setOwner('caretaker')}>
+            <span className="c-stack c-grow"><strong>I do</strong><small>I'm Maya's caretaker. She asks me and I decide.</small></span>
+          </button>
+          <button type="button" className="c-pick" onClick={() => setOwner('patient')}>
+            <span className="c-stack c-grow"><strong>Maya does</strong><small>This is Maya's own week. I'm setting it up for her.</small></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (!data) return <div className="c-join" aria-busy="true" />;
 
-  if (!data.consent) return (
+  if (!data.consent && state.owner !== 'patient') return (
     <div className="c-join">
       <div className="c-join-top">
         <div className="c-step"><Link to="/" className="c-link">Back</Link></div>
@@ -75,7 +94,7 @@ export function Start() {
   return (
     <div className="c-join">
       <div className="c-join-top">
-        <span className="c-eyebrow">Maya said yes</span>
+        <span className="c-eyebrow">{state.owner === 'patient' ? 'Your circle' : 'Maya said yes'}</span>
         <h1 className="c-title c-title-big">Who's helping?</h1>
         <p className="c-body">Each person gets their own link.</p>
         <ul className="c-people">
@@ -91,7 +110,7 @@ export function Start() {
         </ul>
       </div>
       <div className="c-join-end">
-        <Link to="/" className="c-btn c-btn-main c-btn-full">Go to Maya's week</Link>
+        <Link to="/" className="c-btn c-btn-main c-btn-full">Go to {weekTitle(state.owner)}</Link>
       </div>
     </div>
   );
@@ -115,7 +134,7 @@ export function Maya() {
   // Someone who has already agreed goes straight to their week. The week refreshes while it is open.
   useEffect(() => {
     let alive = true; let first = true;
-    const pull = () => getMayaWeek().then(w => { if (!alive) return; setWeek(w); if (first && w.consented) setStep('view'); first = false; }).catch(() => { if (alive && first) { setWeek({ consented: false, rows: [] }); first = false; } });
+    const pull = () => getMayaWeek().then(w => { if (!alive) return; setWeek(w); if (first && w.consented) setStep('view'); first = false; }).catch(() => { if (alive && first) { setWeek({ consented: false, rows: [], notes: [] }); first = false; } });
     pull();
     const t = setInterval(pull, 10000);
     return () => { alive = false; clearInterval(t); };
@@ -208,9 +227,20 @@ export function Maya() {
           ))}
         </ul>
         {!week.rows.length && <p className="c-body">Nobody is lined up yet. Summer is working on it.</p>}
+        {week.notes.length > 0 && (
+          <>
+            <span className="c-eyebrow">What you asked for</span>
+            <ul className="c-people">
+              {week.notes.map(n => (
+                <li key={n.id} className="c-person"><span className="c-stack c-grow"><strong>{n.text}</strong><small>{n.line}</small></span></li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
       <div className="c-join-end">
         <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => { setSent(false); setStep('note'); }}>Tell Summer something</button>
+        <button type="button" className="c-link c-center" onClick={() => setStep('see')}>Change what they see</button>
       </div>
     </div>
   );
@@ -219,7 +249,10 @@ export function Maya() {
     <div className="c-join">
       <div className="c-join-top c-join-hero">
         <h1 className="c-title c-title-big">Not now.</h1>
-        <p className="c-body">Summer will wait until Maya is ready.</p>
+        <p className="c-body">Summer will wait until you are ready.</p>
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => setStep('ask')}>Ask me again</button>
       </div>
     </div>
   );

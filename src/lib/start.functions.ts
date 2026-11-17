@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { leadId } from './careSync.functions';
 import { forMaya, minutes, whenLabel } from './week';
+import { addedTitle, declinedTitle, deriveRequests, noteTitle, resolutionDetail, statusLine, type ActivityRow } from './requests';
 
 // Starting the circle: Maya agrees first, then the lead invites helpers.
 // Maya's answer is kept as an entry in the activity log, which doubles as the record of her consent.
@@ -45,16 +46,23 @@ export const saveConsent = createServerFn({ method: 'POST' })
 /** Maya's week, read from the shared database so it is the same on her phone as on Summer's. */
 export const getMayaWeek = createServerFn({ method: 'GET' }).handler(async () => {
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
-  const [{ data: tasks }, { data: people }, { data: consent }] = await Promise.all([
+  const [{ data: tasks }, { data: people }, { data: consent }, { data: log }] = await Promise.all([
     db.from('care_tasks').select('id,title,day,time,owner,status,published'),
     db.from('care_caregivers').select('id,name'),
     db.from('care_activity').select('id').eq('title', consentTitle).limit(1),
+    db.from('care_activity').select('id,title,detail,created_at').in('title', [noteTitle, addedTitle, declinedTitle]).order('created_at', { ascending: false }).limit(100),
   ]);
   const rows = (tasks ?? [])
     .filter(t => t.published && t.owner && t.owner !== undefined && (t.status === 'assigned' || t.status === 'accepted'))
     .sort((a, b) => a.day - b.day || minutes(a.time) - minutes(b.time))
     .map(t => ({ id: t.id, when: whenLabel(t.day, t.time), who: people?.find(p => p.id === t.owner)?.name.split(' ')[0] ?? 'Someone', what: forMaya(t.title) }));
-  return { consented: !!consent?.length, rows };
+  // Her own notes, and what Summer did with each. Maya only ever sees a short line, never who was asked.
+  const notes = deriveRequests((log ?? []) as ActivityRow[]).slice(0, 5).map(n => {
+    const task = n.taskId ? tasks?.find(t => t.id === n.taskId) : undefined;
+    const who = task?.owner && (task.status === 'assigned' || task.status === 'accepted') ? people?.find(p => p.id === task.owner)?.name.split(' ')[0] : undefined;
+    return { id: n.id, text: n.text, line: statusLine(n.status, task?.status === 'accepted' ? who : undefined) };
+  });
+  return { consented: !!consent?.length, rows, notes };
 });
 
 /** Maya tells Summer what she needs. It is kept in the log, and Summer is texted if she has that on. */
@@ -70,4 +78,22 @@ export const sendNote = createServerFn({ method: 'POST' })
     const route = lead ? routeText(lead.phone, lead.name) : null;
     if (prefs.note && lead && route) await sendOnce(`note:${Date.now()}`, route.to, `${route.prefix}${lead.name.split(' ')[0]}, Maya says: ${data.text}`);
     return { ok: true };
+  });
+
+/** Summer's side: Maya's notes with what has been done about each. */
+export const getRequests = createServerFn({ method: 'GET' }).handler(async () => {
+  const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const { data } = await db.from('care_activity').select('id,title,detail,created_at').in('title', [noteTitle, addedTitle, declinedTitle]).order('created_at', { ascending: false }).limit(100);
+  return deriveRequests((data ?? []) as ActivityRow[]);
+});
+
+/** Summer adds a request to the week, or says not now. Either way Maya sees a line about it. */
+export const resolveRequest = createServerFn({ method: 'POST' })
+  .inputValidator((d: unknown) => z.object({ id: z.string().min(8).max(64), action: z.enum(['added', 'declined']), taskId: z.string().regex(/^task-\d{1,4}$/).optional() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+    const { data: note } = await db.from('care_activity').select('id').eq('id', data.id).eq('title', noteTitle).maybeSingle();
+    if (!note) return { ok: false };
+    const { error } = await db.from('care_activity').insert({ title: data.action === 'added' ? addedTitle : declinedTitle, detail: resolutionDetail(data.id, data.taskId) });
+    return { ok: !error };
   });

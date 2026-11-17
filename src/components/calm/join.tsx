@@ -156,7 +156,7 @@ export function Join({ who }: { who: string }) {
         <p className="c-body">Asks come by text. 👍 for yes, 👎 to pass.</p>
       </div>
       <div className="c-join-end">
-        <Link to="/" className="c-btn c-btn-main c-btn-full">See Maya's week</Link>
+        <p className="c-muted">You can close this page. Dans will text you.</p>
       </div>
     </div>
   );

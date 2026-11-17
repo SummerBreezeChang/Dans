@@ -23,6 +23,7 @@ import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StartRouteImport } from './routes/start'
+import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as WearablesRouteImport } from './routes/wearables'
 import { Route as JoinWhoRouteImport } from './routes/join.$who'
 import { Route as VisitsIndexRouteImport } from './routes/visits.index'
@@ -102,6 +103,11 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SummaryRoute = SummaryRouteImport.update({
+  id: '/summary',
+  path: '/summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WearablesRoute = WearablesRouteImport.update({
   id: '/wearables',
   path: '/wearables',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
+  '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
+  '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits': typeof VisitsIndexRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/start': typeof StartRoute
+  '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/signup'
     | '/start'
+    | '/summary'
     | '/wearables'
     | '/join/$who'
     | '/visits/'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/signup'
     | '/start'
+    | '/summary'
     | '/wearables'
     | '/join/$who'
     | '/visits'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/signup'
     | '/start'
+    | '/summary'
     | '/wearables'
     | '/join/$who'
     | '/visits/'
@@ -306,6 +318,7 @@ export interface RootRouteChildren {
   SetupRoute: typeof SetupRoute
   SignupRoute: typeof SignupRoute
   StartRoute: typeof StartRoute
+  SummaryRoute: typeof SummaryRoute
   WearablesRoute: typeof WearablesRoute
   JoinWhoRoute: typeof JoinWhoRoute
   VisitsIndexRoute: typeof VisitsIndexRoute
@@ -416,6 +429,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/summary': {
+      id: '/summary'
+      path: '/summary'
+      fullPath: '/summary'
+      preLoaderRoute: typeof SummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wearables': {
       id: '/wearables'
       path: '/wearables'
@@ -490,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   SetupRoute: SetupRoute,
   SignupRoute: SignupRoute,
   StartRoute: StartRoute,
+  SummaryRoute: SummaryRoute,
   WearablesRoute: WearablesRoute,
   JoinWhoRoute: JoinWhoRoute,
   VisitsIndexRoute: VisitsIndexRoute,

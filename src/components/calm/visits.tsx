@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import { helpKinds, rescheduleTasks, type CareTask, type Category, type Help, type Slot } from '@/lib/assignmentEngine';
-import { byTime, firstName, list, numberWord, shortTitle, visitsFor, visitWhen } from '@/lib/week';
+import { byTime, firstName, list, numberWord, shortTitle, visitsFor, visitWhen, weekTitle } from '@/lib/week';
 import { visitIds } from '@/lib/weekPlan';
 import { PillTag } from './shell';
 import { TaskRow } from './parts';
+import { Requests } from './requests';
 
 const ME = 'summer';
 const isCovered = (t: CareTask) => Boolean(t.owner) || t.status === 'done';
@@ -20,7 +21,7 @@ const helpCategory: Record<Help, Category> = {
 };
 
 export function Review() {
-  const { confirmWeek } = useCare();
+  const { state, confirmWeek } = useCare();
   const [kept, setKept] = useState<string[]>([...visitIds]);
   const [saving, setSaving] = useState(false);
   const visits = visitsFor(false);
@@ -29,9 +30,10 @@ export function Review() {
     <>
       <header className="c-head">
         <p className="c-eyebrow">Nov 16 to 22</p>
-        <h1 className="c-title">Review the week</h1>
+        <h1 className="c-title">Review {weekTitle(state.owner).toLowerCase()}</h1>
         <p className="c-body">Dans asks helpers from the visits you keep.</p>
       </header>
+      <Requests />
       <div className="c-fills">
         {visits.map(v => (
           <button type="button" key={v.id} className={kept.includes(v.id) ? 'c-fill c-fill-mint' : 'c-fill'} aria-pressed={kept.includes(v.id)} onClick={() => toggle(v.id)}>

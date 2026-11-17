@@ -74,3 +74,10 @@ export function forMaya(title: string) {
 
 /** "Thu 12:30 PM", and "Next Mon 11:00 AM" for the day after this week. */
 export const whenLabel = (day: number, time: string) => `${day > 6 ? 'Next ' : ''}${days[day % 7] ?? ''} ${time}`.trim();
+
+/** What the week is called. The patient's own week reads "Your week". */
+export const weekTitle = (owner: 'patient' | 'caretaker' | undefined) => (owner === 'patient' ? 'Your week' : "Maya's week");
+export const weekPossessive = (owner: 'patient' | 'caretaker' | undefined) => (owner === 'patient' ? 'your' : "Maya's");
+
+/** "Wed 18", and "Mon 23" for the day after this week. */
+export const dayHeading = (day: number) => `${days[day % 7] ?? ''} ${16 + day}`;

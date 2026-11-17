@@ -13,7 +13,7 @@ const places = [
 
 export function CalmShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  const here = (to: string) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
+  const here = (to: string) => (to === '/' ? pathname === '/' || pathname.startsWith('/summary') : pathname.startsWith(to));
   return (
     <div className="c-app">
       <main className="c-page">{children}</main>

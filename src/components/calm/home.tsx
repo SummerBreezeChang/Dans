@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
-import { byTime, doesWhat, firstName, shortTitle, shortWhen, visitsFor, visitWhen } from '@/lib/week';
+import { byTime, doesWhat, firstName, shortTitle, shortWhen, visitsFor, visitWhen, weekPossessive, weekTitle } from '@/lib/week';
 import { fits, nextOpen } from '@/lib/weekPlan';
-import { KindIcon, TaskRow } from './parts';
+import { TaskRow } from './parts';
+import { Requests } from './requests';
 
 // Home asks one question: who is next for the soonest open task.
 
@@ -24,7 +25,7 @@ export function Home() {
   if (!state.confirmed) return (
     <>
       <header className="c-head">
-        <h1 className="c-title c-title-big">Bring in Maya's visits.</h1>
+        <h1 className="c-title c-title-big">Bring in {weekPossessive(state.owner)} visits.</h1>
         <p className="c-body">Dans builds the checklist from the visits you keep. Nobody is texted yet.</p>
       </header>
       <Link to="/visits" className="c-btn c-btn-main c-btn-full">Review the week</Link>
@@ -37,10 +38,12 @@ export function Home() {
   return (
     <>
       <header className="c-head c-head-tight">
-        <p className="c-eyebrow">Maya's week · Nov 16 to 22</p>
+        <p className="c-eyebrow">{weekTitle(state.owner)} · Nov 16 to 22</p>
         <h1 className="c-title c-title-big">{headline}</h1>
         <p className="c-body c-quiet">{covered} of {tasks.length} covered this week</p>
       </header>
+
+      <Requests title={state.owner === 'patient' ? 'You asked' : 'Maya asked'} />
 
       {ask && (
         <section className="c-ask" aria-label="Needs someone">
@@ -83,6 +86,7 @@ export function Home() {
           );
         })}
       </section>
+      <Link to="/summary" className="c-link">See the whole week</Link>
     </>
   );
 }
