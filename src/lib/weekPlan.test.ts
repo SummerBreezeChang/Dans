@@ -58,4 +58,10 @@ describe('matching the whole week', () => {
     const taken = { ...task!, owner: 'nancy', status: 'accepted' as const };
     expect(matchWeek([taken], initialPeople)[0]).toMatchObject({ owner: 'nancy', status: 'accepted' });
   });
+
+  it('uses the usual Monday for a task on the Monday after this week', () => {
+    const next = { ...demoTasks(['labs'], true)[0]!, id: 'n', day: 7, slot: 'Morning' as const, time: '10:15 AM' };
+    const monday = helper('monday', ['0-Morning']);
+    expect(matchWeek([next], [monday])[0]!.owner).toBe('monday');
+  });
 });

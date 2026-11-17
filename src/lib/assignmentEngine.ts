@@ -12,8 +12,9 @@ export interface Caregiver { id: string; name: string; initials: string; role: R
 export interface CareTask { id: string; title: string; category: Category; day: number; slot: Slot; time: string; duration: number; appointment?: string | undefined; owner?: string | undefined; status: 'unclaimed' | 'assigned' | 'accepted' | 'done'; approved: boolean; published: boolean; updated?: boolean; notes: string; declinedBy?: string[]; priority?: 'high' | 'urgent' }
 export const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const slots: Slot[] = ['Morning', 'Afternoon', 'Evening'];
+/** Free times are a usual week. A task on day 7, the Monday after, uses the usual Monday. */
 export function canAssign(person: Caregiver, task: CareTask, tasks: CareTask[]) {
-  return person.role !== 'Patient' && canHelp(person, task) && person.availability.includes(`${task.day}-${task.slot}`) && tasks.filter(t => t.owner === person.id && t.status !== 'done' && t.published).length < person.cap && !task.declinedBy?.includes(person.id);
+  return person.role !== 'Patient' && canHelp(person, task) && person.availability.includes(`${task.day % 7}-${task.slot}`) && tasks.filter(t => t.owner === person.id && t.status !== 'done' && t.published).length < person.cap && !task.declinedBy?.includes(person.id);
 }
 export function assignTasks(tasks: CareTask[], people: Caregiver[]): CareTask[] {
   const result = tasks.map(t => ({ ...t }));
