@@ -3,7 +3,7 @@ import { CareContext } from './careContext';
 export { useCare } from './careContext';
 import { getCareSync, saveWeek, setLiveSms, syncAssignments } from './careSync.functions';
 import { saveLead } from './start.functions';
-import { demoTasks, fits, nextOpen, visitIds } from './weekPlan';
+import { demoTasks, fits, matchWeek, nextOpen, visitIds } from './weekPlan';
 import { useServerFn } from '@tanstack/react-start';
 import { escalateWellness } from './wellness.functions';
 import { defaultSharing, wellnessTask, type Insight, type WellnessScenario } from './wellnessEngine';
@@ -54,10 +54,11 @@ export function CareProvider({children}:{children:ReactNode}) {
   const setLive=(v:boolean)=>{if(showcaseRef.current){setLiveState(false);return;}setLiveState(v);setLiveSms({data:{live:v}}).catch(()=>{});};
   const startShowcase=()=>{showcaseRef.current=true;setShowcase(true);setLiveState(false);owners.current=null;setState(freshState());try{localStorage.setItem('firstcare-showcase','true');localStorage.setItem('firstcare-demo-v2',JSON.stringify(freshState()));}catch{/* Showcase works without storage. */}};
   const rowOf = (t: CareTask) => ({ id: t.id, title: t.title, category: t.category, day: t.day, slot: t.slot, time: t.time, published: t.published, owner: t.owner ?? null, status: t.status });
+  // Confirming the week matches every task at once. The texts go out from the change this makes to the owners.
   const confirmWeek = async (kept: string[]) => {
-    const tasks = demoTasks(kept, true);
-    try { await persistWeek({ data: { tasks: tasks.map(rowOf) } }); } catch { /* The week still shows here. */ }
-    update(s => ({ ...s, confirmed: true, tasks: [...tasks, ...s.tasks.filter(t => t.appointment === 'extra')] }));
+    const matched = matchWeek([...demoTasks(kept, true), ...state.tasks.filter(t => t.appointment === 'extra')], state.people);
+    try { await persistWeek({ data: { tasks: matched.filter(t => t.appointment !== 'extra').map(rowOf) } }); } catch { /* The week still shows here. */ }
+    update(s => ({ ...s, confirmed: true, tasks: matched }));
   };
   const askPerson = (taskId: string, personId: string) => update(s => ({ ...s, tasks: s.tasks.map(t => t.id === taskId ? { ...t, owner: personId, status: 'assigned' as const, updated: true } : t) }));
   const takeTask = (taskId: string) => update(s => {
