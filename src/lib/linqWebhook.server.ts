@@ -1,4 +1,4 @@
-import { answerLine, careQuestion, whenText } from './careSync.functions';
+import { answerLine, careQuestion, leadId, leadText, whenText } from './careSync.functions';
 import { readChoice, readReply, readThumb, type Answer } from './answers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { CareTask, Caregiver, Category, Help, Slot } from './assignmentEngine';
@@ -69,32 +69,62 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
     task = person ? upcomingTask(person.id, tasks) : undefined;
   }
   if (!person) return Response.json({ ignored: true });
-  const first = person.name.split(' ')[0];
+  const lead = people.find(p => p.id === leadId);
+  const isReaction = payload.event_type === 'reaction.added' || payload.event_type === 'poll.reaction.added';
 
+  // The lead answering Dans's suggestion: "Nancy is free then. Ask Nancy?"
+  if (ref?.kind === 'lead') {
+    const who = person.name.split(' ')[0];
+    if (!task || !answer) {
+      if (task && !isReaction) await db.from('care_activity').insert({ title: 'Reply about an open task', detail: `Summer ${note} about "${task.title}". Dans did not change anything.` });
+      return Response.json({ ignored: true });
+    }
+    if (task.owner || task.status === 'done') return Response.json({ changed: false });
+    if (answer === 'pass') {
+      await sendOnce(`wh:${id}:leadpass`, from, `OK. It's open in Dans for you to pick someone.`);
+      return Response.json({ changed: false });
+    }
+    await db.from('care_tasks').update({ owner: person.id, status: 'assigned', updated_at: new Date().toISOString() }).eq('id', task.id);
+    await db.from('care_activity').insert({ title: `Asked ${who}`, detail: `Summer said yes. Dans asked ${person.name} about "${task.title}" (${whenText({ day: task.day, time: task.time })}).` });
+    const route = routeText(person.contact, person.name);
+    if (route) await sendAsk(`wh:${id}:new`, route.to, route.prefix + careQuestion('reassigned', person.name, task.title, { day: task.day, time: task.time }), answerLine, task.id, person.id);
+    await sendOnce(`wh:${id}:leadyes`, from, `Done. I asked ${who}.`);
+    return Response.json({ changed: true, task: task.id, to: person.id });
+  }
+
+  const first = person.name.split(' ')[0];
   if (!answer) {
     // Not a yes or a pass (a question, another reaction, a choice they added). Leave it for the lead to read.
-    if (payload.event_type !== 'reaction.added' && payload.event_type !== 'poll.reaction.added') await db.from('care_activity').insert({ title: `${first} replied by text`, detail: `${person.name} ${note}${task ? ` about "${task.title}"` : ''}. Dans did not change anything.` });
+    if (!isReaction) await db.from('care_activity').insert({ title: `${first} replied by text`, detail: `${person.name} ${note}${task ? ` about "${task.title}"` : ''}. Dans did not change anything.` });
     return Response.json({ ignored: true, noted: true });
   }
   if (!task || task.owner !== person.id || task.status === 'done') {
     if (!messageId) await sendOnce(`wh:${id}:none`, from, `Thanks, ${first}. You have nothing waiting on you right now.`);
     return Response.json({ changed: false });
   }
-  const when = whenText({ day: task.day, time: task.time });
+  const at = { day: task.day, time: task.time };
+  const when = whenText(at);
 
   if (answer === 'yes') {
-    if (task.status === 'accepted') return Response.json({ changed: false });
-    await db.from('care_tasks').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', task.id);
-    await db.from('care_activity').insert({ title: `${first} said yes`, detail: `${person.name} took "${task.title}" (${when}).` });
-    await sendOnce(`wh:${id}:yes`, from, `Thank you, ${first}. It's yours.`);
-    return Response.json({ changed: true, task: task.id, status: 'accepted' });
+    const already = task.status === 'accepted';
+    if (!already) {
+      await db.from('care_tasks').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', task.id);
+      await db.from('care_activity').insert({ title: `${first} said yes`, detail: `${person.name} took "${task.title}" (${when}).` });
+    }
+    await sendOnce(`wh:${id}:yes`, from, already ? `Thank you, ${first}.` : `Thank you, ${first}. It's yours.`);
+    return Response.json({ changed: !already, task: task.id, status: 'accepted' });
   }
 
-  const next = pickReplacement(task, person.id, people, tasks);
-  await db.from('care_tasks').update({ owner: next?.id ?? null, status: next ? 'assigned' : 'unclaimed', declined_by: [...(task.declinedBy ?? []), person.id], updated_at: new Date().toISOString() }).eq('id', task.id);
-  await db.from('care_activity').insert({ title: next ? `${first} passed, asking ${next.name.split(' ')[0]}` : `${first} passed, needs someone`, detail: `${person.name} passed on "${task.title}" (${when}).${next ? ` Dans asked ${next.name}.` : ' Nobody else is free then.'}` });
-  await sendOnce(`wh:${id}:orig`, from, `No problem, ${first}. I'll ask someone else.`);
-  const nextRoute = next ? routeText(next.contact, next.name) : null;
-  if (next && nextRoute) await sendAsk(`wh:${id}:new`, nextRoute.to, nextRoute.prefix + careQuestion('reassigned', next.name, task.title, { day: task.day, time: task.time }), answerLine, task.id, next.id);
-  return Response.json({ changed: true, task: task.id, to: next?.id ?? null });
+  // A pass. The task opens up, and the lead decides who is asked next. Dans suggests someone who is free then.
+  const next = pickReplacement(task, person.id, people.filter(p => p.id !== leadId), tasks);
+  await db.from('care_tasks').update({ owner: null, status: 'unclaimed', declined_by: [...(task.declinedBy ?? []), person.id], updated_at: new Date().toISOString() }).eq('id', task.id);
+  await db.from('care_activity').insert({ title: `${first} passed`, detail: `${person.name} passed on "${task.title}" (${when}).${next ? ` ${next.name} is free then.` : ' Nobody else is free then.'}` });
+  await sendOnce(`wh:${id}:orig`, from, `No problem, ${first}. I'll let ${lead?.name.split(' ')[0] ?? 'the family'} know.`);
+  const leadRoute = lead ? routeText(lead.contact, lead.name) : null;
+  if (lead && leadRoute) {
+    const text = leadRoute.prefix + leadText(lead.name, person.name, task.title, at, next?.name);
+    if (next) await sendAsk(`wh:${id}:lead`, leadRoute.to, text, answerLine, task.id, next.id, 'lead');
+    else await sendOnce(`wh:${id}:lead`, leadRoute.to, text);
+  }
+  return Response.json({ changed: true, task: task.id, suggested: next?.id ?? null });
 }

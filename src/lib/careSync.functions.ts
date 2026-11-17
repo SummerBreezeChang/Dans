@@ -50,6 +50,20 @@ export function careText(event: 'assigned' | 'reassigned' | 'moved', name: strin
   return `${careQuestion(event, name, title, when)}\n\n${answerLine}`;
 }
 
+/** Who leads the circle. Passes come to her before anyone else is asked. */
+export const leadId = 'summer';
+
+/** What the lead hears when a helper passes: who passed, and who Dans would ask next. */
+export function leadText(lead: string, passed: string, title: string, when: When, next: string | undefined) {
+  const said = `${lead.split(' ')[0]}, ${passed.split(' ')[0]} can't ${askPhrase(title)} ${whenText(when)}.`;
+  return next ? `${said} ${next.split(' ')[0]} is free then. Ask ${next.split(' ')[0]}?` : `${said} Nobody else is free then. It's open in Dans.`;
+}
+
+/** The morning-of reminder. Wording from Summer, 2026-11-16. */
+export function reminderText(name: string, title: string, time: string) {
+  return `${name.split(' ')[0]}, today at ${time} you will ${askPhrase(title)}. Are you still able to do it?`;
+}
+
 /** The question on its own. On iMessage two choices to tap follow it, so the answer line is not needed. */
 export function careQuestion(event: 'assigned' | 'reassigned' | 'moved', name: string, title: string, when: When) {
   const first = name.split(' ')[0];

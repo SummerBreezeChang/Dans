@@ -23,6 +23,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as WearablesRouteImport } from './routes/wearables'
 import { Route as VisitsIndexRouteImport } from './routes/visits.index'
 import { Route as ApiPublicLinqWebhookRouteImport } from './routes/api.public.linq-webhook'
+import { Route as ApiPublicRemindRouteImport } from './routes/api.public.remind'
 import { Route as ApiPublicSendCareSmsRouteImport } from './routes/api.public.send-care-sms'
 import { Route as VisitsIdIndexRouteImport } from './routes/visits.$id.index'
 import { Route as VisitsIdMoveRouteImport } from './routes/visits.$id.move'
@@ -97,6 +98,11 @@ const ApiPublicLinqWebhookRoute = ApiPublicLinqWebhookRouteImport.update({
   path: '/api/public/linq-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicRemindRoute = ApiPublicRemindRouteImport.update({
+  id: '/api/public/remind',
+  path: '/api/public/remind',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSendCareSmsRoute = ApiPublicSendCareSmsRouteImport.update({
   id: '/api/public/send-care-sms',
   path: '/api/public/send-care-sms',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/wearables': typeof WearablesRoute
   '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
+  '/api/public/remind': typeof ApiPublicRemindRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
   '/visits/$id/move': typeof VisitsIdMoveRoute
   '/visits/$id/': typeof VisitsIdIndexRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/wearables': typeof WearablesRoute
   '/visits': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
+  '/api/public/remind': typeof ApiPublicRemindRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
   '/visits/$id/move': typeof VisitsIdMoveRoute
   '/visits/$id': typeof VisitsIdIndexRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/wearables': typeof WearablesRoute
   '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
+  '/api/public/remind': typeof ApiPublicRemindRoute
   '/api/public/send-care-sms': typeof ApiPublicSendCareSmsRoute
   '/visits/$id/move': typeof VisitsIdMoveRoute
   '/visits/$id/': typeof VisitsIdIndexRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/wearables'
     | '/visits/'
     | '/api/public/linq-webhook'
+    | '/api/public/remind'
     | '/api/public/send-care-sms'
     | '/visits/$id/move'
     | '/visits/$id/'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/wearables'
     | '/visits'
     | '/api/public/linq-webhook'
+    | '/api/public/remind'
     | '/api/public/send-care-sms'
     | '/visits/$id/move'
     | '/visits/$id'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/wearables'
     | '/visits/'
     | '/api/public/linq-webhook'
+    | '/api/public/remind'
     | '/api/public/send-care-sms'
     | '/visits/$id/move'
     | '/visits/$id/'
@@ -246,6 +258,7 @@ export interface RootRouteChildren {
   WearablesRoute: typeof WearablesRoute
   VisitsIndexRoute: typeof VisitsIndexRoute
   ApiPublicLinqWebhookRoute: typeof ApiPublicLinqWebhookRoute
+  ApiPublicRemindRoute: typeof ApiPublicRemindRoute
   ApiPublicSendCareSmsRoute: typeof ApiPublicSendCareSmsRoute
   VisitsIdMoveRoute: typeof VisitsIdMoveRoute
   VisitsIdIndexRoute: typeof VisitsIdIndexRoute
@@ -351,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLinqWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/remind': {
+      id: '/api/public/remind'
+      path: '/api/public/remind'
+      fullPath: '/api/public/remind'
+      preLoaderRoute: typeof ApiPublicRemindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/send-care-sms': {
       id: '/api/public/send-care-sms'
       path: '/api/public/send-care-sms'
@@ -390,6 +410,7 @@ const rootRouteChildren: RootRouteChildren = {
   WearablesRoute: WearablesRoute,
   VisitsIndexRoute: VisitsIndexRoute,
   ApiPublicLinqWebhookRoute: ApiPublicLinqWebhookRoute,
+  ApiPublicRemindRoute: ApiPublicRemindRoute,
   ApiPublicSendCareSmsRoute: ApiPublicSendCareSmsRoute,
   VisitsIdMoveRoute: VisitsIdMoveRoute,
   VisitsIdIndexRoute: VisitsIdIndexRoute,

@@ -82,10 +82,13 @@ export async function pollOptionText(messageId: string, optionId: string): Promi
 }
 
 /** What an ask was about, stored beside the text log so an answer can find its task. */
-export const askRef = (taskId: string, personId: string, to: string) => `${taskId}|${personId}|${to}`;
+export type AskKind = 'helper' | 'lead';
+export const askRef = (taskId: string, personId: string, to: string, kind: AskKind = 'helper') => `${kind === 'lead' ? 'lead:' : ''}${taskId}|${personId}|${to}`;
+/** personId is who the ask is about: the helper being asked, or for a lead ask, the helper Dans suggests. */
 export function parseAskRef(ref: string) {
-  const [taskId, personId, to] = ref.split('|');
-  return taskId && personId && to ? { taskId, personId, to } : null;
+  const kind: AskKind = ref.startsWith('lead:') ? 'lead' : 'helper';
+  const [taskId, personId, to] = ref.replace(/^lead:/, '').split('|');
+  return taskId && personId && to ? { taskId, personId, to, kind } : null;
 }
 
 /**
@@ -93,7 +96,7 @@ export function parseAskRef(ref: string) {
  * Summer chose this over tappable poll choices on 2026-11-16: polls show a blank box on older iPhones
  * and let helpers add their own choices. At most once per key. Remembers which task the message was about.
  */
-export async function sendAsk(key: string, to: string, question: string, typedAnswers: string, taskId: string, personId: string) {
+export async function sendAsk(key: string, to: string, question: string, typedAnswers: string, taskId: string, personId: string, kind: AskKind = 'helper') {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const from = toE164(process.env['LINQ_FROM_NUMBER']);
   const recipient = toE164(to);
@@ -106,7 +109,7 @@ export async function sendAsk(key: string, to: string, question: string, typedAn
   if (!first.ok) return { ok: false, ...(first.status ? { status: first.status } : {}) };
 
   const questionId: string | undefined = first.json?.chat?.message?.id ?? first.json?.message?.id ?? first.json?.message_id;
-  const ref = askRef(taskId, personId, recipient);
+  const ref = askRef(taskId, personId, recipient, kind);
   const rows = [{ key: `ask:${questionId ?? key}`, recipient: ref, ok: true }];
   await supabaseAdmin.from('care_sms_log').upsert(rows, { onConflict: 'key' });
   return { ok: true };
