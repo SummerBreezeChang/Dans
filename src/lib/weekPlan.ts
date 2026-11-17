@@ -54,3 +54,23 @@ export function fits(task: CareTask, tasks: CareTask[], people: Caregiver[]) {
     .filter(p => p.id !== leadId && canAssign(p, task, tasks))
     .sort((a, b) => load(a.id, tasks) - load(b.id, tasks));
 }
+
+/**
+ * Matches the whole week at once. The task with the fewest people who could take it goes first,
+ * so the hard ones are not left for last. Each pick is the free person with the lightest load.
+ * The lead is never picked. A task nobody can take stays open for her.
+ */
+export function matchWeek(tasks: CareTask[], people: Caregiver[]): CareTask[] {
+  const out = tasks.map(t => ({ ...t }));
+  const open = () => out.filter(t => t.published && !t.owner && t.status !== 'done');
+  for (;;) {
+    const options = open().map(task => ({ task, who: fits(task, out, people) })).filter(o => o.who.length);
+    if (!options.length) break;
+    options.sort((a, b) => a.who.length - b.who.length || byTime(a.task, b.task));
+    const { task, who } = options[0]!;
+    task.owner = who[0]!.id;
+    task.status = 'assigned';
+    task.updated = true;
+  }
+  return out;
+}
