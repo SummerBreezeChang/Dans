@@ -1,5 +1,6 @@
 import { answerLine, careQuestion, leadId, leadText, passedText, whenText } from './careSync.functions';
 import { loadPrefs } from './notify.functions';
+import { recordAnswer, viaFor } from './answers.server';
 import { readChoice, readReply, readThumb, type Answer } from './answers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { CareTask, Caregiver, Category, Help, Slot } from './assignmentEngine';
@@ -80,14 +81,19 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
   if (!person) return Response.json({ ignored: true });
   const lead = people.find(p => p.id === leadId);
   const isReaction = payload.event_type === 'reaction.added' || payload.event_type === 'poll.reaction.added';
+  const via = viaFor(payload.event_type);
 
   // The lead answering Dans's suggestion: "Nancy is free then. Ask Nancy?"
   if (ref?.kind === 'lead') {
     const who = person.name.split(' ')[0];
     if (!task || !answer) {
-      if (task && !isReaction) await db.from('care_activity').insert({ title: 'Reply about an open task', detail: `Summer ${note} about "${task.title}". Dans did not change anything.` });
+      if (task && !isReaction) {
+        await db.from('care_activity').insert({ title: 'Reply about an open task', detail: `Summer ${note} about "${task.title}". Dans did not change anything.` });
+        await recordAnswer(db, { personId: leadId, taskId: task.id, answer: 'other', via, note });
+      }
       return Response.json({ ignored: true });
     }
+    await recordAnswer(db, { personId: leadId, taskId: task.id, answer, via, note: person.id === leadId ? 'take it' : `asked about ${person.id}` });
     if (task.owner || task.status === 'done') return Response.json({ changed: false });
     if (answer === 'pass') {
       await sendOnce(`wh:${id}:leadpass`, from, `OK. It's open in Dans for you to pick someone.`);
@@ -110,13 +116,18 @@ export async function handleLinqWebhook(request: Request): Promise<Response> {
   const first = person.name.split(' ')[0];
   if (!answer) {
     // Not a yes or a pass (a question, another reaction, a choice they added). Leave it for the lead to read.
-    if (!isReaction) await db.from('care_activity').insert({ title: `${first} replied by text`, detail: `${person.name} ${note}${task ? ` about "${task.title}"` : ''}. Dans did not change anything.` });
+    if (!isReaction) {
+      await db.from('care_activity').insert({ title: `${first} replied by text`, detail: `${person.name} ${note}${task ? ` about "${task.title}"` : ''}. Dans did not change anything.` });
+      await recordAnswer(db, { personId: person.id, taskId: task?.id, answer: 'other', via, note });
+    }
     return Response.json({ ignored: true, noted: true });
   }
   if (!task || task.owner !== person.id || task.status === 'done') {
+    await recordAnswer(db, { personId: person.id, taskId: task?.id, answer, via, note: 'task was no longer theirs' });
     if (!messageId) await sendOnce(`wh:${id}:none`, from, `Thanks, ${first}. You have nothing waiting on you right now.`);
     return Response.json({ changed: false });
   }
+  await recordAnswer(db, { personId: person.id, taskId: task.id, answer, via });
   const at = { day: task.day, time: task.time };
   const when = whenText(at);
 

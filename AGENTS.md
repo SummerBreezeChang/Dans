@@ -31,10 +31,27 @@ Dans sends real texts through Linq and reads the replies. Never assume it is a d
 One hosted Supabase project, `leunbrmnliggeixwxzuj`. There is no local database, and you should not set one up.
 
 - The server uses the service key. The browser's public key cannot read or write the care tables. Keep it that way.
-- Tables: `care_caregivers`, `care_tasks`, `care_activity`, `care_settings`, `care_sms_log`.
+- Tables: `care_caregivers`, `care_tasks`, `care_activity`, `care_settings`, `care_sms_log`, `care_answers`.
 - Maya's consent and Summer's notification settings are saved as entries in `care_activity`. Treat that table as the record of what happened.
 - Tables are changed by the backend agent, in `drizzle/migrations`, and applied by Summer. Nobody else adds a migration.
 - `supabase/config.toml` only names the project. The app reads its settings from the environment.
+
+## How a text becomes data
+
+Each person has one record, and everything about them is found by their id. `node --env-file=.env scripts/sync-report.mjs` prints it person by person and checks that nothing disagrees.
+
+| What happens | Rows that change |
+|---|---|
+| A person joins from their link | `care_caregivers` (helps, free times, limit). `care_activity` "X joined". |
+| Dans asks someone | `care_tasks` (owner, status "assigned"). `care_sms_log` (the ask, tied to task and person). |
+| They answer with a thumb or typed YES or PASS | `care_answers` (who, which task, yes or pass, how). Then `care_tasks` and `care_activity`. |
+| They say yes | `care_tasks.status` becomes "accepted". Dans asks the next open task. |
+| They pass | The person is added to `care_tasks.declined_by`. The next free person becomes the owner and is asked. If nobody is free, the task is open and Summer is asked. |
+| Summer takes a task | `care_tasks` owner is Summer, status "accepted". |
+| Maya agrees or sends a note | `care_activity` "Maya shared her week" or "Maya sent a note". |
+| Summer changes a notification setting | `care_activity` "Notification settings". |
+
+Rules that keep it clear: a task with an owner is "assigned" or "accepted", and a task with no owner is "unclaimed". A person in `declined_by` is never the owner. Every ask in `care_sms_log` points at a real task and person. The report flags any that do not.
 
 ## Keys
 

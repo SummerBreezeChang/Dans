@@ -15,6 +15,13 @@
       "when": 1794695308327,
       "tag": "0001_lock_care_public_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794946909118,
+      "tag": "0002_care_answers",
+      "breakpoints": true
     }
   ]
 }
