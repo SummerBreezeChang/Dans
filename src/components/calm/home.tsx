@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
-import { byTime, doesWhat, firstName, shortTitle, shortWhen, visitsFor, visitWhen, weekPossessive, weekTitle } from '@/lib/week';
+import { byTime, doesWhat, numberWord, firstName, shortTitle, shortWhen, visitsFor, dayHeading, weekPossessive, weekTitle } from '@/lib/week';
 import { fits, nextOpen } from '@/lib/weekPlan';
-import { TaskRow } from './parts';
-import { Requests } from './requests';
+import { LineRow } from './parts';
+import { Handover, Requests } from './requests';
 
 // Home asks one question: who is next for the soonest open task.
 
@@ -25,29 +25,29 @@ export function Home() {
   if (!state.confirmed) return (
     <>
       <header className="c-head">
-        <h1 className="c-title c-title-big">Bring in {weekPossessive(state.owner)} visits.</h1>
+        <h1 className="c-title c-title-big">Bring in {weekPossessive(state.owner, state.patientName)} visits.</h1>
         <p className="c-body">Dans builds the checklist from the visits you keep. Nobody is texted yet.</p>
       </header>
       <Link to="/visits" className="c-btn c-btn-main c-btn-full">Review the week</Link>
     </>
   );
 
-  const headline = open.length ? 'The soonest open task needs someone.' : 'The week is covered.';
-  const row = (t: typeof tasks[number]) => <TaskRow key={t.id} task={t} people={state.people} me={ME} title={shortTitle(t)} {...(t.appointment ? {} : { sub: shortWhen(t) })} />;
+  const headline = open.length ? `${numberWord(covered)} of ${numberWord(tasks.length).toLowerCase()} are covered. ${numberWord(open.length)} ${open.length === 1 ? 'needs' : 'need'} someone.` : 'The week is covered.';
+  const row = (t: typeof tasks[number]) => <LineRow key={t.id} task={t} people={state.people} me={ME} title={shortTitle(t)} {...(t.appointment ? {} : { sub: shortWhen(t) })} />;
 
   return (
     <>
       <header className="c-head c-head-tight">
-        <p className="c-eyebrow">{weekTitle(state.owner)} · Nov 16 to 22</p>
+        <p className="c-eyebrow">{weekTitle(state.owner, state.patientName)} · Nov 16 to 22</p>
         <h1 className="c-title c-title-big">{headline}</h1>
-        <p className="c-body c-quiet">{covered} of {tasks.length} covered this week</p>
       </header>
 
-      <Requests title={state.owner === 'patient' ? 'You asked' : 'Maya asked'} />
+      <Handover />
+      <Requests title={state.owner === 'patient' ? 'You asked' : `${state.patientName ?? 'Maya'} asked`} />
 
       {ask && (
         <section className="c-ask" aria-label="Needs someone">
-          <div className="c-ask-top"><span className="c-eyebrow">Needs someone</span></div>
+          <div className="c-ask-top"><span className="c-eyebrow">Needs someone</span><span className="c-eyebrow">1 of {open.length}</span></div>
           <h2 className="c-ask-title">{ask.title}</h2>
           <p className="c-ask-body">
             {shortWhen(ask)}.{' '}
@@ -71,17 +71,17 @@ export function Home() {
         </section>
       )}
 
-      <section className="c-groups">
+      <section className="c-lines">
         {visits.map(v => {
           const mine = tasks.filter(t => t.appointment === v.id).sort(byTime);
           if (!mine.length) return null;
           return (
             <div key={v.id}>
-              <Link to="/visits/$id" params={{ id: v.id }} className="c-group-head">
-                <span>{v.short}</span>
-                <small>{visitWhen(v)}</small>
+              <Link to="/visits/$id" params={{ id: v.id }} className="c-day-head">
+                <span>{dayHeading(v.day)} · {v.short}</span>
+                <small>{v.time}</small>
               </Link>
-              <div className="c-fills">{mine.map(t => <div key={t.id} className={t.owner ? 'c-fill c-fill-mint' : 'c-fill c-fill-peach'}>{row(t)}</div>)}</div>
+              {mine.map(row)}
             </div>
           );
         })}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getRequests, resolveRequest } from '@/lib/start.functions';
+import { getHandover, getRequests, resolveRequest, takeOver } from '@/lib/start.functions';
 import { useCare } from '@/lib/careStore';
 import { readRequest, requestCategory, requestTitle, type Request } from '@/lib/requests';
 import { minutes, whenLabel } from '@/lib/week';
@@ -61,6 +61,31 @@ export function Requests({ title = 'Maya asked' }: { title?: string }) {
         );
       })}
       {failed && <p className="c-body" role="alert">That didn't save. Try again.</p>}
+    </section>
+  );
+}
+
+/** Maya asked Summer to run the week. One tap makes Summer the admin. */
+export function Handover() {
+  const { state, setOwner } = useCare();
+  const [st, setSt] = useState<'none' | 'asked' | 'took'>('none');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    const go = () => getHandover().then(h => { if (alive) setSt(h.state); }).catch(() => undefined);
+    go();
+    const t = setInterval(go, 8000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  if (st !== 'asked') return null;
+  return (
+    <section className="c-ask" aria-label="Maya asked you to run the week">
+      <div className="c-ask-top"><span className="c-eyebrow">{state.patientName ?? 'Maya'} asked</span></div>
+      <h2 className="c-ask-title">Can you run the week?</h2>
+      <p className="c-ask-body">You would manage it and see everything. She still sees who is coming.</p>
+      <div className="c-ask-actions">
+        <button type="button" className="c-btn c-btn-main" disabled={busy} onClick={async () => { setBusy(true); try { const r = await takeOver(); if (r.ok) { setOwner('caretaker'); setSt('took'); } } catch { /* try again */ } setBusy(false); }}>Take it over</button>
+      </div>
     </section>
   );
 }

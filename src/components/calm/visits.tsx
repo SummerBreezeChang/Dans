@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import { helpKinds, rescheduleTasks, type CareTask, type Category, type Help, type Slot } from '@/lib/assignmentEngine';
-import { byTime, firstName, list, numberWord, shortTitle, visitsFor, visitWhen, weekTitle } from '@/lib/week';
+import { byTime, firstName, helpWord, list, numberWord, shortTitle, visitsFor, visitWhen } from '@/lib/week';
 import { visitIds } from '@/lib/weekPlan';
 import { PillTag } from './shell';
-import { TaskRow } from './parts';
+import { Check } from './join';
+import { LineRow } from './parts';
 import { Requests } from './requests';
 
 const ME = 'summer';
@@ -30,15 +31,15 @@ export function Review() {
     <>
       <header className="c-head">
         <p className="c-eyebrow">Nov 16 to 22</p>
-        <h1 className="c-title">Review {weekTitle(state.owner).toLowerCase()}</h1>
-        <p className="c-body">Dans asks helpers from the visits you keep.</p>
+        <h1 className="c-title">Review the week</h1>
+        <p className="c-body">Dans asks helpers from this list.</p>
       </header>
       <Requests />
       <div className="c-fills">
         {visits.map(v => (
           <button type="button" key={v.id} className={kept.includes(v.id) ? 'c-fill c-fill-mint' : 'c-fill'} aria-pressed={kept.includes(v.id)} onClick={() => toggle(v.id)}>
-            <span className="c-stack"><strong>{v.short}</strong><small>{visitWhen(v)}</small></span>
-            <span>{kept.includes(v.id) ? 'Kept' : 'Left out'}</span>
+            <span className="c-stack"><strong>{v.short}</strong><small>{kept.includes(v.id) ? visitWhen(v) : `${visitWhen(v)} · left out`}</small></span>
+            <Check on={kept.includes(v.id)} />
           </button>
         ))}
       </div>
@@ -101,17 +102,17 @@ export function Visit({ id }: { id: string }) {
         {visit.movedFrom && <p className="c-muted">Moved from {visit.movedFrom}.</p>}
       </header>
       {id === 'chemo' && !state.rescheduled && (
-        <Link to="/visits/$id/move" params={{ id }} className="c-fill">This visit moved</Link>
+        <Link to="/visits/$id/move" params={{ id }} className="c-btn-line">This visit moved</Link>
       )}
       <section>
         <div className="c-list-head">
           <span className="c-eyebrow">Checklist for this visit</span>
           <small>{covered} of {tasks.length} covered</small>
         </div>
-        <div className="c-fills">
+        <div className="c-lines c-line-end">
           {tasks.map(t => (
-            <div key={t.id} className={t.owner ? 'c-fill c-fill-mint c-fill-stack' : 'c-fill c-fill-peach c-fill-stack'}>
-              <TaskRow task={t} people={state.people} me={ME} sub={t.time} title={shortTitle(t)} />
+            <div key={t.id}>
+              <LineRow task={t} people={state.people} me={ME} sub={`${t.time} · ${helpWord(t)}`} title={shortTitle(t)} />
               {t.owner && t.status !== 'done' && <button type="button" className="c-link" onClick={() => releaseTask(t.id)}>They cancelled</button>}
             </div>
           ))}

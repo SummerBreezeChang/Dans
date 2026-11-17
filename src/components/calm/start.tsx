@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { getMayaWeek, getStart, saveConsent, sendNote, type Scope } from '@/lib/start.functions';
+import { askHandover, getHandover, getMayaWeek, getStart, saveConsent, sendNote, type Scope } from '@/lib/start.functions';
 import { dayHeading, weekTitle } from '@/lib/week';
 import { useCare } from '@/lib/careStore';
 import { Check } from './join';
@@ -22,7 +22,8 @@ async function share(text: string, path: string) {
 }
 
 export function Start() {
-  const { state, nameLead, setOwner } = useCare();
+  const { state, nameLead, setOwner, setPatient, unname } = useCare();
+  const [patientName, setPatientName] = useState('Maya');
   const [leadName, setLeadName] = useState('Summer');
   const [phone, setPhone] = useState('');
   const [data, setData] = useState<StartData | null>(null);
@@ -55,17 +56,31 @@ export function Start() {
   if (!state.owner) return (
     <div className="c-join">
       <div className="c-join-top">
-        <p className="c-eyebrow">2 of 3</p>
-        <h1 className="c-title c-title-big">Who runs the week?</h1>
-        <p className="c-body">One person decides. Helpers only answer yes or pass.</p>
+        <div className="c-step"><button type="button" className="c-link" onClick={unname}>Back</button><span className="c-eyebrow">2 of 3</span></div>
+        <h1 className="c-title c-title-big">Who is setting this up?</h1>
+        <p className="c-body">Dans words everything to match. You can hand it over later.</p>
         <div className="c-picks">
-          <button type="button" className="c-pick" onClick={() => setOwner('caretaker')}>
-            <span className="c-stack c-grow"><strong>I do</strong><small>I'm Maya's caretaker. She asks me and I decide.</small></span>
+          <button type="button" className="c-pick is-on" onClick={() => { setPatient(undefined); setOwner('patient'); }}>
+            <span className="c-stack c-grow"><strong>I'm the patient</strong><small>It's my week. I'll ask people to help me.</small></span>
           </button>
-          <button type="button" className="c-pick" onClick={() => setOwner('patient')}>
-            <span className="c-stack c-grow"><strong>Maya does</strong><small>This is Maya's own week. I'm setting it up for her.</small></span>
+          <button type="button" className="c-pick is-on" onClick={() => setOwner('caretaker')}>
+            <span className="c-stack c-grow"><strong>I'm caring for someone</strong><small>I'll ask them first, then invite helpers.</small></span>
           </button>
         </div>
+      </div>
+    </div>
+  );
+
+  if (state.owner === 'caretaker' && !state.patientName) return (
+    <div className="c-join">
+      <div className="c-join-top">
+        <div className="c-step"><button type="button" className="c-link" onClick={() => setOwner(undefined)}>Back</button><span className="c-eyebrow">3 of 3</span></div>
+        <h1 className="c-title c-title-big">Who is this for?</h1>
+        <p className="c-body">Just a first name.</p>
+        <label className="c-fill c-fill-stack">First name<input value={patientName} onChange={e => setPatientName(e.target.value)} /></label>
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" disabled={patientName.trim().length < 1} onClick={() => setPatient(patientName.trim())}>Continue</button>
       </div>
     </div>
   );
@@ -75,17 +90,17 @@ export function Start() {
   if (!data.consent && state.owner !== 'patient') return (
     <div className="c-join">
       <div className="c-join-top">
-        <div className="c-step"><Link to="/" className="c-link">Back</Link></div>
-        <h1 className="c-title c-title-big">Ask Maya first</h1>
+        <div className="c-step"><button type="button" className="c-link" onClick={() => setPatient(undefined)}>Back</button><span className="c-eyebrow">3 of 3</span></div>
+        <h1 className="c-title c-title-big">Ask {state.patientName ?? 'Maya'} first</h1>
         <p className="c-body">She picks what helpers can see before anyone is invited.</p>
         <div className="c-soft">
-          <span className="c-soft-label">What Maya gets</span>
-          <p>Maya, I'd like to organize help for you. Take a look and tell me what you're OK with.</p>
+          <span className="c-soft-label">What {state.patientName ?? 'Maya'} gets</span>
+          <p>{state.patientName ?? 'Maya'}, I'd like to organize help for you. Take a look and tell me what you're OK with.</p>
         </div>
-        {waiting && <p className="c-muted" role="status">Waiting for Maya.</p>}
+        {waiting && <p className="c-muted" role="status">Waiting for {state.patientName ?? 'Maya'}.</p>}
       </div>
       <div className="c-join-end">
-        <button type="button" className="c-btn c-btn-main c-btn-full" onClick={async () => { const r = await share("Maya, I'd like to organize help for you. Take a look and tell me what you're OK with.", '/maya'); if (r !== 'none') setWaiting(true); if (r === 'copied') setNote({ maya: 'Link copied' }); }}>{note['maya'] ?? 'Send Maya the link'}</button>
+        <button type="button" className="c-btn c-btn-main c-btn-full" onClick={async () => { const r = await share(`${state.patientName ?? 'Maya'}, I'd like to organize help for you. Take a look and tell me what you're OK with.`, '/maya'); if (r !== 'none') setWaiting(true); if (r === 'copied') setNote({ maya: 'Link copied' }); }}>{note['maya'] ?? 'Send Maya the link'}</button>
         <Link to="/maya" className="c-link c-center">She's with me</Link>
       </div>
     </div>
@@ -94,7 +109,7 @@ export function Start() {
   return (
     <div className="c-join">
       <div className="c-join-top">
-        <span className="c-eyebrow">{state.owner === 'patient' ? 'Your circle' : 'Maya said yes'}</span>
+        <span className="c-eyebrow">{state.owner === 'patient' ? 'Your circle' : `${state.patientName ?? 'Maya'} said yes`}</span>
         <h1 className="c-title c-title-big">Who's helping?</h1>
         <p className="c-body">Each person gets their own link.</p>
         <ul className="c-people">
@@ -103,14 +118,14 @@ export function Start() {
               <span className="c-avatar" aria-hidden="true">{p.name.charAt(0)}</span>
               <strong className="c-grow">{p.name}</strong>
               {p.joined ? <span className="c-person-end c-person-status">Joined</span> : (
-                <button type="button" className="c-person-end c-pill-btn" onClick={async () => { const r = await share(`${p.name}, I'd like your help with Maya's care. Tell me what you can do:`, `/join/${p.id}`); setNote(n => ({ ...n, [p.id]: r === 'copied' ? 'Copied' : r === 'shared' ? 'Sent' : n[p.id] ?? '' })); }}>{note[p.id] || 'Send link'}</button>
+                <button type="button" className="c-person-end c-pill-btn" onClick={async () => { const r = await share(`${p.name}, I'd like your help with ${state.patientName ?? 'Maya'}'s care. Tell me what you can do:`, `/join/${p.id}`); setNote(n => ({ ...n, [p.id]: r === 'copied' ? 'Copied' : r === 'shared' ? 'Sent' : n[p.id] ?? '' })); }}>{note[p.id] || 'Send link'}</button>
               )}
             </li>
           ))}
         </ul>
       </div>
       <div className="c-join-end">
-        <Link to="/" className="c-btn c-btn-main c-btn-full">Go to {weekTitle(state.owner)}</Link>
+        <Link to="/" className="c-btn c-btn-main c-btn-full">Go to {weekTitle(state.owner, state.patientName)}</Link>
       </div>
     </div>
   );
@@ -124,7 +139,8 @@ const sees: { scope: Scope; title: string; sub: string }[] = [
 /** Maya's own screens: the request, what helpers can see, thank you. */
 export function Maya() {
   const [week, setWeek] = useState<Awaited<ReturnType<typeof getMayaWeek>> | null>(null);
-  const [step, setStep] = useState<'ask' | 'see' | 'view' | 'later' | 'note'>('ask');
+  const [step, setStep] = useState<'ask' | 'see' | 'view' | 'later' | 'note' | 'saved' | 'runs'>('ask');
+  const [handover, setHandover] = useState<'none' | 'asked' | 'took'>('none');
   const [words, setWords] = useState('');
   const [sent, setSent] = useState(false);
   const [scope, setScope] = useState<Scope>('tasks');
@@ -134,7 +150,7 @@ export function Maya() {
   // Someone who has already agreed goes straight to their week. The week refreshes while it is open.
   useEffect(() => {
     let alive = true; let first = true;
-    const pull = () => getMayaWeek().then(w => { if (!alive) return; setWeek(w); if (first && w.consented) setStep('view'); first = false; }).catch(() => { if (alive && first) { setWeek({ consented: false, rows: [], notes: [] }); first = false; } });
+    const pull = () => { getHandover().then(h => { if (alive) setHandover(h.state); }).catch(() => undefined); return getMayaWeek().then(w => { if (!alive) return; setWeek(w); if (first && w.consented) setStep('view'); first = false; }).catch(() => { if (alive && first) { setWeek({ consented: false, rows: [], notes: [] }); first = false; } }); };
     pull();
     const t = setInterval(pull, 10000);
     return () => { alive = false; clearInterval(t); };
@@ -142,7 +158,7 @@ export function Maya() {
 
   const yes = async () => {
     setSaving(true); setFailed(false);
-    try { const r = await saveConsent({ data: { scope } }); if (r.ok) { setWeek(await getMayaWeek()); setStep('view'); } else setFailed(true); } catch { setFailed(true); }
+    try { const r = await saveConsent({ data: { scope } }); if (r.ok) { setWeek(await getMayaWeek()); setStep('saved'); } else setFailed(true); } catch { setFailed(true); }
     setSaving(false);
   };
 
@@ -194,6 +210,34 @@ export function Maya() {
     </div>
   );
 
+  if (step === 'saved') return (
+    <div className="c-join">
+      <div className="c-join-top c-join-hero">
+        <h1 className="c-title c-title-big">Saved.</h1>
+        <p className="c-body">Maya's choice is saved. Summer can invite helpers now.</p>
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => setStep('view')}>See who's coming</button>
+      </div>
+    </div>
+  );
+
+  if (step === 'runs') return (
+    <div className="c-join">
+      <div className="c-join-top">
+        <div className="c-step"><button type="button" className="c-link" onClick={() => setStep('view')}>Back</button></div>
+        <h1 className="c-title c-title-big">Who runs this?</h1>
+        <p className="c-body">You can hand this to someone you trust. They will manage the week and see everything. You will still see who is coming, and can send notes.</p>
+        <div className="c-note"><strong>Summer</strong><p>Main caretaker. Runs this today.</p></div>
+        {failed && <p className="c-body" role="alert">That didn't send. Try again.</p>}
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" disabled={saving || handover !== 'none'} onClick={async () => { setSaving(true); setFailed(false); try { const r = await askHandover(); if (r.ok) { setHandover('asked'); setStep('view'); } else setFailed(true); } catch { setFailed(true); } setSaving(false); }}>{saving ? 'Sending' : 'Ask Summer to take over'}</button>
+        <button type="button" className="c-link c-center" onClick={() => setStep('view')}>Not now</button>
+      </div>
+    </div>
+  );
+
   if (step === 'note') return (
     <div className="c-join">
       <div className="c-join-top">
@@ -225,6 +269,8 @@ export function Maya() {
           </div>
         ))}
         {sent && !week.notes.length && <p className="c-muted" role="status">Sent to Summer.</p>}
+        {handover === 'asked' && <p className="c-muted" role="status">You asked Summer to take over. She will see it.</p>}
+        {handover === 'took' && <p className="c-muted" role="status">Summer runs this week now.</p>}
         {[...new Set(week.rows.map(r => r.day))].map(d => (
           <section key={d} className="c-day">
             <span className="c-eyebrow">{dayHeading(d)}</span>
@@ -258,6 +304,7 @@ export function Maya() {
       <div className="c-join-end">
         <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => { setSent(false); setStep('note'); }}>Tell Summer something</button>
         <button type="button" className="c-link c-center" onClick={() => setStep('see')}>Change what they see</button>
+        {handover === 'none' && <button type="button" className="c-link c-center" onClick={() => setStep('runs')}>Who runs this</button>}
       </div>
     </div>
   );

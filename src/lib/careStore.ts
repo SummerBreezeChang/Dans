@@ -33,9 +33,9 @@ export function generateCareChecklist(): CareTask[] {
  return rows.map((r,i) => ({id:`task-${i+1}`,title:r[0],category:r[1],day:r[2],slot:r[3],time:r[4],duration:r[5],appointment:r[6],owner:r[7],status:r[8],approved:true,published:true,notes:'Coordinate with Maya before the task. Follow the care team’s instructions.'}));
 }
 export interface Activity {id:string; title:string; detail:string; time:string}
-export interface CareState { role: Role; activePerson: string; people: Caregiver[]; tasks: CareTask[]; consent: boolean; connected: boolean; hospital: string; rescheduled: boolean; confirmed: boolean; named: boolean; owner?: 'patient'|'caretaker'; activities: Activity[]; refusals: {task:string; person:string; reason:string}[]; sharing: Record<string,boolean>; wellnessScenario?: WellnessScenario }
+export interface CareState { role: Role; activePerson: string; people: Caregiver[]; tasks: CareTask[]; consent: boolean; connected: boolean; hospital: string; rescheduled: boolean; confirmed: boolean; named: boolean; owner?: 'patient'|'caretaker'; patientName?: string; activities: Activity[]; refusals: {task:string; person:string; reason:string}[]; sharing: Record<string,boolean>; wellnessScenario?: WellnessScenario }
 const freshState = (): CareState => ({role:'Primary Caregiver',activePerson:'summer',people:structuredClone(initialPeople),tasks:demoTasks(visitIds, false),consent:true,connected:true,hospital:'Kaiser Permanente',rescheduled:false,confirmed:false,named:false,activities:[],refusals:[],sharing:{...defaultSharing},wellnessScenario:'baseline'});
-export interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; startShowcase:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>; confirmWeek:(kept:string[])=>Promise<void>; askPerson:(taskId:string,personId:string)=>void; takeTask:(taskId:string)=>void; releaseTask:(taskId:string)=>void; addDemoTask:(task:Pick<CareTask,'title'|'category'|'day'|'slot'|'time'|'appointment'>)=>Promise<string>; nameLead:(name:string,phone:string)=>Promise<void>; setOwner:(owner:'patient'|'caretaker')=>void}
+export interface CareContextValue {state:CareState; update:(fn:(s:CareState)=>CareState)=>void; reset:()=>void; startShowcase:()=>void; autoAssign:()=>void; decline:(id:string,reason:string)=>void; reschedule:()=>void; addActivity:(title:string,detail:string)=>void; liveSms:boolean; setLive:(v:boolean)=>void; createWellnessTask:(insight:Insight)=>Promise<string>; confirmWeek:(kept:string[])=>Promise<void>; askPerson:(taskId:string,personId:string)=>void; takeTask:(taskId:string)=>void; releaseTask:(taskId:string)=>void; addDemoTask:(task:Pick<CareTask,'title'|'category'|'day'|'slot'|'time'|'appointment'>)=>Promise<string>; nameLead:(name:string,phone:string)=>Promise<void>; setOwner:(owner:'patient'|'caretaker'|undefined)=>void; setPatient:(name:string|undefined)=>void; unname:()=>void}
 export function CareProvider({children}:{children:ReactNode}) {
  const escalate = useServerFn(escalateWellness);
  const persistWeek = useServerFn(saveWeek);
@@ -84,7 +84,9 @@ export function CareProvider({children}:{children:ReactNode}) {
     try { await persistWeek({ data: { tasks: [rowOf({ ...created, published: true })] } }); } catch { /* It stays on this phone. */ }
     return id;
   };
-  const setOwner = (owner: 'patient' | 'caretaker') => update(s => ({ ...s, owner }));
+  const setOwner = (owner: 'patient' | 'caretaker' | undefined) => update(s => { const { owner: _o, ...rest } = s; return (owner ? { ...rest, owner } : rest) as CareState; });
+  const setPatient = (name: string | undefined) => update(s => { const { patientName: _p, ...rest } = s; return (name ? { ...rest, patientName: name } : rest) as CareState; });
+  const unname = () => update(s => ({ ...s, named: false }));
   const nameLead = async (name: string, phone: string) => {
     update(s => ({ ...s, named: true, people: s.people.map(p => p.id === 'summer' ? { ...p, name, initials: name.slice(0, 2).toUpperCase() } : p) }));
     try { await persistLead({ data: { name, phone } }); } catch { /* The name is kept on this phone. */ }
@@ -107,6 +109,6 @@ export function CareProvider({children}:{children:ReactNode}) {
     const rename=(text:string)=>text.replace(/\bPriya Patel\b/g,'Henry').replace(/\bDavid Lin\b/g,'Summer Chang').replace(/\bMarcus Vance\b/g,'Nancy').replace(/\bPriya\b/g,'Henry').replace(/\bDavid\b/g,'Summer').replace(/\bMarcus\b/g,'Nancy');
     return {...state,people:state.people.map(person=>{const identity=initialPeople.find(p=>p.id===person.id);return identity?{...person,name:identity.name,initials:identity.initials}:person;}),tasks:state.tasks.map(task=>({...task,title:rename(task.title),notes:rename(task.notes)})),activities:state.activities.map(a=>({...a,title:rename(a.title),detail:rename(a.detail)})),refusals:state.refusals.map(r=>({...r,task:rename(r.task),reason:rename(r.reason)}))};
   },[state]);
-  return createElement(CareContext.Provider, {value:{state:displayState,update,reset:()=>setState(freshState()),startShowcase,autoAssign,decline,reschedule,addActivity,liveSms,setLive,createWellnessTask,confirmWeek,askPerson,takeTask,releaseTask,addDemoTask,nameLead,setOwner}}, children);
+  return createElement(CareContext.Provider, {value:{state:displayState,update,reset:()=>setState(freshState()),startShowcase,autoAssign,decline,reschedule,addActivity,liveSms,setLive,createWellnessTask,confirmWeek,askPerson,takeTask,releaseTask,addDemoTask,nameLead,setOwner,setPatient,unname}}, children);
 }
 export function notificationPreview(){return 'Your care circle has an update. Sign in securely to review: https://firstcare.example/sign-in';}

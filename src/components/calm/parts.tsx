@@ -30,6 +30,17 @@ export function NavIcon({ name, filled }: { name: keyof typeof nav; filled?: boo
   return <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true" {...stroke} fill={filled && name === 'Home' ? 'currentColor' : 'none'}>{nav[name]}</svg>;
 }
 
+/** One task as drawn in Paper: its name on the left, who has it on the right, a hairline above. */
+export function LineRow({ task, people, me, sub, title }: { task: CareTask; people: Caregiver[]; me: string; sub?: string; title?: string }) {
+  const pill = pillFor(task, people, me);
+  return (
+    <div className="c-line">
+      <span className="c-stack c-grow"><span>{title ?? task.title}</span>{sub && <small>{sub}</small>}</span>
+      <span className={pill.tone === 'quiet' ? 'c-pill c-pill-quiet' : `c-pill c-pill-${pill.tone}`}>{pill.label === 'Open' ? 'Needs someone' : pill.label}</span>
+    </div>
+  );
+}
+
 /** One task: what kind, what it is, who has it. */
 export function TaskRow({ task, people, me, sub, title }: { task: CareTask; people: Caregiver[]; me: string; sub?: string; title?: string }) {
   const pill = pillFor(task, people, me);

@@ -99,3 +99,32 @@ export const resolveRequest = createServerFn({ method: 'POST' })
     const { error } = await db.from('care_activity').insert({ title: data.action === 'added' ? addedTitle : declinedTitle, detail: resolutionDetail(data.id, data.taskId) });
     return { ok: !error };
   });
+
+// Maya asks Summer to run the week. If Summer accepts, she is the admin.
+const askedTitle = 'Maya asked Summer to run the week';
+const tookTitle = 'Summer took over the week';
+
+export const getHandover = createServerFn({ method: 'GET' }).handler(async () => {
+  const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const { data } = await db.from('care_activity').select('title,created_at').in('title', [askedTitle, tookTitle]).order('created_at', { ascending: false }).limit(5);
+  const latest = data?.[0]?.title;
+  return { state: latest === tookTitle ? 'took' as const : latest === askedTitle ? 'asked' as const : 'none' as const };
+});
+
+export const askHandover = createServerFn({ method: 'POST' }).handler(async () => {
+  const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const { loadPrefs } = await import('./notify.functions');
+  const { sendOnce, routeText } = await import('./linq.server');
+  const { error } = await db.from('care_activity').insert({ title: askedTitle, detail: 'Maya would like Summer to manage the week.' });
+  if (error) return { ok: false };
+  const [prefs, { data: lead }] = await Promise.all([loadPrefs(db), db.from('care_caregivers').select('name,phone').eq('id', leadId).maybeSingle()]);
+  const route = lead ? routeText(lead.phone, lead.name) : null;
+  if (prefs.note && lead && route) await sendOnce(`handover:${Date.now()}`, route.to, `${route.prefix}${lead.name.split(' ')[0]}, Maya asks if you can run her week.`);
+  return { ok: true };
+});
+
+export const takeOver = createServerFn({ method: 'POST' }).handler(async () => {
+  const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const { error } = await db.from('care_activity').insert({ title: tookTitle, detail: 'Summer is the admin now.' });
+  return { ok: !error };
+});
