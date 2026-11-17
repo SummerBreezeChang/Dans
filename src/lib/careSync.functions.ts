@@ -47,11 +47,15 @@ export function askPhrase(title: string) {
  * Wording agreed with Summer on 2026-11-16 after testing on a phone.
  */
 export function careText(event: 'assigned' | 'reassigned' | 'moved', name: string, title: string, when: When) {
+  return `${careQuestion(event, name, title, when)}\n\n${answerLine}`;
+}
+
+/** The question on its own. On iMessage two choices to tap follow it, so the answer line is not needed. */
+export function careQuestion(event: 'assigned' | 'reassigned' | 'moved', name: string, title: string, when: When) {
   const first = name.split(' ')[0];
-  const ask = event === 'moved'
+  return event === 'moved'
     ? `${first}, plans changed. Can you still ${askPhrase(title)} ${whenText(when)}?`
     : `${first}, can you ${askPhrase(title)} ${whenText(when)}?`;
-  return `${ask}\n\n${answerLine}`;
 }
 
 const changeSchema = z.object({
@@ -71,7 +75,7 @@ export const syncAssignments = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => changeSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
-    const { sendOnce, routeText } = await import('./linq.server');
+    const { sendAsk, routeText } = await import('./linq.server');
     const [{ data: settings }, { data: people }, { data: tasks }] = await Promise.all([
       db.from('care_settings').select('live_sms').eq('id', 1).maybeSingle(),
       db.from('care_caregivers').select('id,name,phone'),
@@ -86,7 +90,7 @@ export const syncAssignments = createServerFn({ method: 'POST' })
       const person = people?.find(p => p.id === c.owner);
       const route = person ? routeText(person.phone, person.name) : null;
       if (!settings?.live_sms || !person || !route) continue;
-      const r = await sendOnce(smsKey(c.id, person.id, c.event, when), route.to, route.prefix + careText(c.event, person.name, task.title, when));
+      const r = await sendAsk(smsKey(c.id, person.id, c.event, when), route.to, route.prefix + careQuestion(c.event, person.name, task.title, when), answerLine, c.id, person.id);
       if (r.ok) sent++;
     }
     return { sent };

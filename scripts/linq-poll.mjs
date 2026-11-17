@@ -12,7 +12,7 @@ if (process.argv[2] === 'check') {
   const res = await fetch(`${base}/messages/${process.argv[3]}/poll`, { headers });
   const j = await res.json();
   const poll = j.poll || j;
-  for (const o of poll.options || []) console.log(`${o.text}: ${o.vote_count ?? (o.votes || []).length ?? 0} vote(s)`);
+  for (const o of poll.options || []) console.log(`${o.text}: ${(o.voters || []).length} vote(s)`);
   if (!poll.options) console.log(res.status, Object.keys(j));
   process.exit(0);
 }

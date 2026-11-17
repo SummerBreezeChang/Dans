@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { choices } from './answers';
 
 export function toE164(raw: string | undefined | null): string | null {
   if (!raw) return null;
@@ -53,4 +54,69 @@ export async function sendOnce(key: string, to: string, message: string) {
   const result = await sendLinq(to, message, keyToUuid(key));
   await supabaseAdmin.from('care_sms_log').update({ ok: result.ok }).eq('key', key);
   return result;
+}
+
+const api = 'https://api.linqapp.com/api/partner/v3';
+
+async function post(path: string, body: unknown): Promise<{ ok: boolean; status?: number; json: any }> {
+  const apiToken = process.env['LINQ_API_TOKEN'];
+  if (!apiToken) return { ok: false, json: null };
+  try {
+    const res = await fetch(api + path, { method: 'POST', headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
+    return { ok: res.ok, status: res.status, json: await res.json().catch(() => null) };
+  } catch {
+    return { ok: false, json: null };
+  }
+}
+
+/** Reads one option's text from a poll, so a vote can be understood. */
+export async function pollOptionText(messageId: string, optionId: string): Promise<string | null> {
+  const apiToken = process.env['LINQ_API_TOKEN'];
+  if (!apiToken) return null;
+  try {
+    const res = await fetch(`${api}/messages/${messageId}/poll`, { headers: { Authorization: `Bearer ${apiToken}` }, signal: AbortSignal.timeout(15000) });
+    const j: any = await res.json();
+    return (j?.poll?.options ?? []).find((o: any) => o.option_id === optionId)?.text ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** What an ask was about, stored beside the text log so an answer can find its task. */
+export const askRef = (taskId: string, personId: string, to: string) => `${taskId}|${personId}|${to}`;
+export function parseAskRef(ref: string) {
+  const [taskId, personId, to] = ref.split('|');
+  return taskId && personId && to ? { taskId, personId, to } : null;
+}
+
+/**
+ * Sends an ask: the question, then two choices to tap ("Got it" / "Pass it on").
+ * Tappable choices only exist on iMessage. Where they cannot be sent, the typed way to answer goes instead.
+ * At most once per key. Remembers which task each message was about.
+ */
+export async function sendAsk(key: string, to: string, question: string, typedAnswers: string, taskId: string, personId: string) {
+  const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+  const from = toE164(process.env['LINQ_FROM_NUMBER']);
+  const recipient = toE164(to);
+  if (!from || !recipient) return { ok: false };
+  const { error } = await supabaseAdmin.from('care_sms_log').insert({ key, recipient });
+  if (error) return { ok: false, duplicate: true };
+
+  const first = await post('/chats', { from, to: [recipient], message: { parts: [{ type: 'text', value: question }], idempotency_key: keyToUuid(key) } });
+  await supabaseAdmin.from('care_sms_log').update({ ok: first.ok }).eq('key', key);
+  if (!first.ok) return { ok: false, ...(first.status ? { status: first.status } : {}) };
+
+  const chatId: string | undefined = first.json?.chat?.id ?? first.json?.chat_id ?? first.json?.id;
+  const questionId: string | undefined = first.json?.chat?.message?.id ?? first.json?.message?.id ?? first.json?.message_id;
+  let pollId: string | undefined;
+  if (chatId) {
+    const poll = await post(`/chats/${chatId}/polls`, { poll: { options: [{ text: choices.yes }, { text: choices.pass }] } });
+    pollId = poll.ok ? poll.json?.message_id ?? poll.json?.poll?.message_id ?? poll.json?.id : undefined;
+    if (!poll.ok) await post(`/chats/${chatId}/messages`, { message: { parts: [{ type: 'text', value: typedAnswers }] } });
+  }
+  const ref = askRef(taskId, personId, recipient);
+  const ids = [questionId, pollId].filter((x): x is string => !!x);
+  const rows = (ids.length ? ids : [key]).map(id => ({ key: `ask:${id}`, recipient: ref, ok: true }));
+  await supabaseAdmin.from('care_sms_log').upsert(rows, { onConflict: 'key' });
+  return { ok: true, poll: !!pollId };
 }
