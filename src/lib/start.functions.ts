@@ -55,12 +55,14 @@ export const getMayaWeek = createServerFn({ method: 'GET' }).handler(async () =>
   const rows = (tasks ?? [])
     .filter(t => t.published && t.owner && t.owner !== undefined && (t.status === 'assigned' || t.status === 'accepted'))
     .sort((a, b) => a.day - b.day || minutes(a.time) - minutes(b.time))
-    .map(t => ({ id: t.id, when: whenLabel(t.day, t.time), who: people?.find(p => p.id === t.owner)?.name.split(' ')[0] ?? 'Someone', what: forMaya(t.title) }));
+    // Only help given to Maya. Summer's own prep, like gathering questions, is not for her to read.
+    .filter(t => t.owner !== 'summer' || forMaya(t.title) !== t.title)
+    .map(t => ({ id: t.id, day: t.day, time: t.time, when: whenLabel(t.day, t.time), who: people?.find(p => p.id === t.owner)?.name.split(' ')[0] ?? 'Someone', what: forMaya(t.title) }));
   // Her own notes, and what Summer did with each. Maya only ever sees a short line, never who was asked.
   const notes = deriveRequests((log ?? []) as ActivityRow[]).slice(0, 5).map(n => {
     const task = n.taskId ? tasks?.find(t => t.id === n.taskId) : undefined;
     const who = task?.owner && (task.status === 'assigned' || task.status === 'accepted') ? people?.find(p => p.id === task.owner)?.name.split(' ')[0] : undefined;
-    return { id: n.id, text: n.text, line: statusLine(n.status, task?.status === 'accepted' ? who : undefined) };
+    return { id: n.id, text: n.text, status: n.status, line: statusLine(n.status, task?.status === 'accepted' ? who : undefined) };
   });
   return { consented: !!consent?.length, rows, notes };
 });

@@ -255,6 +255,7 @@
 .c-soft-label{font-size:13px;line-height:16px;font-weight:600;color:var(--muted-foreground)}
 .c-soft .c-soft-label+p{font-size:16px;line-height:24px;color:var(--ink)}
 .c-people{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.c-day{display:flex;flex-direction:column;gap:8px}
 .c-person{display:flex;align-items:center;gap:12px;min-height:64px;padding:12px;border-radius:16px;background:var(--surface);color:var(--ink)}
 .c-person.is-joined{background:var(--mint-soft)}
 .c-person strong{font-size:16px;line-height:20px;font-weight:600}
@@ -272,7 +273,7 @@
 .c-switch.is-on span{background:var(--canvas)}
 
 /* Maya's view. Paper: "Dans · mobile flow", V1 and V2. */
-.c-person-when{width:64px;flex-shrink:0;font-size:14px;line-height:18px;font-weight:600;color:var(--ink)}
+.c-person-when{width:76px;flex-shrink:0;white-space:nowrap;font-size:14px;line-height:18px;font-weight:600;color:var(--ink)}
 .c-chips{display:flex;gap:8px;flex-wrap:wrap}
 .c-chip{min-height:44px;padding:0 16px;border:0;border-radius:999px;background:var(--surface);font-family:inherit;font-size:15px;line-height:18px;font-weight:600;color:var(--ink)}
 .c-chip.is-on{background:var(--mint-soft)}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { getMayaWeek, getStart, saveConsent, sendNote, type Scope } from '@/lib/start.functions';
-import { weekTitle } from '@/lib/week';
+import { dayHeading, weekTitle } from '@/lib/week';
 import { useCare } from '@/lib/careStore';
 import { Check } from './join';
 
@@ -217,25 +217,42 @@ export function Maya() {
       <div className="c-join-top">
         <span className="c-eyebrow">Nov 16 to 22</span>
         <h1 className="c-title c-title-big">Who's coming</h1>
-        {sent && <p className="c-muted" role="status">Sent to Summer.</p>}
-        <ul className="c-people">
-          {week.rows.map(r => (
-            <li key={r.id} className="c-person">
-              <span className="c-person-when">{r.when}</span>
-              <span className="c-stack c-grow"><strong>{r.who}</strong><small>{r.what}</small></span>
-            </li>
-          ))}
-        </ul>
-        {!week.rows.length && <p className="c-body">Nobody is lined up yet. Summer is working on it.</p>}
-        {week.notes.length > 0 && (
-          <>
-            <span className="c-eyebrow">What you asked for</span>
+        {week.notes.slice(0, 1).map(n => (
+          <div key={n.id} className={n.status === 'added' ? 'c-fill c-fill-mint c-fill-stack' : n.status === 'waiting' ? 'c-fill c-fill-peach c-fill-stack' : 'c-fill c-fill-stack'} role="status">
+            <span className="c-eyebrow">You asked</span>
+            <strong>{n.text}</strong>
+            <span>{n.line}</span>
+          </div>
+        ))}
+        {sent && !week.notes.length && <p className="c-muted" role="status">Sent to Summer.</p>}
+        {[...new Set(week.rows.map(r => r.day))].map(d => (
+          <section key={d} className="c-day">
+            <span className="c-eyebrow">{dayHeading(d)}</span>
             <ul className="c-people">
-              {week.notes.map(n => (
+              {week.rows.filter(r => r.day === d).map(r => (
+                <li key={r.id} className="c-person">
+                  <span className="c-person-when">{r.time}</span>
+                  <span className="c-stack c-grow"><strong>{r.who}</strong><small>{r.what}</small></span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+        {!week.rows.length && (
+          <div className="c-stack">
+            <strong>Nobody is lined up yet.</strong>
+            <span className="c-body">Summer is working on it. You will see names here as people say yes.</span>
+          </div>
+        )}
+        {week.notes.length > 1 && (
+          <section className="c-day">
+            <span className="c-eyebrow">Earlier</span>
+            <ul className="c-people">
+              {week.notes.slice(1).map(n => (
                 <li key={n.id} className="c-person"><span className="c-stack c-grow"><strong>{n.text}</strong><small>{n.line}</small></span></li>
               ))}
             </ul>
-          </>
+          </section>
         )}
       </div>
       <div className="c-join-end">
