@@ -28,11 +28,30 @@ export function smsKey(taskId: string, personId: string, event: 'assigned' | 're
   return event === 'moved' ? `app:${taskId}:${personId}:moved:${when.day}-${when.time}` : `app:${taskId}:${personId}:${today}`;
 }
 
-/** The text a caregiver receives. A move says the new time and how to hand the task back. */
+const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+/** "Thu, Nov 19 at 12:30 PM". The demo week starts Monday, Nov 16. */
+export const whenText = (when: When) => `${shortDays[when.day] ?? ''}, Nov ${16 + when.day} at ${when.time}`;
+
+/** How to answer any ask: one tap, or one word. */
+export const answerLine = '\u{1F44D} reply YES / \u{1F44E} reply PASS';
+
+/** Turns a task title into what follows "can you". Rides and pickups name Maya, not the reason. */
+export function askPhrase(title: string) {
+  if (/^ride to /i.test(title)) return 'drive Maya to her appointment';
+  if (/^pick up prescriptions/i.test(title)) return "pick up Maya's prescriptions";
+  return title.charAt(0).toLowerCase() + title.slice(1);
+}
+
+/**
+ * The text a caregiver receives. One question, a blank line, then the two answers.
+ * Wording agreed with Summer on 2026-11-16 after testing on a phone.
+ */
 export function careText(event: 'assigned' | 'reassigned' | 'moved', name: string, title: string, when: When) {
   const first = name.split(' ')[0];
-  if (event === 'moved') return `FirstCare+: ${first}, plans changed. "${title}" is now ${days[when.day]} at ${when.time}. Reply "can't make it" if that no longer works.`;
-  return `FirstCare+: ${first}, you've been ${event} "${title}" on ${days[when.day]} at ${when.time}. Reply "can't make it" if something comes up.`;
+  const ask = event === 'moved'
+    ? `${first}, plans changed. Can you still ${askPhrase(title)} ${whenText(when)}?`
+    : `${first}, can you ${askPhrase(title)} ${whenText(when)}?`;
+  return `${ask}\n\n${answerLine}`;
 }
 
 const changeSchema = z.object({
