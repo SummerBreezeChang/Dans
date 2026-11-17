@@ -75,7 +75,7 @@ export function Join({ who }: { who: string }) {
       </div>
       <div className="c-join-end">
         <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => setStep(1)}>I'd like to help</button>
-        <Link to="/" className="c-link c-center">Not right now</Link>
+        <button type="button" className="c-link c-center" onClick={() => setStep(5)}>Not right now</button>
       </div>
     </div>
   );
@@ -145,6 +145,18 @@ export function Join({ who }: { who: string }) {
       </div>
       <div className="c-join-end">
         <button type="button" className="c-btn c-btn-main c-btn-full" disabled={saving} onClick={finish}>{saving ? 'Saving' : 'Finish'}</button>
+      </div>
+    </div>
+  );
+
+  if (step === 5) return (
+    <div className="c-join">
+      <div className="c-join-top c-join-hero">
+        <h1 className="c-title c-title-big">No problem, {invite.name}.</h1>
+        <p className="c-body">Nothing is asked of you. If you change your mind, use the same link.</p>
+      </div>
+      <div className="c-join-end">
+        <button type="button" className="c-btn c-btn-main c-btn-full" onClick={() => setStep(0)}>Change my mind</button>
       </div>
     </div>
   );

@@ -31,6 +31,9 @@ export const saveLead = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => z.object({ name: z.string().trim().min(1).max(40), phone: z.string().trim().min(7).max(20) }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+    // The demo is open to anyone. Once the owner's number is saved, nobody else can overwrite it from the setup screen.
+    const { data: lead } = await db.from('care_caregivers').select('phone').eq('id', leadId).maybeSingle();
+    if (lead?.phone) return { ok: true };
     const { error } = await db.from('care_caregivers').update({ name: data.name, phone: data.phone }).eq('id', leadId);
     return { ok: !error };
   });

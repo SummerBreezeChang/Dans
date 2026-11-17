@@ -56,7 +56,6 @@ export function People() {
         })}
       </div>
       <Link to="/start" className="c-btn c-btn-main c-btn-full">Invite someone</Link>
-      <Link to="/circle" className="c-link">Change free times and limits</Link>
     </>
   );
 }
@@ -79,7 +78,6 @@ export function More() {
           <button type="button" className="c-btn c-btn-small" aria-pressed={liveSms} onClick={() => (liveSms ? setLive(false) : setAsking('live'))}>{liveSms ? 'Turn off' : 'Turn on'}</button>
         </li>
         <li><Link to="/notifications" className="c-row c-row-tall"><span className="c-stack"><strong>Notifications</strong><small>What Dans texts you about</small></span></Link></li>
-        <li><Link to="/wearables" className="c-row c-row-tall"><span className="c-stack"><strong>Wellness</strong><small>Sleep and heart readings Maya shares</small></span></Link></li>
         <li><Link to="/start" className="c-row c-row-tall"><span className="c-stack"><strong>Invite the circle</strong><small>Ask Maya first, then send links</small></span></Link></li>
         <li className="c-row c-row-tall">
           <span className="c-stack"><strong>Start the week over</strong><small>Puts the demo week back as it began</small></span>

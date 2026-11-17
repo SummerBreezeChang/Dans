@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
 import { byTime, doesWhat, numberWord, firstName, shortTitle, shortWhen, visitsFor, dayHeading, weekPossessive, weekTitle } from '@/lib/week';
 import { fits, nextOpen } from '@/lib/weekPlan';
@@ -10,8 +10,16 @@ import { Handover, Requests } from './requests';
 
 const ME = 'summer';
 
+/** Has this phone already been through setup? Read straight from the saved copy so a refresh does not bounce anyone. */
+function hasSetUp() {
+  try { return JSON.parse(localStorage.getItem('firstcare-demo-v2') ?? 'null')?.named === true; } catch { return true; }
+}
+
 export function Home() {
   const { state, askPerson, takeTask } = useCare();
+  const navigate = useNavigate();
+  // The front door: a phone that has not been through setup starts there, not on a sample week.
+  useEffect(() => { if (!hasSetUp()) void navigate({ to: '/start', replace: true }); }, [navigate]);
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<string>();
   const tasks = state.tasks.filter(t => t.published);
