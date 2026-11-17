@@ -211,3 +211,35 @@
 .c-ask-body{margin-top:2px;line-height:20px}
 .c-next{align-self:flex-start;min-width:44px;min-height:44px;margin:-10px -8px 0 0;padding:0;border:0;background:transparent;font-family:inherit;font-size:13px;line-height:16px;font-weight:600;color:var(--ink)}
 .c-group-head small{font-size:14px}
+
+/* Helper joins from an invite. Paper: "Dans · mobile flow", A1 to A5. Soft surfaces, no divider lines. */
+.c-join{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:100dvh;padding:max(20px,env(safe-area-inset-top)) 24px max(32px,env(safe-area-inset-bottom))}
+.c-join-top{display:flex;flex-direction:column;gap:20px}
+.c-join-hero{padding-top:72px}
+.c-join-end{display:flex;flex-direction:column;gap:12px}
+.c-step{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.c-btn-full{width:100%;min-height:52px;border-radius:14px;font-size:16px;text-decoration:none}
+.c-btn-full:disabled{opacity:1;background:var(--surface);color:var(--muted-foreground)}
+.c-soft{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:16px;background:var(--mint-soft);font-size:15px;line-height:22px;color:var(--body)}
+.c-soft strong{font-weight:600;line-height:18px;color:var(--ink)}
+.c-picks{display:flex;flex-direction:column;gap:8px}
+.c-pick{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px;border:0;border-radius:16px;background:var(--surface);font-family:inherit;text-align:left;color:var(--ink)}
+.c-pick strong{font-size:16px;line-height:20px;font-weight:600}
+.c-pick small{font-size:14px;line-height:18px;color:var(--muted-foreground)}
+.c-pick-tile{width:40px;height:40px;border-radius:12px;background:#fff}
+.c-pick.is-on{background:var(--mint-soft)}
+.c-pick.is-on .c-pick-tile{background:var(--mint)}
+.c-pick.is-on small{color:var(--body)}
+.c-check{display:flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0;border-radius:999px;background:#fff;color:var(--canvas)}
+.c-check.is-on{background:var(--ink)}
+.c-week{display:flex;flex-direction:column;gap:6px}
+.c-week-row{display:flex;align-items:center;gap:6px}
+.c-week-day{width:44px;flex-shrink:0;font-size:14px;line-height:18px;font-weight:600;color:var(--ink)}
+.c-week-head{flex:1;font-size:12px;line-height:16px;font-weight:600;text-align:center;color:var(--muted-foreground)}
+.c-cell{flex:1;height:44px;padding:0;border:0;border-radius:10px;background:var(--surface)}
+.c-cell.is-on{background:var(--mint)}
+.c-stepper{display:flex;align-items:center;gap:16px}
+.c-stepper-btn{width:52px;height:52px;border:0;border-radius:14px;background:var(--surface);font-family:inherit;font-size:24px;line-height:30px;color:var(--ink)}
+.c-stepper-btn:disabled{color:var(--muted-foreground)}
+.c-stepper-num{width:48px;font-family:var(--font-display);font-weight:500;font-size:40px;line-height:48px;text-align:center;color:var(--ink)}
+.c-pick:focus-visible,.c-cell:focus-visible,.c-stepper-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}

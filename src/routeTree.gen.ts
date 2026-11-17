@@ -21,6 +21,7 @@ import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as WearablesRouteImport } from './routes/wearables'
+import { Route as JoinWhoRouteImport } from './routes/join.$who'
 import { Route as VisitsIndexRouteImport } from './routes/visits.index'
 import { Route as ApiPublicLinqWebhookRouteImport } from './routes/api.public.linq-webhook'
 import { Route as ApiPublicRemindRouteImport } from './routes/api.public.remind'
@@ -88,6 +89,11 @@ const WearablesRoute = WearablesRouteImport.update({
   path: '/wearables',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JoinWhoRoute = JoinWhoRouteImport.update({
+  id: '/join/$who',
+  path: '/join/$who',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VisitsIndexRoute = VisitsIndexRouteImport.update({
   id: '/visits/',
   path: '/visits/',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
+  '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/remind': typeof ApiPublicRemindRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
+  '/join/$who': typeof JoinWhoRoute
   '/visits': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/remind': typeof ApiPublicRemindRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/wearables': typeof WearablesRoute
+  '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
   '/api/public/linq-webhook': typeof ApiPublicLinqWebhookRoute
   '/api/public/remind': typeof ApiPublicRemindRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/signup'
     | '/wearables'
+    | '/join/$who'
     | '/visits/'
     | '/api/public/linq-webhook'
     | '/api/public/remind'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/signup'
     | '/wearables'
+    | '/join/$who'
     | '/visits'
     | '/api/public/linq-webhook'
     | '/api/public/remind'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/signup'
     | '/wearables'
+    | '/join/$who'
     | '/visits/'
     | '/api/public/linq-webhook'
     | '/api/public/remind'
@@ -256,6 +268,7 @@ export interface RootRouteChildren {
   SetupRoute: typeof SetupRoute
   SignupRoute: typeof SignupRoute
   WearablesRoute: typeof WearablesRoute
+  JoinWhoRoute: typeof JoinWhoRoute
   VisitsIndexRoute: typeof VisitsIndexRoute
   ApiPublicLinqWebhookRoute: typeof ApiPublicLinqWebhookRoute
   ApiPublicRemindRoute: typeof ApiPublicRemindRoute
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WearablesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/join/$who': {
+      id: '/join/$who'
+      path: '/join/$who'
+      fullPath: '/join/$who'
+      preLoaderRoute: typeof JoinWhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visits/': {
       id: '/visits/'
       path: '/visits'
@@ -408,6 +428,7 @@ const rootRouteChildren: RootRouteChildren = {
   SetupRoute: SetupRoute,
   SignupRoute: SignupRoute,
   WearablesRoute: WearablesRoute,
+  JoinWhoRoute: JoinWhoRoute,
   VisitsIndexRoute: VisitsIndexRoute,
   ApiPublicLinqWebhookRoute: ApiPublicLinqWebhookRoute,
   ApiPublicRemindRoute: ApiPublicRemindRoute,
