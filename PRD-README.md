@@ -31,7 +31,7 @@ FirstCare+ is a caregiver-coordination app. It helps a patient or primary caregi
 - Functional requirements (P0 = hackathon build)
 - Assignment logic
 - Notifications
-- Integrations (hospital record connection starting with Kaiser; AI via Lovable's built-in AI; Linq messaging is optional)
+- Integrations (hospital record connection starting with Kaiser; Linq messaging is optional)
 - Privacy
 - Hackathon build plan (4 hours)
 - Version 2: wearables (Apple Watch, Garmin, Oura and similar) feeding data back for caregiver review
@@ -40,16 +40,14 @@ FirstCare+ is a caregiver-coordination app. It helps a patient or primary caregi
 ## Hackathon constraints
 
 - 4 hours, team of 3
-- 100 Lovable credits; the demo must be shown on Lovable (our sponsor)
 - Synthetic demo data only; no real notifications are sent in the prototype
 
 ## Tech
 
-- Lovable app (React, Vite, Tailwind, Supabase), synced two-way with GitHub
+- React, Vite, Tailwind, Supabase, deployed on Vercel from GitHub
 - Messaging via Linq (iMessage/RCS/SMS) is optional
 
 ## Team workflow
 
 - GitHub is the shared source of truth. Pull before you start, commit small, push often.
-- Use Lovable only for changes that need its AI, since credits are charged only when Lovable's AI edits code.
 - One person edits a given screen at a time to avoid merge conflicts.

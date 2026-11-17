@@ -21,7 +21,7 @@ FirstCare+ is a phone-first web app. Six screens, three seconds each:
 
 ![FirstCare+ onboarding: who you care for, connect Kaiser, the checklist, the circle, the group text](docs/firstcare-onboarding.gif)
 
-The guided setup at [/setup](https://firstcareplus.lovable.app/setup) walks through everything the app does. Each screen holds for three seconds.
+The guided setup at [/setup](https://dans-support.vercel.app/setup) walks through everything the app does. Each screen holds for three seconds.
 
 1. **Welcome.** Set up a care circle.
 2. **Who are you caring for?** Name, relationship, and what she is going through.
@@ -48,7 +48,7 @@ The flow in seven steps, with screens from the live app. Each step holds for abo
 6. **Messaging.** Each caregiver gets one clear text. A reply of "can't make it" passes the task to the next person. No medical details in the text.
 7. **Closing.** No one should do it alone.
 
-Try it: https://firstcareplus.lovable.app · Guided setup: https://firstcareplus.lovable.app/setup · Slides: [FirstCare-demo-deck.pdf](public/FirstCare-demo-deck.pdf)
+Try it: https://dans-support.vercel.app · Guided setup: https://dans-support.vercel.app/setup · Slides: [FirstCare-demo-deck.pdf](public/FirstCare-demo-deck.pdf)
 
 _These two GIFs and sections were added after the submission deadline._
 
@@ -79,7 +79,7 @@ _These two GIFs and sections were added after the submission deadline._
 - Functional requirements (P0 = hackathon build)
 - Assignment logic
 - Notifications
-- Integrations (hospital record connection starting with Kaiser; AI via Lovable's built-in AI; Linq messaging is optional)
+- Integrations (hospital record connection starting with Kaiser; Linq messaging is optional)
 - Privacy
 - Hackathon build plan (4 hours)
 - Version 2: wearables (Apple Watch, Garmin, Oura and similar) feeding data back for caregiver review
@@ -88,16 +88,14 @@ _These two GIFs and sections were added after the submission deadline._
 ## Hackathon constraints
 
 - 4 hours, team of 3
-- 100 Lovable credits; the demo must be shown on Lovable (our sponsor)
 - Synthetic demo data only; no real notifications are sent in the prototype
 
 ## Tech
 
-- Lovable app (React, Vite, Tailwind, Supabase), synced two-way with GitHub
+- React, Vite, Tailwind, Supabase, deployed on Vercel from GitHub
 - Messaging via Linq (iMessage/RCS/SMS) is optional
 
 ## Team workflow
 
 - GitHub is the shared source of truth. Pull before you start, commit small, push often.
-- Use Lovable only for changes that need its AI, since credits are charged only when Lovable's AI edits code.
 - One person edits a given screen at a time to avoid merge conflicts.
