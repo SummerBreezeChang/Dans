@@ -16,7 +16,7 @@ const about: Record<Help, string> = {
 const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const slots = ['Morning', 'Afternoon', 'Evening'] as const;
 
-function Check({ on }: { on: boolean }) {
+export function Check({ on }: { on: boolean }) {
   return (
     <span className={on ? 'c-check is-on' : 'c-check'} aria-hidden="true">
       {on && <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5" /></svg>}
