@@ -5,10 +5,10 @@ import { NavIcon } from './parts';
 // The calm shell: one column, four places to go. Nothing else on the frame.
 
 const places = [
-  { to: '/', label: 'Home' },
-  { to: '/visits', label: 'Visits' },
-  { to: '/people', label: 'Circle' },
-  { to: '/more', label: 'Settings' },
+  { to: '/', label: 'Home', icon: 'Home' },
+  { to: '/visits', label: 'Visits', icon: 'Visits' },
+  { to: '/people', label: 'Circle', icon: 'Circle' },
+  { to: '/more', label: 'More', icon: 'Settings' },
 ] as const;
 
 export function CalmShell({ children }: { children: ReactNode }) {
@@ -20,7 +20,7 @@ export function CalmShell({ children }: { children: ReactNode }) {
       <nav className="c-nav" aria-label="Main">
         {places.map(p => (
           <Link key={p.to} to={p.to} className={here(p.to) ? 'c-nav-item is-here' : 'c-nav-item'} aria-current={here(p.to) ? 'page' : undefined}>
-            <NavIcon name={p.label} filled={here(p.to)} />
+            <NavIcon name={p.icon} filled={here(p.to)} />
             <span>{p.label}</span>
           </Link>
         ))}

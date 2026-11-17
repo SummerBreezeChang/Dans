@@ -30,7 +30,7 @@ export function smsKey(taskId: string, personId: string, event: 'assigned' | 're
 
 const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 /** "Thu, Nov 19 at 12:30 PM". The demo week starts Monday, Nov 16. */
-export const whenText = (when: When) => `${shortDays[when.day] ?? ''}, Nov ${16 + when.day} at ${when.time}`;
+export const whenText = (when: When) => when.day === 7 ? `Mon, Nov 23 at ${when.time}` : `${shortDays[when.day] ?? ''}, Nov ${16 + when.day} at ${when.time}`;
 
 /** How to answer any ask: one tap, or one word. */
 export const answerLine = '\u{1F44D} reply YES / \u{1F44E} reply PASS';
@@ -84,7 +84,7 @@ const changeSchema = z.object({
     owner: z.string().max(80).nullable(),
     status: z.enum(['unclaimed', 'assigned', 'accepted', 'done']),
     event: z.enum(['assigned', 'reassigned', 'moved']),
-    day: z.number().int().min(0).max(6).optional(),
+    day: z.number().int().min(0).max(7).optional(),
     slot: z.enum(['Morning', 'Afternoon', 'Evening']).optional(),
     time: z.string().max(20).optional(),
   })).max(30),
@@ -114,4 +114,32 @@ export const syncAssignments = createServerFn({ method: 'POST' })
       if (r.ok) sent++;
     }
     return { sent };
+  });
+
+const weekRow = z.object({
+  id: z.string().regex(/^task-\d{1,4}$/),
+  title: z.string().max(80),
+  category: z.string().max(80),
+  day: z.number().int().min(0).max(7),
+  slot: z.enum(['Morning', 'Afternoon', 'Evening']),
+  time: z.string().max(20),
+  published: z.boolean(),
+  owner: z.string().max(80).nullable(),
+  status: z.enum(['unclaimed', 'assigned', 'accepted', 'done']),
+});
+
+/** Writes the demo checklist rows. Existing task ids are updated. New ones are inserted. */
+export const saveWeek = createServerFn({ method: 'POST' })
+  .inputValidator((d: unknown) => z.object({ tasks: z.array(weekRow).max(24) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+    for (const t of data.tasks) {
+      const row = { id: t.id, title: t.title, category: t.category, day: t.day, slot: t.slot, time: t.time, published: t.published, owner: t.owner, status: t.status, declined_by: [], updated_at: new Date().toISOString() };
+      const { data: existing } = await db.from('care_tasks').select('id').eq('id', t.id).maybeSingle();
+      const { error } = existing
+        ? await db.from('care_tasks').update(row).eq('id', t.id)
+        : await db.from('care_tasks').insert(row);
+      if (error) return { ok: false };
+    }
+    return { ok: true };
   });
