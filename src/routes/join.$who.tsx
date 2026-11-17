@@ -7,6 +7,12 @@ function Page() {
 }
 
 export const Route = createFileRoute('/join/$who')({
-  head: () => ({ meta: [{ title: 'Help Maya | Dans' }] }),
+  head: () => ({ meta: [
+    { title: 'You are invited | Dans' },
+    { name: 'description', content: 'Open to see what is needed.' },
+    { property: 'og:title', content: 'You are invited' },
+    { property: 'og:description', content: 'Open to see what is needed.' },
+    { name: 'twitter:card', content: 'summary' },
+  ] }),
   component: Page,
 });

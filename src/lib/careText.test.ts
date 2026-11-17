@@ -37,8 +37,11 @@ describe('one-phone sandbox', () => {
   it('skips a person with no phone when no sandbox number is set', () => {
     expect(routeText(null, 'Mary', undefined)).toBeNull();
   });
-  it('sends every text to the sandbox phone, tagged with who it was for', () => {
-    expect(routeText('+14155550142', 'Henry', '+14155550199')).toEqual({ to: '+14155550199', prefix: '[To Henry] ' });
-    expect(routeText(null, 'Mary Lin', '(415) 555-0199')).toEqual({ to: '+14155550199', prefix: '[To Mary] ' });
+  it('sends a text to the sandbox phone, tagged with who it was for, when the person has no phone', () => {
+    expect(routeText(null, 'Henry', '+14155550199')).toEqual({ to: '+14155550199', prefix: '[To Henry] ' });
+    expect(routeText(undefined, 'Mary Lin', '(415) 555-0199')).toEqual({ to: '+14155550199', prefix: '[To Mary] ' });
+  });
+  it('texts a person at their own number when one is saved, even in the sandbox', () => {
+    expect(routeText('(415) 555-0142', 'Hardika', '+14155550199')).toEqual({ to: '+14155550142', prefix: '' });
   });
 });

@@ -11,14 +11,15 @@ export function toE164(raw: string | undefined | null): string | null {
 
 /**
  * Where a text for this person should go.
- * With SMS_SANDBOX_TO set, every text goes to that one phone, tagged with who it was meant for,
- * so a whole circle can be tested from a single number. Otherwise it goes to the person's own phone.
+ * Someone with a phone saved is texted there, directly. That is how a teammate joins the test.
+ * Everyone else goes to the one SMS_SANDBOX_TO phone, tagged with who it was meant for,
+ * so a whole circle can be tested from a single number. With neither, nobody is texted.
  */
 export function routeText(phone: string | null | undefined, name: string, sandbox: string | undefined = process.env['SMS_SANDBOX_TO']) {
+  const own = toE164(phone);
+  if (own) return { to: own, prefix: '' };
   const test = toE164(sandbox);
-  if (test) return { to: test, prefix: `[To ${name.split(' ')[0]}] ` };
-  const to = toE164(phone);
-  return to ? { to, prefix: '' } : null;
+  return test ? { to: test, prefix: `[To ${name.split(' ')[0]}] ` } : null;
 }
 
 /** Deterministic UUID so retries of the same logical message never double-send. */
