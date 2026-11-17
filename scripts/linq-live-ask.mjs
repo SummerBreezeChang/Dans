@@ -7,7 +7,7 @@ const lh = { Authorization: 'Bearer ' + process.env.LINQ_API_TOKEN.trim(), 'Cont
 const sb = process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1';
 const sh = { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + process.env.SUPABASE_SERVICE_ROLE_KEY, 'Content-Type': 'application/json' };
 const e164 = v => { const d = v.replace(/\D/g, ''); return '+' + (d.length === 10 ? '1' + d : d); };
-const from = e164(process.env.LINQ_FROM_NUMBER), to = e164(process.env.SMS_SANDBOX_TO);
+const from = e164(process.env.LINQ_FROM_NUMBER);
 const get = async p => (await fetch(sb + p, { headers: sh })).json();
 
 const people = await get('/care_caregivers?select=id,name');
@@ -15,6 +15,9 @@ const tasks = await get('/care_tasks?select=id,title,day,time,owner,status');
 const name = id => people.find(p => p.id === id)?.name ?? 'nobody';
 const task = tasks.find(t => /prescription/i.test(t.title));
 const henry = people.find(p => /^henry/i.test(p.name));
+// Henry is texted at his own number when one is saved, otherwise at the test phone, tagged.
+const own = henry && (await get(`/care_caregivers?id=eq.${henry.id}&select=phone`))[0]?.phone;
+const to = own ? e164(own) : e164(process.env.SMS_SANDBOX_TO);
 if (!task || !henry) { console.log('Missing task or Henry', tasks.length, people.map(p => p.name)); process.exit(1); }
 
 if (process.argv[2] === 'check') {
@@ -25,7 +28,7 @@ if (process.argv[2] === 'check') {
 
 await fetch(`${sb}/care_tasks?id=eq.${task.id}`, { method: 'PATCH', headers: sh, body: JSON.stringify({ owner: henry.id, status: 'assigned', declined_by: [], updated_at: new Date().toISOString() }) });
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const question = `[To Henry] Henry, can you pick up Maya's prescriptions ${days[task.day]}, Nov ${16 + task.day} at ${task.time}?\n\n\u{1F44D} reply YES / \u{1F44E} reply PASS`;
+const question = `${own ? '' : '[To Henry] '}Henry, can you pick up Maya's prescriptions ${days[task.day]}, Nov ${16 + task.day} at ${task.time}?\n\n\u{1F44D} reply YES / \u{1F44E} reply PASS`;
 const first = await fetch(`${base}/chats`, { method: 'POST', headers: lh, body: JSON.stringify({ from, to: [to], message: { parts: [{ type: 'text', value: question }] } }) });
 const fj = await first.json().catch(() => ({}));
 const questionId = fj.chat?.message?.id ?? fj.message?.id ?? fj.message_id;

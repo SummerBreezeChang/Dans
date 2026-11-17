@@ -115,3 +115,18 @@ export async function sendAsk(key: string, to: string, question: string, typedAn
   await supabaseAdmin.from('care_sms_log').upsert(rows, { onConflict: 'key' });
   return { ok: true };
 }
+
+/** The reactions on a message right now, from people other than us. null if Linq cannot be reached. */
+export async function currentReactions(messageId: string): Promise<string[] | null> {
+  const apiToken = process.env['LINQ_API_TOKEN'];
+  if (!apiToken) return null;
+  try {
+    const res = await fetch(`${api}/messages/${messageId}`, { headers: { Authorization: `Bearer ${apiToken}` }, signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return null;
+    const j: any = await res.json();
+    const parts: any[] = j?.parts ?? j?.message?.parts ?? [];
+    return parts.flatMap(p => p?.reactions ?? []).filter((r: any) => r && !r.is_me).map((r: any) => String(r.type ?? r.reaction_type));
+  } catch {
+    return null;
+  }
+}

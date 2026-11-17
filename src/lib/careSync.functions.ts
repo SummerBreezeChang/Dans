@@ -56,13 +56,13 @@ export const leadId = 'summer';
 /** What the lead hears when a helper passes: who passed, and who Dans would ask next. */
 export function leadText(lead: string, passed: string, title: string, when: When, next: string | undefined) {
   const said = `${lead.split(' ')[0]}, ${passed.split(' ')[0]} can't ${askPhrase(title)} ${whenText(when)}.`;
-  return next ? `${said} ${next.split(' ')[0]} is free then. Ask ${next.split(' ')[0]}?` : `${said} Nobody else is free then. It's open in Dans.`;
+  return next ? `${said} ${next.split(' ')[0]} is free then. Ask ${next.split(' ')[0]}?` : `${said} Nobody else is free then. Can you take it?`;
 }
 
 /** What the lead hears when Dans has already asked the next person, or nobody is free. */
 export function passedText(lead: string, passed: string, title: string, when: When, next: string | undefined) {
   const said = `${lead.split(' ')[0]}, ${passed.split(' ')[0]} can't ${askPhrase(title)} ${whenText(when)}.`;
-  return next ? `${said} I asked ${next.split(' ')[0]}.` : `${said} Nobody else is free then. It's open in Dans.`;
+  return next ? `${said} I asked ${next.split(' ')[0]}.` : `${said} Nobody else is free then. Can you take it?`;
 }
 
 /** The morning-of reminder. Wording from Summer, 2026-11-16. */

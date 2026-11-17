@@ -17,7 +17,7 @@ describe('reminders and passes', () => {
       .toBe("Summer, Henry can't pick up Maya's prescriptions Thu, Nov 19 at 12:30 PM. Nancy is free then. Ask Nancy?");
   });
   it('says so when nobody is free', () => {
-    expect(leadText('Summer', 'Henry', 'Ride to blood draw', { day: 2, time: '7:45 AM' }, undefined)).toContain("Nobody else is free then. It's open in Dans.");
+    expect(leadText('Summer', 'Henry', 'Ride to blood draw', { day: 2, time: '7:45 AM' }, undefined)).toContain("Nobody else is free then. Can you take it?");
   });
   it('knows which day of the week it is, in Pacific time', () => {
     expect(todayInWeek(new Date('2026-11-19T15:00:00Z'))).toEqual({ date: '2026-11-19', day: 3, hour: 7 });
@@ -38,7 +38,7 @@ describe('passes handled by Dans', () => {
       .toBe("Summer, Henry can't pick up Maya's prescriptions Thu, Nov 19 at 12:30 PM. I asked Nancy.");
   });
   it('says so when nobody is free', () => {
-    expect(passedText('Summer', 'Henry', 'Ride to blood draw', { day: 2, time: '7:45 AM' }, undefined)).toContain("It's open in Dans.");
+    expect(passedText('Summer', 'Henry', 'Ride to blood draw', { day: 2, time: '7:45 AM' }, undefined)).toContain('Can you take it?');
   });
   it('asks the next person automatically unless told to check first', () => {
     expect(defaultPrefs).toEqual({ pass: 'auto', nobody: true, passed: false, note: true });
