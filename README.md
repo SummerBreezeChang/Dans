@@ -11,9 +11,10 @@ Dans is a care circle that runs by text. One person keeps the week moving, the p
 
 ## Who is in the circle
 
+![The three roles in Dans: our person, point person, her people](docs/readme/dans-roles.gif)
+
 | Our person | Point person | Her people |
 |---|---|---|
-| ![Maya's screens](docs/readme/dans-our-person.gif) | ![Summer's screens](docs/readme/dans-point-person.gif) | ![Henry's screens](docs/readme/dans-her-people.gif) |
 | **Maya.** The one the circle is for. | **Summer.** Owns the week and handles what is left. | **Henry and Nancy.** Family and friends who help. |
 | She is asked first. She decides what her people can see, sees who is coming, and tells Summer what would help. | She reviews the week once. Dans matches each task to someone who is free, and she only sees what nobody can take. | They get a link, say what they can do and when they are free, and set their own limit. After that it is one text at a time. No app, no login. |
 
