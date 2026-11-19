@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useCare } from '@/lib/careStore';
+import { getAuth, signOut } from '@/lib/auth.functions';
 import { getStart } from '@/lib/start.functions';
 import { firstName, numberWord, weekTitle } from '@/lib/week';
 import { CheckinRows } from './checkin';
@@ -64,6 +65,8 @@ export function People() {
 export function More() {
   const { liveSms, setLive, reset } = useCare();
   const [asking, setAsking] = useState<'reset' | 'live' | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => { getAuth().then(a => setSignedIn(!!a.session)).catch(() => undefined); }, []);
   return (
     <>
       <header className="c-head">
@@ -79,6 +82,12 @@ export function More() {
           <button type="button" className="c-btn c-btn-small" aria-pressed={liveSms} onClick={() => (liveSms ? setLive(false) : setAsking('live'))}>{liveSms ? 'Turn off' : 'Turn on'}</button>
         </li>
         <CheckinRows />
+        {signedIn && (
+          <li className="c-row c-row-tall">
+            <span className="c-stack"><strong>Sign out</strong><small>You will need a new code to come back</small></span>
+            <button type="button" className="c-btn c-btn-small" onClick={async () => { await signOut(); window.location.assign('/welcome'); }}>Sign out</button>
+          </li>
+        )}
         <li><Link to="/notifications" className="c-row c-row-tall"><span className="c-stack"><strong>Notifications</strong><small>What Dans texts you about</small></span></Link></li>
         <li><Link to="/start" className="c-row c-row-tall"><span className="c-stack"><strong>Invite the circle</strong><small>Ask Maya first, then send links</small></span></Link></li>
         <li className="c-row c-row-tall">

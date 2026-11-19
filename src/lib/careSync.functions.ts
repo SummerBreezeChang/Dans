@@ -4,6 +4,8 @@ import { z } from 'zod';
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export const getCareSync = createServerFn({ method: 'GET' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const [t, a, s] = await Promise.all([
     db.from('care_tasks').select('id,title,day,slot,time,published,owner,status,declined_by,updated_at'),
@@ -16,6 +18,8 @@ export const getCareSync = createServerFn({ method: 'GET' }).handler(async () =>
 export const setLiveSms = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => z.object({ live: z.boolean() }).parse(d))
   .handler(async ({ data }) => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
     await db.from('care_settings').update({ live_sms: data.live }).eq('id', 1);
     return { liveSms: data.live };
@@ -94,6 +98,8 @@ const changeSchema = z.object({
 export const syncAssignments = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => changeSchema.parse(d))
   .handler(async ({ data }) => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
     const { sendAsk, routeText } = await import('./linq.server');
     const [{ data: settings }, { data: people }, { data: tasks }] = await Promise.all([
@@ -132,6 +138,8 @@ const weekRow = z.object({
 export const saveWeek = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => z.object({ tasks: z.array(weekRow).max(24) }).parse(d))
   .handler(async ({ data }) => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
     for (const t of data.tasks) {
       const row = { id: t.id, title: t.title, category: t.category, day: t.day, slot: t.slot, time: t.time, published: t.published, owner: t.owner, status: t.status, declined_by: [], updated_at: new Date().toISOString() };
