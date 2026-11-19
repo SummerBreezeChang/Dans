@@ -192,6 +192,7 @@
 .c-fill-mint{background:var(--mint-soft)}
 .c-fill-stack{flex-direction:column;align-items:stretch}
 .c-fill .c-row{width:100%;padding:0;min-height:0}
+.c-fill textarea{width:100%;min-height:72px;padding:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:17px;line-height:24px;resize:none;outline:none}
 .c-nav-item{flex-direction:column;gap:4px;font-size:12px;line-height:16px}
 .c-card{display:flex;flex-direction:column;gap:4px;padding:16px;border-radius:20px;background:var(--surface)}
 .c-groups{gap:16px}
