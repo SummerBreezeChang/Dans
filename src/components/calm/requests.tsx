@@ -52,7 +52,7 @@ export function Requests({ title = 'Maya asked' }: { title?: string }) {
         return (
           <div key={r.id} className="c-stack">
             <h2 className="c-ask-title">{r.text}</h2>
-            <p className="c-ask-body">Dans would add: {requestTitle[g.help]}, {whenLabel(g.day, g.time)}.</p>
+            <p className="c-ask-body">Dans would add: {requestTitle[g.help]}<br /><span className="c-nowrap">{whenLabel(g.day, g.time)}</span></p>
             <div className="c-ask-actions">
               <button type="button" className="c-btn c-btn-main" disabled={busy === r.id} onClick={() => void decide(r, 'added')}>Add to the week</button>
               <button type="button" className="c-btn c-btn-white" disabled={busy === r.id} onClick={() => void decide(r, 'declined')}>Not now</button>
