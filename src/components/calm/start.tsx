@@ -247,7 +247,7 @@ export function Maya() {
         <div className="c-chips">
           {['A meal', 'A ride', 'Company'].map(c => <button type="button" key={c} className={words === c ? 'c-chip is-on' : 'c-chip'} onClick={() => setWords(c)}>{c}</button>)}
         </div>
-        <label className="c-fill">In your words<textarea value={words} maxLength={280} onChange={e => setWords(e.target.value)} /></label>
+        <label className="c-fill c-fill-stack">In your words<textarea rows={3} value={words} maxLength={280} onChange={e => setWords(e.target.value)} /></label>
         {failed && <p className="c-body" role="alert">That didn't send. Try again.</p>}
       </div>
       <div className="c-join-end">
