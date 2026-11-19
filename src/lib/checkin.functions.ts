@@ -45,12 +45,16 @@ export const saveCheckin = createServerFn({ method: 'POST' })
 
 /** Summer starts the check-in by hand (the demo, or a week that needs one early). */
 export const startCheckin = createServerFn({ method: 'POST' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { sendCheckins } = await import('./checkin.server');
   return sendCheckins();
 });
 
 /** Matches the week from the database now. Used when Summer confirms the week, and by the Tuesday run. */
 export const matchWeekNow = createServerFn({ method: 'POST' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { matchThisWeek } = await import('./checkin.server');
   return matchThisWeek();
 });

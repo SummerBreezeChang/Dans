@@ -12,6 +12,8 @@ export const scopes = ['tasks', 'visits'] as const;
 export type Scope = (typeof scopes)[number];
 
 export const getStart = createServerFn({ method: 'GET' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const [{ data: people }, { data: log }, { data: consent }] = await Promise.all([
     db.from('care_caregivers').select('id,name'),
@@ -30,6 +32,8 @@ export const getStart = createServerFn({ method: 'GET' }).handler(async () => {
 export const saveLead = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => z.object({ name: z.string().trim().min(1).max(40), phone: z.string().trim().min(7).max(20) }).parse(d))
   .handler(async ({ data }) => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
     // The demo is open to anyone. Once the owner's number is saved, nobody else can overwrite it from the setup screen.
     const { data: lead } = await db.from('care_caregivers').select('phone').eq('id', leadId).maybeSingle();
@@ -87,6 +91,8 @@ export const sendNote = createServerFn({ method: 'POST' })
 
 /** Summer's side: Maya's notes with what has been done about each. */
 export const getRequests = createServerFn({ method: 'GET' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const { data } = await db.from('care_activity').select('id,title,detail,created_at').in('title', [noteTitle, addedTitle, declinedTitle]).order('created_at', { ascending: false }).limit(100);
   return deriveRequests((data ?? []) as ActivityRow[]);
@@ -96,6 +102,8 @@ export const getRequests = createServerFn({ method: 'GET' }).handler(async () =>
 export const resolveRequest = createServerFn({ method: 'POST' })
   .inputValidator((d: unknown) => z.object({ id: z.string().min(8).max(64), action: z.enum(['added', 'declined']), taskId: z.string().regex(/^task-\d{1,4}$/).optional() }).parse(d))
   .handler(async ({ data }) => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
     const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
     const { data: note } = await db.from('care_activity').select('id').eq('id', data.id).eq('title', noteTitle).maybeSingle();
     if (!note) return { ok: false };
@@ -108,6 +116,8 @@ const askedTitle = 'Maya asked Summer to run the week';
 const tookTitle = 'Summer took over the week';
 
 export const getHandover = createServerFn({ method: 'GET' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const { data } = await db.from('care_activity').select('title,created_at').in('title', [askedTitle, tookTitle]).order('created_at', { ascending: false }).limit(5);
   const latest = data?.[0]?.title;
@@ -115,6 +125,8 @@ export const getHandover = createServerFn({ method: 'GET' }).handler(async () =>
 });
 
 export const askHandover = createServerFn({ method: 'POST' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const { loadPrefs } = await import('./notify.functions');
   const { sendOnce, routeText } = await import('./linq.server');
@@ -127,6 +139,8 @@ export const askHandover = createServerFn({ method: 'POST' }).handler(async () =
 });
 
 export const takeOver = createServerFn({ method: 'POST' }).handler(async () => {
+    const { guard } = await import('./auth.server');
+    await guard('owner');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const { error } = await db.from('care_activity').insert({ title: tookTitle, detail: 'Summer is the admin now.' });
   return { ok: !error };

@@ -304,3 +304,14 @@
 .c-bar-wide i[data-pct="10"]{width:10%}.c-bar-wide i[data-pct="20"]{width:20%}.c-bar-wide i[data-pct="30"]{width:30%}.c-bar-wide i[data-pct="40"]{width:40%}.c-bar-wide i[data-pct="50"]{width:50%}.c-bar-wide i[data-pct="60"]{width:60%}.c-bar-wide i[data-pct="70"]{width:70%}.c-bar-wide i[data-pct="80"]{width:80%}.c-bar-wide i[data-pct="90"]{width:90%}.c-bar-wide i[data-pct="100"]{width:100%}
 .c-btn-line{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--ink);border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-weight:600;text-decoration:none}
 .c-link-row{display:block;color:inherit;text-decoration:none}
+
+/* Sign in. Paper: "Dans · mobile flow", G0 to G4. */
+.c-field{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:16px;background:var(--surface);font-size:13px;line-height:16px;font-weight:600;color:var(--muted-foreground)}
+.c-field input{width:100%;padding:0;border:0;background:transparent;font-family:inherit;font-size:20px;line-height:26px;font-weight:400;color:var(--ink);outline:none}
+.c-field:focus-within{outline:2px solid var(--ink);outline-offset:2px}
+.c-field-code input{font-family:var(--font-display);font-size:32px;line-height:40px;font-weight:500;letter-spacing:.3em}
+.c-notice{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:16px;background:var(--peach-soft);font-size:15px;line-height:20px;color:var(--body)}
+.c-notice strong{font-size:16px;line-height:20px;color:var(--ink)}
+.c-btn-soft{background:var(--surface)}
+.c-center-text{text-align:center}
+.c-btn-full:disabled{opacity:1;background:var(--surface);color:var(--muted-foreground)}

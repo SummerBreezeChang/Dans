@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as CircleRouteImport } from './routes/circle'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MayaRouteImport } from './routes/maya'
 import { Route as MoreRouteImport } from './routes/more'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -25,6 +26,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as WearablesRouteImport } from './routes/wearables'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as CheckinWhoRouteImport } from './routes/checkin.$who'
 import { Route as JoinWhoRouteImport } from './routes/join.$who'
 import { Route as VisitsIndexRouteImport } from './routes/visits.index'
@@ -57,6 +59,11 @@ const ChecklistRoute = ChecklistRouteImport.update({
 const CircleRoute = CircleRouteImport.update({
   id: '/circle',
   path: '/circle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MayaRoute = MayaRouteImport.update({
@@ -114,6 +121,11 @@ const WearablesRoute = WearablesRouteImport.update({
   path: '/wearables',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckinWhoRoute = CheckinWhoRouteImport.update({
   id: '/checkin/$who',
   path: '/checkin/$who',
@@ -161,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
+  '/login': typeof LoginRoute
   '/maya': typeof MayaRoute
   '/more': typeof MoreRoute
   '/notifications': typeof NotificationsRoute
@@ -172,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
+  '/welcome': typeof WelcomeRoute
   '/checkin/$who': typeof CheckinWhoRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
@@ -187,6 +201,7 @@ export interface FileRoutesByTo {
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
+  '/login': typeof LoginRoute
   '/maya': typeof MayaRoute
   '/more': typeof MoreRoute
   '/notifications': typeof NotificationsRoute
@@ -198,6 +213,7 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
+  '/welcome': typeof WelcomeRoute
   '/checkin/$who': typeof CheckinWhoRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits': typeof VisitsIndexRoute
@@ -214,6 +230,7 @@ export interface FileRoutesById {
   '/board': typeof BoardRoute
   '/checklist': typeof ChecklistRoute
   '/circle': typeof CircleRoute
+  '/login': typeof LoginRoute
   '/maya': typeof MayaRoute
   '/more': typeof MoreRoute
   '/notifications': typeof NotificationsRoute
@@ -225,6 +242,7 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/summary': typeof SummaryRoute
   '/wearables': typeof WearablesRoute
+  '/welcome': typeof WelcomeRoute
   '/checkin/$who': typeof CheckinWhoRoute
   '/join/$who': typeof JoinWhoRoute
   '/visits/': typeof VisitsIndexRoute
@@ -242,6 +260,7 @@ export interface FileRouteTypes {
     | '/board'
     | '/checklist'
     | '/circle'
+    | '/login'
     | '/maya'
     | '/more'
     | '/notifications'
@@ -253,6 +272,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/summary'
     | '/wearables'
+    | '/welcome'
     | '/checkin/$who'
     | '/join/$who'
     | '/visits/'
@@ -268,6 +288,7 @@ export interface FileRouteTypes {
     | '/board'
     | '/checklist'
     | '/circle'
+    | '/login'
     | '/maya'
     | '/more'
     | '/notifications'
@@ -279,6 +300,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/summary'
     | '/wearables'
+    | '/welcome'
     | '/checkin/$who'
     | '/join/$who'
     | '/visits'
@@ -294,6 +316,7 @@ export interface FileRouteTypes {
     | '/board'
     | '/checklist'
     | '/circle'
+    | '/login'
     | '/maya'
     | '/more'
     | '/notifications'
@@ -305,6 +328,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/summary'
     | '/wearables'
+    | '/welcome'
     | '/checkin/$who'
     | '/join/$who'
     | '/visits/'
@@ -321,6 +345,7 @@ export interface RootRouteChildren {
   BoardRoute: typeof BoardRoute
   ChecklistRoute: typeof ChecklistRoute
   CircleRoute: typeof CircleRoute
+  LoginRoute: typeof LoginRoute
   MayaRoute: typeof MayaRoute
   MoreRoute: typeof MoreRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -332,6 +357,7 @@ export interface RootRouteChildren {
   StartRoute: typeof StartRoute
   SummaryRoute: typeof SummaryRoute
   WearablesRoute: typeof WearablesRoute
+  WelcomeRoute: typeof WelcomeRoute
   CheckinWhoRoute: typeof CheckinWhoRoute
   JoinWhoRoute: typeof JoinWhoRoute
   VisitsIndexRoute: typeof VisitsIndexRoute
@@ -377,6 +403,13 @@ declare module '@tanstack/react-router' {
       path: '/circle'
       fullPath: '/circle'
       preLoaderRoute: typeof CircleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maya': {
@@ -456,6 +489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WearablesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkin/$who': {
       id: '/checkin/$who'
       path: '/checkin/$who'
@@ -521,6 +561,7 @@ const rootRouteChildren: RootRouteChildren = {
   BoardRoute: BoardRoute,
   ChecklistRoute: ChecklistRoute,
   CircleRoute: CircleRoute,
+  LoginRoute: LoginRoute,
   MayaRoute: MayaRoute,
   MoreRoute: MoreRoute,
   NotificationsRoute: NotificationsRoute,
@@ -532,6 +573,7 @@ const rootRouteChildren: RootRouteChildren = {
   StartRoute: StartRoute,
   SummaryRoute: SummaryRoute,
   WearablesRoute: WearablesRoute,
+  WelcomeRoute: WelcomeRoute,
   CheckinWhoRoute: CheckinWhoRoute,
   JoinWhoRoute: JoinWhoRoute,
   VisitsIndexRoute: VisitsIndexRoute,

@@ -53,6 +53,15 @@ Each person has one record, and everything about them is found by their id. `nod
 
 Rules that keep it clear: a task with an owner is "assigned" or "accepted", and a task with no owner is "unclaimed". A person in `declined_by` is never the owner. Every ask in `care_sms_log` points at a real task and person. The report flags any that do not.
 
+## Sign in
+
+People sign in with a phone number and a six digit code sent by text. Only a person with a phone saved in the circle can sign in. Helpers and Maya keep using their own links.
+
+- It is off unless `LOGIN_REQUIRED=true` and `SESSION_SECRET` are both set, so a missing secret can never lock the owner out.
+- The code is worked out from the secret, so no table is needed. The code, the cookie and the guard are in `src/lib/auth.ts` and `src/lib/auth.server.ts`.
+- The owner's server functions start with `await guard('owner')`. Add it to any new function that reads or changes the owner's week.
+- Maya's and the helpers' functions are open by link on purpose. They can only be closed once Maya has a number saved and invite links carry a private code.
+
 ## Keys
 
 Keys live in `.env` on Summer's computer and in Vercel's environment settings. Names are in `.env.example`. Never print a key, paste one into a chat, or commit one. If you do not have a key, you cannot test texting or the database. Write code and tests that need neither.
