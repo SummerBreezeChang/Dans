@@ -4,9 +4,9 @@ When someone you love needs help, the hardest part is asking. Dans does the aski
 
 Dans is a care circle that runs by text. One person keeps the week moving, the people who want to help answer with a thumbs up or down, and the person at the center never has to ask each of them.
 
-[![Dans: the hardest part is asking](docs/readme/dans-cover.jpg)](https://youtu.be/bMaPqeCkb9E)
+[![Dans: the hardest part is asking](docs/readme/dans-cover.jpg)](https://youtu.be/JmEJ9EnoV6o)
 
-- **Watch the story (2:44):** https://youtu.be/bMaPqeCkb9E
+- **Watch the story (2:44):** https://youtu.be/JmEJ9EnoV6o
 - **Try the demo on your phone:** https://dans-support.vercel.app (sample data, no login yet)
 
 ## Who is in the circle
